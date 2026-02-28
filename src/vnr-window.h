@@ -105,6 +105,7 @@ struct _VnrWindow {
     GtkWidget *ss_timeout_widget;
 
     GtkActionGroup *action_wallpaper;
+    GtkActionGroup *action_copy;
 };
 
 struct _VnrWindowClass {
