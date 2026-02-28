@@ -110,6 +110,7 @@ const gchar *ui_definition = "<ui>"
       "<separator/>"
       "<menuitem action=\"ImageCrop\"/>"
       "<placeholder name=\"WallpaperEntry\"/>"
+      "<placeholder name=\"CopyEntry\"/>"
     "</menu>"
     "<menu action=\"Go\">"
       "<menuitem name=\"GoPrevious\" action=\"GoPrevious\"/>"
@@ -161,6 +162,7 @@ const gchar *ui_definition = "<ui>"
       "<separator/>"
       "<menuitem action=\"ImageCrop\"/>"
       "<placeholder name=\"WallpaperEntry\"/>"
+      "<placeholder name=\"CopyEntry\"/>"
     "</menu>"
     "<separator/>"
     "<menuitem action=\"EditPreferences\"/>"
@@ -195,6 +197,7 @@ const gchar *ui_definition = "<ui>"
     "<menuitem action=\"ViewZoomNormal\"/>"
     "<menuitem action=\"ViewZoomFit\"/>"
     "<placeholder name=\"WallpaperEntry\"/>"
+    "<placeholder name=\"CopyEntry\"/>"
     "<separator/>"
     "<menuitem name=\"MenuBar\" action=\"ViewMenuBar\"/>"
     "<menuitem name=\"Toolbar\" action=\"ViewToolbar\"/>"
@@ -232,6 +235,31 @@ const gchar *ui_definition_wallpaper = "<ui>"
     "<placeholder name=\"WallpaperEntry\">"
       "<separator/>"
       "<menuitem action=\"SetAsWallpaper\"/>"
+    "</placeholder>"
+  "</popup>"
+"</ui>";
+
+const gchar *ui_definition_copy = "<ui>"
+  "<menubar name=\"MainMenu\">"
+    "<menu action=\"Image\">"
+      "<placeholder name=\"CopyEntry\">"
+        "<separator/>"
+        "<menuitem name=\"Copy\" action=\"CopyImage\"/>"
+      "</placeholder>"
+    "</menu>"
+  "</menubar>"
+  "<popup name=\"ButtonMenu\">"
+    "<menu action=\"Image\">"
+      "<placeholder name=\"CopyEntry\">"
+        "<separator/>"
+        "<menuitem name=\"Copy\" action=\"CopyImage\"/>"
+      "</placeholder>"
+    "</menu>"
+  "</popup>"
+  "<popup name=\"PopupMenu\">"
+    "<placeholder name=\"CopyEntry\">"
+      "<separator/>"
+      "<menuitem action=\"CopyImage\"/>"
     "</placeholder>"
   "</popup>"
 "</ui>";
@@ -1077,8 +1105,8 @@ window_realize_cb(GtkWidget *widget, gpointer user_data)
     {
         if ( VNR_WINDOW(widget)->prefs->start_maximized ) {
             vnr_window_open(VNR_WINDOW(widget), FALSE);
-        } 
-        else 
+        }
+        else
         {
             GdkScreen *screen;
             GdkRectangle monitor;
@@ -1553,6 +1581,27 @@ vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
 }
 
 static void
+vnr_copy_image(GtkAction *action, VnrWindow *win)
+{
+    GdkPixbuf *view_pixbuf = uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(win->view));
+
+    if (view_pixbuf) {
+        GtkClipboard *clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+
+        gtk_clipboard_set_image(clipboard, view_pixbuf);
+
+        gtk_clipboard_store(clipboard);
+
+        vnr_message_area_show(VNR_MESSAGE_AREA(win->msg_area),
+                              FALSE,
+                              _("Image copied to clipboard."),
+                              FALSE);
+
+        g_timeout_add_seconds(3, (GSourceFunc)vnr_message_area_hide, VNR_MESSAGE_AREA(win->msg_area));
+    }
+}
+
+static void
 vnr_window_cmd_fullscreen (GtkAction *action, VnrWindow *window)
 {
     gboolean fullscreen = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
@@ -1886,6 +1935,12 @@ static const GtkActionEntry action_entry_wallpaper[] = {
       G_CALLBACK (vnr_set_wallpaper) },
 };
 
+static const GtkActionEntry action_entry_copy_image[] = {
+    { "CopyImage", NULL, N_("Copy image to clipboard"), "<control>C",
+      N_("Copy the image to the clipboard"),
+      G_CALLBACK (vnr_copy_image) },
+};
+
 static const GtkActionEntry action_entries_image[] = {
     { "FileOpenWith", NULL, N_("Open _With"), NULL,
       N_("Open the selected image with a different application"),
@@ -2075,14 +2130,17 @@ vnr_window_key_press (GtkWidget *widget, GdkEventKey *event)
             vnr_window_last(window);
             result = TRUE;
             break;
-        case 'h':
+        case GDK_KEY_h:
             vnr_window_cmd_flip_horizontal(NULL, window);
             break;
-        case 'v':
+        case GDK_KEY_v:
             vnr_window_cmd_flip_vertical(NULL, window);
             break;
-        case 'c':
-            vnr_window_cmd_crop(NULL, window);
+        case GDK_KEY_c:
+            // ctrl + c is used to copy, the bind is added in action_entry_copy_image
+            if (!(event->state & GDK_CONTROL_MASK)) {
+                vnr_window_cmd_crop(NULL, window);
+            }
             break;
     }
 
@@ -2308,6 +2366,27 @@ vnr_window_init (VnrWindow * window)
     }
     gtk_action_group_set_sensitive(window->action_wallpaper, FALSE);
 
+    window->action_copy = gtk_action_group_new("ActionCopy");
+
+    gtk_action_group_set_translation_domain (window->action_copy,
+                                             GETTEXT_PACKAGE);
+
+    gtk_action_group_add_actions (window->action_copy,
+                                  action_entry_copy_image,
+                                  G_N_ELEMENTS (action_entry_copy_image),
+                                  window);
+
+    gtk_ui_manager_insert_action_group (window->ui_mngr,
+                                        window->action_copy, 0);
+
+    if (!gtk_ui_manager_add_ui_from_string (window->ui_mngr,
+                                            ui_definition_copy, -1,
+                                            &error)) {
+            g_error ("building menus failed: %s\n", error->message);
+            g_error_free (error);
+    }
+    gtk_action_group_set_sensitive(window->action_copy, FALSE);
+
     gtk_action_group_set_sensitive(window->actions_collection, FALSE);
     gtk_action_group_set_sensitive(window->actions_image, FALSE);
     gtk_action_group_set_sensitive(window->actions_static_image, FALSE);
@@ -2485,6 +2564,7 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
 
     gtk_action_group_set_sensitive(window->actions_image, TRUE);
     gtk_action_group_set_sensitive(window->action_wallpaper, TRUE);
+    gtk_action_group_set_sensitive(window->action_copy, TRUE);
 
     format = gdk_pixbuf_get_file_info (file->path, NULL, NULL);
 
@@ -2611,6 +2691,7 @@ vnr_window_close(VnrWindow *window)
     uni_anim_view_set_anim (UNI_ANIM_VIEW (window->view), NULL);
     gtk_action_group_set_sensitive(window->actions_image, FALSE);
     gtk_action_group_set_sensitive(window->action_wallpaper, FALSE);
+    gtk_action_group_set_sensitive(window->action_copy, FALSE);
     gtk_action_group_set_sensitive(window->actions_static_image, FALSE);
 }
 
