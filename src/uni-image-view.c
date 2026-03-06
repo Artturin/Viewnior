@@ -509,9 +509,7 @@ uni_image_view_realize (GtkWidget * widget)
     GdkWindow *window = gdk_window_new (parent, &attrs, attr_mask);
     gtk_widget_set_window (widget, window);
     gdk_window_set_user_data (window, view);
-
-    GtkStyleContext *context = gtk_widget_get_style_context (widget);
-    gtk_style_context_set_background (context, window);
+    gtk_widget_register_window (widget, window);
 
     view->void_cursor = gdk_cursor_new (GDK_ARROW);
 }

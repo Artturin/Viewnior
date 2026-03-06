@@ -44,7 +44,7 @@ typedef struct _UniScrollWin UniScrollWin;
 typedef struct _UniScrollWinClass UniScrollWinClass;
 
 struct _UniScrollWin {
-    GtkTable parent;
+    GtkGrid parent;
 
     GtkWidget *hscroll;
     GtkWidget *vscroll;
@@ -61,7 +61,7 @@ struct _UniScrollWin {
 };
 
 struct _UniScrollWinClass {
-    GtkTableClass parent_class;
+    GtkGridClass parent_class;
 };
 
 GType       uni_scroll_win_get_type (void) G_GNUC_CONST;

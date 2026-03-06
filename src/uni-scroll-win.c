@@ -53,7 +53,7 @@ static const char *nav_button[] =
     "......  ......"
 };
 
-G_DEFINE_TYPE (UniScrollWin, uni_scroll_win, GTK_TYPE_TABLE);
+G_DEFINE_TYPE (UniScrollWin, uni_scroll_win, GTK_TYPE_GRID);
 
 /*************************************************************/
 /***** Static stuff ******************************************/
@@ -99,8 +99,8 @@ uni_scroll_win_set_view (UniScrollWin * window, UniImageView * view)
     GtkAdjustment *vadj;
     vadj = (GtkAdjustment *) g_object_new (GTK_TYPE_ADJUSTMENT, NULL);
 
-    window->hscroll = gtk_hscrollbar_new (hadj);
-    window->vscroll = gtk_vscrollbar_new (vadj);
+    window->hscroll = gtk_scrollbar_new (GTK_ORIENTATION_HORIZONTAL, hadj);
+    window->vscroll = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL, vadj);
 
     // We want to be notified when the adjustments change.
     g_signal_connect (hadj, "changed",
@@ -112,17 +112,15 @@ uni_scroll_win_set_view (UniScrollWin * window, UniImageView * view)
     gtk_scrollable_set_hadjustment(GTK_SCROLLABLE(view), hadj);
     gtk_scrollable_set_vadjustment(GTK_SCROLLABLE(view), vadj);
 
-    // Add the widgets to the table.
-    gtk_widget_push_composite_child ();
-    gtk_table_attach (GTK_TABLE (window), GTK_WIDGET (view), 0, 1, 0, 1,
-                      GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
-    gtk_table_attach (GTK_TABLE (window), window->vscroll, 1, 2, 0, 1,
-                      GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
-    gtk_table_attach (GTK_TABLE (window), window->hscroll, 0, 1, 1, 2,
-                      GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
-    gtk_table_attach (GTK_TABLE (window), window->nav_box, 1, 2, 1, 2,
-                      GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_widget_pop_composite_child ();
+    // Add the widgets to the grid.
+    gtk_widget_set_hexpand (GTK_WIDGET (view), TRUE);
+    gtk_widget_set_vexpand (GTK_WIDGET (view), TRUE);
+    gtk_grid_attach (GTK_GRID (window), GTK_WIDGET (view), 0, 0, 1, 1);
+    gtk_widget_set_vexpand (window->vscroll, TRUE);
+    gtk_grid_attach (GTK_GRID (window), window->vscroll, 1, 0, 1, 1);
+    gtk_widget_set_hexpand (window->hscroll, TRUE);
+    gtk_grid_attach (GTK_GRID (window), window->hscroll, 0, 1, 1, 1);
+    gtk_grid_attach (GTK_GRID (window), window->nav_box, 1, 1, 1, 1);
 
     // Create the UniNav popup.
     window->nav = uni_nav_new (view);
@@ -201,7 +199,6 @@ uni_scroll_win_init (UniScrollWin * window)
 
     gtk_widget_set_tooltip_text (window->nav_box,
                                  _("Open the navigator window"));
-    gtk_container_set_resize_mode(GTK_CONTAINER(window), GTK_RESIZE_IMMEDIATE);
 }
 
 static void
@@ -261,7 +258,7 @@ uni_scroll_win_class_init (UniScrollWinClass * klass)
  * Creates a new #UniScrollWin containing the #UniImageView.
  *
  * The widget is built using four subwidgets arranged inside a
- * #GtkTable with two columns and two rows. Two scrollbars, one
+ * #GtkGrid with two columns and two rows. Two scrollbars, one
  * navigator button (the decorations) and one #UniImageView.
  *
  * When the #UniImageView fits inside the window, the decorations are
@@ -271,9 +268,6 @@ GtkWidget *
 uni_scroll_win_new (UniImageView * view)
 {
     gpointer data = g_object_new (UNI_TYPE_SCROLL_WIN,
-                                  "n-columns", 2,
-                                  "n-rows", 2,
-                                  "homogeneous", FALSE,
                                   "view", view,
                                   NULL);
     return GTK_WIDGET (data);
