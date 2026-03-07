@@ -149,7 +149,9 @@ uni_nav_update_position (UniNav * nav)
     int screen_w = geom.width;
     int screen_h = geom.height;
 
-    /* Note: gtk_window_move is removed in GTK4; popup positioning is compositor-managed */
+    /* Note: gtk_window_move is removed in GTK4; popup positioning is compositor-managed.
+     * The center_x/center_y hints from the click event are available via nav->center_x/y
+     * but cannot be applied with gtk_window_move. */
     (void) x; (void) y; (void) pw; (void) rect; (void) off_x; (void) off_y;
     (void) screen_w; (void) screen_h;
 }

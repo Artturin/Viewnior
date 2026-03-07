@@ -193,6 +193,9 @@ uni_scroll_win_init (UniScrollWin * window)
                               G_CALLBACK (uni_scroll_win_nav_btn_pressed),
                               window);
     gtk_widget_add_controller (window->nav_box, GTK_EVENT_CONTROLLER (gesture));
+    /* Note: x,y from GtkGestureClick are widget-relative; since gtk_window_move
+     * is removed in GTK4, these coordinates are passed to uni_nav_show_and_grab
+     * but popup positioning is now compositor-managed. */
 
     gtk_widget_set_tooltip_text (window->nav_box,
                                  _("Open the navigator window"));

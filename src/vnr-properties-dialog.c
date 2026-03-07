@@ -143,6 +143,7 @@ vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
     GtkWidget *temp_label;
 
     gtk_window_set_title(GTK_WINDOW(dialog), _("Image Properties"));
+    /* Replaces the GTK3 delete-event signal: hide the window instead of destroying it */
     gtk_window_set_hide_on_close(GTK_WINDOW(dialog), TRUE);
 
     /* VBox containing the Location labels */
