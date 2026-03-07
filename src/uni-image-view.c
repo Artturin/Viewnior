@@ -80,7 +80,9 @@ struct _UniImageViewPrivate
 
 static guint uni_image_view_signals[LAST_SIGNAL] = { 0 };
 
-G_DEFINE_TYPE_WITH_CODE (UniImageView, uni_image_view, GTK_TYPE_WIDGET, G_IMPLEMENT_INTERFACE (GTK_TYPE_SCROLLABLE, NULL));
+G_DEFINE_TYPE_WITH_CODE (UniImageView, uni_image_view, GTK_TYPE_WIDGET,
+    G_ADD_PRIVATE (UniImageView)
+    G_IMPLEMENT_INTERFACE (GTK_TYPE_SCROLLABLE, NULL));
 
 /*************************************************************/
 /***** Static stuff ******************************************/
@@ -218,7 +220,7 @@ uni_image_view_zoom_to_fit (UniImageView * view, gboolean is_allocating)
 {
     Size img = uni_image_view_get_pixbuf_size (view);
     GtkAllocation alloc;
-    VnrWindow *vnr_win = VNR_WINDOW(gtk_widget_get_toplevel (GTK_WIDGET (view)));
+    VnrWindow *vnr_win = VNR_WINDOW(gtk_widget_get_root (GTK_WIDGET (view)));
     gtk_widget_get_allocation (GTK_WIDGET (vnr_win->scroll_view), &alloc);
 
     gdouble ratio_x = (gdouble) alloc.width / img.width;
@@ -244,8 +246,8 @@ uni_image_view_draw_background (UniImageView * view,
 
     cairo_save (cr);
     GtkStyleContext *context = gtk_widget_get_style_context (widget);
-    GtkStateFlags state = gtk_widget_get_state_flags (widget);
-    gtk_style_context_get_background_color (context, state, &rgba);
+    if (!gtk_style_context_lookup_color (context, "theme_bg_color", &rgba))
+        rgba = (GdkRGBA){0.5, 0.5, 0.5, 1.0};
     gdk_cairo_set_source_rgba (cr, &rgba);
 
     GdkRectangle borders[4];
@@ -320,106 +322,31 @@ uni_image_view_repaint_area (UniImageView * view, GdkRectangle * paint_rect, cai
     return TRUE;
 }
 
-/**
- * uni_image_view_fast_scroll:
- *
- * Actually scroll the views window using gdk_draw_drawable().
- * GTK_WIDGET (view)->window is guaranteed to be non-NULL in this
- * function.
- **/
 static void
 uni_image_view_fast_scroll (UniImageView * view, int delta_x, int delta_y)
 {
-    int src_x, src_y;
-    int dest_x, dest_y;
-    if (delta_x < 0)
-    {
-        src_x = 0;
-        dest_x = -delta_x;
-    }
-    else
-    {
-        src_x = delta_x;
-        dest_x = 0;
-    }
-    if (delta_y < 0)
-    {
-        src_y = 0;
-        dest_y = -delta_y;
-    }
-    else
-    {
-        src_y = delta_y;
-        dest_y = 0;
-    }
-
-    Size alloc = uni_image_view_get_allocated_size (view);
-    GdkWindow *window = gtk_widget_get_window (GTK_WIDGET (view));
-    cairo_t *cr = gdk_cairo_create (window);
-    GdkPixbuf *win = gdk_pixbuf_get_from_window (window, src_x, src_y, alloc.width - abs (delta_x), alloc.height - abs (delta_y));
-    gdk_cairo_set_source_pixbuf (cr, win, dest_x, dest_y);
-    cairo_paint (cr);
-    g_object_unref (win);
-
-    /* If we moved in both the x and y directions, two "strips" of the
-       image becomes visible. One horizontal strip and one vertical
-       strip. */
-    GdkRectangle horiz_strip = {
-        0,
-        (delta_y < 0) ? 0 : alloc.height - abs (delta_y),
-        alloc.width,
-        abs (delta_y)
-    };
-    uni_image_view_repaint_area (view, &horiz_strip, cr);
-
-    GdkRectangle vert_strip = {
-        (delta_x < 0) ? 0 : alloc.width - abs (delta_x),
-        0,
-        abs (delta_x),
-        alloc.height
-    };
-    uni_image_view_repaint_area (view, &vert_strip, cr);
-    cairo_destroy (cr);
+    gtk_widget_queue_draw (GTK_WIDGET (view));
 }
 
-/**
- * uni_image_view_scroll_to:
- * @offset_x: X part of the offset in zoom space coordinates.
- * @offset_y: Y part of the offset in zoom space coordinates.
- * @set_adjustments: whether to update the adjustments. Because this
- *   function is called from the adjustments callbacks, it needs to be
- *   %FALSE to prevent infinite recursion.
- * @invalidate: whether to invalidate the view or redraw immedately,
- *  see uni_image_view_set_offset()
- *
- * Set the offset of where in the image the #UniImageView should begin
- * to display image data.
- **/
 static void
 uni_image_view_scroll_to (UniImageView * view,
                           gdouble offset_x,
                           gdouble offset_y,
                           gboolean set_adjustments, gboolean invalidate)
 {
-    GdkWindow *window;
     int delta_x, delta_y;
 
     uni_image_view_clamp_offset (view, &offset_x, &offset_y);
 
-    /* Round avoids floating point to integer conversion errors. See
-     */
     delta_x = floor (offset_x - view->offset_x + 0.5);
     delta_y = floor (offset_y - view->offset_y + 0.5);
 
-    /* Exit early if the scroll was smaller than one (zoom space)
-       pixel. */
     if (delta_x == 0 && delta_y == 0)
         return;
 
     view->offset_x = offset_x;
     view->offset_y = offset_y;
 
-    window = gtk_widget_get_window (GTK_WIDGET (view));
     if (set_adjustments)
     {
         g_signal_handlers_block_by_data (G_OBJECT (view->priv->hadjustment), view);
@@ -430,13 +357,10 @@ uni_image_view_scroll_to (UniImageView * view,
         g_signal_handlers_unblock_by_data (G_OBJECT (view->priv->vadjustment), view);
     }
 
-    if (window)
-    {
-        if (invalidate)
-            gdk_window_invalidate_rect (window, NULL, TRUE);
-        else
-            uni_image_view_fast_scroll (view, delta_x, delta_y);
-    }
+    if (invalidate)
+        gtk_widget_queue_draw (GTK_WIDGET (view));
+    else
+        uni_image_view_fast_scroll (view, delta_x, delta_y);
 }
 
 static void
@@ -480,159 +404,175 @@ uni_image_view_scroll (UniImageView * view,
 /***** Private signal handlers *******************************/
 /*************************************************************/
 static void
-uni_image_view_realize (GtkWidget * widget)
-{
-    UniImageView *view = UNI_IMAGE_VIEW (widget);
-    gtk_widget_set_realized (widget, TRUE);
-
-    GtkAllocation allocation;
-    gtk_widget_get_allocation (widget, &allocation);
-
-    GdkWindowAttr attrs;
-    attrs.window_type = GDK_WINDOW_CHILD;
-    attrs.x = allocation.x;
-    attrs.y = allocation.y;
-    attrs.width = allocation.width;
-    attrs.height = allocation.height;
-    attrs.wclass = GDK_INPUT_OUTPUT;
-    attrs.visual = gtk_widget_get_visual (widget);
-    attrs.event_mask = (gtk_widget_get_events (widget)
-                        | GDK_SCROLL_MASK
-                        | GDK_EXPOSURE_MASK
-                        | GDK_BUTTON_MOTION_MASK
-                        | GDK_BUTTON_PRESS_MASK
-                        | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
-
-    int attr_mask = (GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL);
-    GdkWindow *parent = gtk_widget_get_parent_window (widget);
-
-    GdkWindow *window = gdk_window_new (parent, &attrs, attr_mask);
-    gtk_widget_set_window (widget, window);
-    gdk_window_set_user_data (window, view);
-
-    GtkStyleContext *context = gtk_widget_get_style_context (widget);
-    gtk_style_context_set_background (context, window);
-
-    view->void_cursor = gdk_cursor_new (GDK_ARROW);
-}
-
-static void
 uni_image_view_unrealize (GtkWidget * widget)
 {
     UniImageView *view = UNI_IMAGE_VIEW (widget);
-    gdk_cursor_unref (view->void_cursor);
+    if (view->void_cursor) {
+        g_object_unref (view->void_cursor);
+        view->void_cursor = NULL;
+    }
     GTK_WIDGET_CLASS (uni_image_view_parent_class)->unrealize (widget);
 }
 
 static void
-uni_image_view_size_allocate (GtkWidget * widget, GtkAllocation * alloc)
+uni_image_view_size_allocate (GtkWidget *widget, int width, int height, int baseline)
 {
     UniImageView *view = UNI_IMAGE_VIEW (widget);
-    if (gtk_widget_get_realized (widget))
-    {
-        gtk_widget_set_allocation (widget, alloc);
-    }
-    else
-    {
-        GtkWidget *window = VNR_WINDOW (gtk_widget_get_toplevel (widget))->scroll_view;
-        GtkAllocation allocation;
-        gtk_widget_get_allocation (window, &allocation);
-        gtk_widget_set_allocation (widget, &allocation);
-    }
 
     if (view->pixbuf && view->fitting != UNI_FITTING_NONE)
         uni_image_view_zoom_to_fit (view, TRUE);
 
     uni_image_view_clamp_offset (view, &view->offset_x, &view->offset_y);
-
     uni_image_view_update_adjustments (view);
-
-    if (gtk_widget_get_realized (widget))
-        gdk_window_move_resize (gtk_widget_get_window (widget),
-                                alloc->x, alloc->y,
-                                alloc->width, alloc->height);
 }
 
-static int
-uni_image_view_expose (GtkWidget * widget, cairo_t *cr)
+static void
+uni_image_view_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
     GtkAllocation allocation;
-    gtk_widget_get_allocation (GTK_WIDGET (VNR_WINDOW (gtk_widget_get_toplevel (widget))->scroll_view), &allocation);
+    GtkWidget *scroll_win = VNR_WINDOW(gtk_widget_get_root (widget))->scroll_view;
+    gtk_widget_get_allocation (GTK_WIDGET (scroll_win), &allocation);
     allocation.x = 0;
     allocation.y = 0;
-    return uni_image_view_repaint_area (UNI_IMAGE_VIEW (widget), &allocation, cr);
+
+    graphene_rect_t bounds = GRAPHENE_RECT_INIT(0, 0, (float)allocation.width, (float)allocation.height);
+    cairo_t *cr = gtk_snapshot_append_cairo (snapshot, &bounds);
+    GdkRectangle rect = {0, 0, allocation.width, allocation.height};
+    uni_image_view_repaint_area (UNI_IMAGE_VIEW (widget), &rect, cr);
+    cairo_destroy (cr);
 }
 
-static int
-uni_image_view_button_press (GtkWidget * widget, GdkEventButton * ev)
+static void
+uni_image_view_pressed_cb (GtkGestureClick *gesture, int n_press, double x, double y, UniImageView *view)
 {
-    gtk_widget_grab_focus(widget);
-    UniImageView *view = UNI_IMAGE_VIEW (widget);
-    VnrWindow *vnr_win = VNR_WINDOW(gtk_widget_get_toplevel(widget));
-    g_assert(gtk_widget_is_toplevel(GTK_WIDGET(vnr_win)));
+    gtk_widget_grab_focus (GTK_WIDGET (view));
+    VnrWindow *vnr_win = VNR_WINDOW(gtk_widget_get_root (GTK_WIDGET (view)));
+    guint button = gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (gesture));
 
-    if(ev->type == GDK_2BUTTON_PRESS && ev->button == 1 && vnr_win->prefs->behavior_click == VNR_PREFS_CLICK_FULLSCREEN)
+    if (n_press == 2 && button == 1 && vnr_win->prefs->behavior_click == VNR_PREFS_CLICK_FULLSCREEN)
     {
-        vnr_window_toggle_fullscreen(vnr_win);
-        return 1;
+        vnr_window_toggle_fullscreen (vnr_win);
+        return;
     }
-    else if(ev->type == GDK_2BUTTON_PRESS && ev->button == 1 && vnr_win->prefs->behavior_click == VNR_PREFS_CLICK_NEXT)
+    else if (n_press == 2 && button == 1 && vnr_win->prefs->behavior_click == VNR_PREFS_CLICK_NEXT)
     {
-        int width = gdk_window_get_width(gtk_widget_get_window(widget));
-
-        if(ev->x/width < 0.5)
-            vnr_window_prev(vnr_win);
+        GtkAllocation alloc;
+        gtk_widget_get_allocation (GTK_WIDGET (view), &alloc);
+        if (x / alloc.width < 0.5)
+            vnr_window_prev (vnr_win);
         else
-            vnr_window_next(vnr_win, TRUE);
-
-        return 1;
+            vnr_window_next (vnr_win, TRUE);
+        return;
     }
-    else if (ev->type == GDK_BUTTON_PRESS && ev->button == 1)
+    else if (n_press == 1 && button == 1)
     {
-        return uni_dragger_button_press (UNI_DRAGGER(view->tool), ev->x, ev->y);
+        uni_dragger_button_press (UNI_DRAGGER(view->tool), x, y);
+        return;
     }
-    else if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1)
+    else if (n_press == 2 && button == 1)
     {
         if (view->fitting == UNI_FITTING_FULL ||
             (view->fitting == UNI_FITTING_NORMAL && view->zoom != 1.0))
-            uni_image_view_set_zoom_with_center (view, 1., ev->x, ev->y,
-                                                 FALSE);
+            uni_image_view_set_zoom_with_center (view, 1., x, y, FALSE);
         else
             uni_image_view_set_fitting (view, UNI_FITTING_FULL);
-        return 1;
+        return;
     }
-    else if(ev->type == GDK_BUTTON_PRESS && ev->button == 3)
+    else if (n_press == 1 && button == 3)
     {
-        gtk_menu_popup(GTK_MENU(VNR_WINDOW(gtk_widget_get_toplevel (widget))->popup_menu),
-                NULL, NULL, NULL, NULL, ev->button,
-                gtk_get_current_event_time());
-
+        vnr_window_show_popup_menu (vnr_win);
+        return;
     }
-    else if(ev->type == GDK_BUTTON_PRESS && ev->button == 8)
+    else if (n_press == 1 && button == 8)
     {
-        vnr_window_prev(vnr_win);
+        vnr_window_prev (vnr_win);
     }
-    else if(ev->type == GDK_BUTTON_PRESS && ev->button == 9)
+    else if (n_press == 1 && button == 9)
     {
-        vnr_window_next(vnr_win, TRUE);
+        vnr_window_next (vnr_win, TRUE);
     }
-    return 0;
 }
 
-static int
-uni_image_view_button_release (GtkWidget * widget, GdkEventButton * ev)
+static void
+uni_image_view_released_cb (GtkGestureClick *gesture, int n_press, double x, double y, UniImageView *view)
 {
-    UniImageView *view = UNI_IMAGE_VIEW (widget);
-    return uni_dragger_button_release (UNI_DRAGGER(view->tool));
+    guint button = gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (gesture));
+    if (button == 1)
+        uni_dragger_button_release (UNI_DRAGGER(view->tool));
 }
 
-static int
-uni_image_view_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
+static void
+uni_image_view_motion_cb (GtkEventControllerMotion *ctrl, double x, double y, UniImageView *view)
 {
-    UniImageView *view = UNI_IMAGE_VIEW (widget);
     if (view->is_rendering)
-        return FALSE;
-    return uni_dragger_motion_notify (UNI_DRAGGER(view->tool), ev->x, ev->y);
+        return;
+    uni_dragger_motion_notify (UNI_DRAGGER(view->tool), x, y);
+}
+
+static gboolean
+uni_image_view_scroll_cb (GtkEventControllerScroll *ctrl, double dx, double dy, UniImageView *view)
+{
+    gdouble zoom;
+    VnrWindow *vnr_win = VNR_WINDOW(gtk_widget_get_root (GTK_WIDGET (view)));
+    GdkModifierType state = gtk_event_controller_get_current_event_state (GTK_EVENT_CONTROLLER (ctrl));
+
+    GtkAllocation alloc;
+    gtk_widget_get_allocation (GTK_WIDGET (view), &alloc);
+    double px = alloc.width / 2.0;
+    double py = alloc.height / 2.0;
+
+    if (vnr_win->prefs->behavior_wheel == VNR_PREFS_WHEEL_ZOOM || (state & GDK_CONTROL_MASK) != 0)
+    {
+        if (dx < 0) { vnr_window_prev (vnr_win); }
+        else if (dx > 0) { vnr_window_next (vnr_win, TRUE); }
+        else if (dy < 0)
+        {
+            if (state & GDK_SHIFT_MASK) vnr_window_prev (vnr_win);
+            else {
+                zoom = CLAMP (view->zoom * UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX);
+                uni_image_view_set_zoom_with_center (view, zoom, px, py, FALSE);
+            }
+        }
+        else
+        {
+            if (state & GDK_SHIFT_MASK) vnr_window_next (vnr_win, TRUE);
+            else {
+                zoom = CLAMP (view->zoom / UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX);
+                uni_image_view_set_zoom_with_center (view, zoom, px, py, FALSE);
+            }
+        }
+    }
+    else if (vnr_win->prefs->behavior_wheel == VNR_PREFS_WHEEL_NAVIGATE)
+    {
+        if (dx < 0) { zoom = CLAMP (view->zoom * UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX); uni_image_view_set_zoom_with_center (view, zoom, px, py, FALSE); }
+        else if (dx > 0) { zoom = CLAMP (view->zoom / UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX); uni_image_view_set_zoom_with_center (view, zoom, px, py, FALSE); }
+        else if (dy < 0)
+        {
+            if (state & GDK_SHIFT_MASK) { zoom = CLAMP (view->zoom * UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX); uni_image_view_set_zoom_with_center (view, zoom, px, py, FALSE); }
+            else vnr_window_prev (vnr_win);
+        }
+        else
+        {
+            if (state & GDK_SHIFT_MASK) { zoom = CLAMP (view->zoom / UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX); uni_image_view_set_zoom_with_center (view, zoom, px, py, FALSE); }
+            else vnr_window_next (vnr_win, TRUE);
+        }
+    }
+    else
+    {
+        if (dx < 0) uni_image_view_scroll (view, GTK_SCROLL_PAGE_LEFT, GTK_SCROLL_NONE);
+        else if (dx > 0) uni_image_view_scroll (view, GTK_SCROLL_PAGE_RIGHT, GTK_SCROLL_NONE);
+        else if (dy < 0)
+        {
+            if (state & GDK_SHIFT_MASK) uni_image_view_scroll (view, GTK_SCROLL_PAGE_LEFT, GTK_SCROLL_NONE);
+            else uni_image_view_scroll (view, GTK_SCROLL_NONE, GTK_SCROLL_PAGE_UP);
+        }
+        else
+        {
+            if (state & GDK_SHIFT_MASK) uni_image_view_scroll (view, GTK_SCROLL_PAGE_RIGHT, GTK_SCROLL_NONE);
+            else uni_image_view_scroll (view, GTK_SCROLL_NONE, GTK_SCROLL_PAGE_DOWN);
+        }
+    }
+    return TRUE;
 }
 
 static gboolean
@@ -651,109 +591,6 @@ uni_image_view_vadj_changed_cb (GtkAdjustment * adj, UniImageView * view)
     offset_y = gtk_adjustment_get_value (adj);
     uni_image_view_scroll_to (view, view->offset_x, offset_y, FALSE, FALSE);
     return FALSE;
-}
-
-static int
-uni_image_view_scroll_event (GtkWidget * widget, GdkEventScroll * ev)
-{
-    gdouble zoom;
-    UniImageView *view = UNI_IMAGE_VIEW (widget);
-    VnrWindow *vnr_win = VNR_WINDOW(gtk_widget_get_toplevel(widget));
-    g_assert(gtk_widget_is_toplevel(GTK_WIDGET(vnr_win)));
-
-    /* Horizontal scroll left is equivalent to scroll up and right is
-     * like scroll down. No idea if that is correct -- I have no input
-     * device that can do horizontal scrolls. */
-    
-	if (vnr_win->prefs->behavior_wheel == VNR_PREFS_WHEEL_ZOOM || (ev->state & GDK_CONTROL_MASK) != 0)
-	{
-        switch (ev->direction)
-        {
-            case GDK_SCROLL_LEFT: 
-                // In Zoom mode left/right scroll is used for navigation
-                vnr_window_prev(vnr_win); 
-                break;
-            case GDK_SCROLL_RIGHT: 
-                vnr_window_next(vnr_win, TRUE); 
-                break;
-            case GDK_SCROLL_UP:
-                if( ev->state & GDK_SHIFT_MASK ) {
-                    vnr_window_prev(vnr_win);
-                } else {
-                    zoom = CLAMP (view->zoom * UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX);
-                    uni_image_view_set_zoom_with_center (view, zoom, ev->x, ev->y, FALSE);
-                }
-                break;
-            default:
-                if( ev->state & GDK_SHIFT_MASK ) {
-                    vnr_window_next(vnr_win, TRUE);
-                } else {
-                    zoom = CLAMP (view->zoom / UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX);
-                    uni_image_view_set_zoom_with_center (view, zoom, ev->x, ev->y, FALSE);
-                }
-        }
-
-	}
-	else if(vnr_win->prefs->behavior_wheel == VNR_PREFS_WHEEL_NAVIGATE)
-	{
-        switch (ev->direction)
-        {
-            case GDK_SCROLL_LEFT:
-                zoom = CLAMP (view->zoom * UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX);
-                uni_image_view_set_zoom_with_center (view, zoom, ev->x, ev->y, FALSE);
-                break;
-
-            case GDK_SCROLL_RIGHT:
-                zoom = CLAMP (view->zoom / UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX);
-                uni_image_view_set_zoom_with_center (view, zoom, ev->x, ev->y, FALSE);
-                break;
-
-            case GDK_SCROLL_UP:
-                if( ev->state & GDK_SHIFT_MASK )
-                {
-                    zoom = CLAMP (view->zoom * UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX);
-                    uni_image_view_set_zoom_with_center (view, zoom, ev->x, ev->y, FALSE);
-                }
-                else
-                    vnr_window_prev(vnr_win);
-
-                break;
-
-            default:
-                if( ev->state & GDK_SHIFT_MASK )
-                {
-                    zoom = CLAMP (view->zoom / UNI_ZOOM_STEP, UNI_ZOOM_MIN, UNI_ZOOM_MAX);
-                    uni_image_view_set_zoom_with_center (view, zoom, ev->x, ev->y, FALSE);
-                }
-                else
-                    vnr_window_next(vnr_win, TRUE);
-        }
-	}
-	else
-	{
-		switch (ev->direction) 
-		{
-			case GDK_SCROLL_LEFT: 
-                uni_image_view_scroll (view, GTK_SCROLL_PAGE_LEFT, GTK_SCROLL_NONE); 
-                break;
-			case GDK_SCROLL_RIGHT: 
-                uni_image_view_scroll (view, GTK_SCROLL_PAGE_RIGHT, GTK_SCROLL_NONE);
-                break;
-            case GDK_SCROLL_UP:
-                if( ev->state & GDK_SHIFT_MASK )
-                    uni_image_view_scroll (view, GTK_SCROLL_PAGE_LEFT, GTK_SCROLL_NONE);
-                else
-                    uni_image_view_scroll (view, GTK_SCROLL_NONE, GTK_SCROLL_PAGE_UP);
-                break;
-            default:
-                if( ev->state & GDK_SHIFT_MASK )
-                    uni_image_view_scroll (view, GTK_SCROLL_PAGE_RIGHT, GTK_SCROLL_NONE);
-                else
-                    uni_image_view_scroll (view, GTK_SCROLL_NONE, GTK_SCROLL_PAGE_DOWN);
-		}
-	}
-
-    return TRUE;
 }
 
 static void
@@ -806,10 +643,10 @@ uni_image_view_init (UniImageView * view)
     view->offset_y = 0.0;
     view->is_rendering = FALSE;
     view->show_cursor = TRUE;
-    view->void_cursor = NULL;
+    view->void_cursor = gdk_cursor_new_from_name ("default", NULL);
     view->tool = G_OBJECT (uni_dragger_new ((GtkWidget *) view));
 
-    view->priv = (UniImageViewPrivate *) g_type_instance_get_private ((GTypeInstance *) view, UNI_TYPE_IMAGE_VIEW);
+    view->priv = uni_image_view_get_instance_private (view);
 
     view->priv->hadjustment = view->priv->vadjustment = NULL;
     uni_image_view_set_scroll_adjustments(view, GTK_ADJUSTMENT (gtk_adjustment_new (0.0, 1.0, 0.0,
@@ -817,6 +654,20 @@ uni_image_view_init (UniImageView * view)
                                           1.0, 1.0, 1.0)));
     g_object_ref_sink (view->priv->hadjustment);
     g_object_ref_sink (view->priv->vadjustment);
+
+    GtkGesture *click = gtk_gesture_click_new ();
+    gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (click), 0);
+    g_signal_connect (click, "pressed", G_CALLBACK (uni_image_view_pressed_cb), view);
+    g_signal_connect (click, "released", G_CALLBACK (uni_image_view_released_cb), view);
+    gtk_widget_add_controller (GTK_WIDGET (view), GTK_EVENT_CONTROLLER (click));
+
+    GtkEventController *motion = gtk_event_controller_motion_new ();
+    g_signal_connect (motion, "motion", G_CALLBACK (uni_image_view_motion_cb), view);
+    gtk_widget_add_controller (GTK_WIDGET (view), motion);
+
+    GtkEventController *scroll = gtk_event_controller_scroll_new (GTK_EVENT_CONTROLLER_SCROLL_BOTH_AXES);
+    g_signal_connect (scroll, "scroll", G_CALLBACK (uni_image_view_scroll_cb), view);
+    gtk_widget_add_controller (GTK_WIDGET (view), scroll);
 }
 
 static void
@@ -984,12 +835,7 @@ uni_image_view_class_init (UniImageViewClass * klass)
     object_class->finalize = uni_image_view_finalize;
 
     GtkWidgetClass *widget_class = (GtkWidgetClass *) klass;
-    widget_class->button_press_event = uni_image_view_button_press;
-    widget_class->button_release_event = uni_image_view_button_release;
-    widget_class->draw = uni_image_view_expose;
-    widget_class->motion_notify_event = uni_image_view_motion_notify;
-    widget_class->realize = uni_image_view_realize;
-    widget_class->scroll_event = uni_image_view_scroll_event;
+    widget_class->snapshot = uni_image_view_snapshot;
     widget_class->size_allocate = uni_image_view_size_allocate;
     widget_class->unrealize = uni_image_view_unrealize;
     object_class->set_property = uni_image_view_set_property;
@@ -1011,97 +857,30 @@ uni_image_view_class_init (UniImageViewClass * klass)
     klass->set_scroll_adjustments = uni_image_view_set_scroll_adjustments;
 
     /* Add keybindings. */
-    GtkBindingSet *binding_set = gtk_binding_set_by_class (klass);
-
-    /* Set zoom. */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_1, 0,
-                                  "set_zoom", 1, G_TYPE_DOUBLE, 1.0);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_2, 0,
-                                  "set_zoom", 1, G_TYPE_DOUBLE, 2.0);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_3, 0,
-                                  "set_zoom", 1, G_TYPE_DOUBLE, 3.0);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_1, 0,
-                                  "set_zoom", 1, G_TYPE_DOUBLE, 1.0);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_2, 0,
-                                  "set_zoom", 1, G_TYPE_DOUBLE, 2.0);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_3, 0,
-                                  "set_zoom", 1, G_TYPE_DOUBLE, 3.0);
-
-    /* Zoom in */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_plus, 0, "zoom_in", 0);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_equal, 0, "zoom_in", 0);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_Add, 0, "zoom_in", 0);
-
-    /* Zoom out */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_minus, 0, "zoom_out", 0);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_Subtract, 0,
-                                  "zoom_out", 0);
-
-    /* Set fitting */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_f, 0,
-                                  "set_fitting", 1, G_TYPE_ENUM, UNI_FITTING_FULL);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_0, 0,
-                                  "set_fitting", 1, G_TYPE_ENUM, UNI_FITTING_FULL);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_0, 0,
-                                  "set_fitting", 1, G_TYPE_ENUM, UNI_FITTING_FULL);
-
-    /* Unmodified scrolling */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Right, 0,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_STEP_RIGHT,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_NONE);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Left, 0,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_STEP_LEFT,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_NONE);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Down, 0,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_NONE,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_STEP_DOWN);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Up, 0,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_NONE,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_STEP_UP);
-
-    /* Shifted scrolling */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Right, GDK_SHIFT_MASK,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_PAGE_RIGHT,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_NONE);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Left, GDK_SHIFT_MASK,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_PAGE_LEFT,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_NONE);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Up, GDK_SHIFT_MASK,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_NONE,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_PAGE_UP);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Down, GDK_SHIFT_MASK,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_NONE,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_PAGE_DOWN);
-
-    /* Page Up & Down */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Page_Up, 0,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_NONE,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_PAGE_UP);
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_Page_Down, 0,
-                                  "scroll", 2,
-                                  GTK_TYPE_SCROLL_TYPE,
-                                  GTK_SCROLL_NONE,
-                                  GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_PAGE_DOWN);
-    
-    g_type_class_add_private (object_class, sizeof (UniImageViewPrivate));
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_1, 0, "set_zoom", "(d)", 1.0);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_2, 0, "set_zoom", "(d)", 2.0);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_3, 0, "set_zoom", "(d)", 3.0);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_KP_1, 0, "set_zoom", "(d)", 1.0);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_KP_2, 0, "set_zoom", "(d)", 2.0);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_KP_3, 0, "set_zoom", "(d)", 3.0);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_plus, 0, "zoom_in", NULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_equal, 0, "zoom_in", NULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_KP_Add, 0, "zoom_in", NULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_minus, 0, "zoom_out", NULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_KP_Subtract, 0, "zoom_out", NULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_f, 0, "set_fitting", "(i)", (int)UNI_FITTING_FULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_0, 0, "set_fitting", "(i)", (int)UNI_FITTING_FULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_KP_0, 0, "set_fitting", "(i)", (int)UNI_FITTING_FULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Right, 0, "scroll", "(ii)", (int)GTK_SCROLL_STEP_RIGHT, (int)GTK_SCROLL_NONE);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Left, 0, "scroll", "(ii)", (int)GTK_SCROLL_STEP_LEFT, (int)GTK_SCROLL_NONE);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Down, 0, "scroll", "(ii)", (int)GTK_SCROLL_NONE, (int)GTK_SCROLL_STEP_DOWN);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Up, 0, "scroll", "(ii)", (int)GTK_SCROLL_NONE, (int)GTK_SCROLL_STEP_UP);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Right, GDK_SHIFT_MASK, "scroll", "(ii)", (int)GTK_SCROLL_PAGE_RIGHT, (int)GTK_SCROLL_NONE);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Left, GDK_SHIFT_MASK, "scroll", "(ii)", (int)GTK_SCROLL_PAGE_LEFT, (int)GTK_SCROLL_NONE);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Up, GDK_SHIFT_MASK, "scroll", "(ii)", (int)GTK_SCROLL_NONE, (int)GTK_SCROLL_PAGE_UP);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Down, GDK_SHIFT_MASK, "scroll", "(ii)", (int)GTK_SCROLL_NONE, (int)GTK_SCROLL_PAGE_DOWN);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Page_Up, 0, "scroll", "(ii)", (int)GTK_SCROLL_NONE, (int)GTK_SCROLL_PAGE_UP);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_Page_Down, 0, "scroll", "(ii)", (int)GTK_SCROLL_NONE, (int)GTK_SCROLL_PAGE_DOWN);
 }
 
 /**

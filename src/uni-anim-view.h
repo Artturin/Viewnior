@@ -55,7 +55,7 @@ struct _UniAnimView {
     int timer_id;
 
     /* Timer used to get the right frame. */
-    GTimeVal time;
+    gint64 time_us;
     int delay;
 
 };

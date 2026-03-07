@@ -47,20 +47,19 @@ uni_anim_view_updator (gpointer data)
 {
     UniAnimView *aview = (UniAnimView *) data;
 
-    // Workaround for #437791.
     glong delay_us = aview->delay * 1000;
     if (aview->delay == 20)
     {
-        // If the delay time is 20 ms, the GIF is a "fast player." and
-        // we increase it to a more reasonable 100 ms so that the
-        // frame is only updated 1/5 of the times
-        // uni_anim_view_updator() is run.
         delay_us = 200;
     }
-    g_time_val_add (&aview->time, delay_us);
+    aview->time_us += delay_us;
 
-    gboolean next = gdk_pixbuf_animation_iter_advance (aview->iter,
-                                                       &aview->time);
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    GTimeVal tv;
+    tv.tv_sec = aview->time_us / G_USEC_PER_SEC;
+    tv.tv_usec = aview->time_us % G_USEC_PER_SEC;
+    gboolean next = gdk_pixbuf_animation_iter_advance (aview->iter, &tv);
+    G_GNUC_END_IGNORE_DEPRECATIONS
     uni_anim_view_set_is_playing (aview, FALSE);
 
     aview->delay = gdk_pixbuf_animation_iter_get_delay_time (aview->iter);
@@ -187,13 +186,9 @@ uni_anim_view_class_init (UniAnimViewClass * klass)
     klass->step = uni_anim_view_step;
 
     /* Add keybindings. */
-    GtkBindingSet *binding_set = gtk_binding_set_by_class (klass);
-
-    /* Stop */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_p, 0, "toggle_running", 0);
-
-    /* Step */
-    gtk_binding_entry_add_signal (binding_set, GDK_KEY_j, 0, "step", 0);
+    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_p, 0, "toggle_running", NULL);
+    gtk_widget_class_add_binding_signal (widget_class, GDK_KEY_j, 0, "step", NULL);
 }
 
 /**
@@ -257,8 +252,13 @@ uni_anim_view_set_anim (UniAnimView * aview, GdkPixbufAnimation * anim)
     if (aview->iter)
         g_object_unref (aview->iter);
 
-    g_get_current_time (&aview->time);
-    aview->iter = gdk_pixbuf_animation_get_iter (aview->anim, &aview->time);
+    aview->time_us = g_get_real_time ();
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    GTimeVal tv;
+    tv.tv_sec = aview->time_us / G_USEC_PER_SEC;
+    tv.tv_usec = aview->time_us % G_USEC_PER_SEC;
+    aview->iter = gdk_pixbuf_animation_get_iter (aview->anim, &tv);
+    G_GNUC_END_IGNORE_DEPRECATIONS
 
     GdkPixbuf *pixbuf;
 

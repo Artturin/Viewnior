@@ -104,6 +104,9 @@ struct _VnrWindow {
     gint ss_timeout;
     GtkWidget *ss_timeout_widget;
 
+    gdouble popup_menu_x;
+    gdouble popup_menu_y;
+
     GObject *action_wallpaper;
 };
 
@@ -129,6 +132,7 @@ gboolean vnr_window_last     (VnrWindow *win);
 void     deny_slideshow      (VnrWindow *window);
 void     vnr_window_apply_preferences (VnrWindow *window);
 void     vnr_window_toggle_fullscreen (VnrWindow *win);
+void     vnr_window_show_popup_menu (VnrWindow *win);
 
 G_END_DECLS
 #endif /* __VNR_WINDOW_H__ */
