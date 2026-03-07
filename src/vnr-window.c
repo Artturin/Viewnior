@@ -462,7 +462,7 @@ get_fs_controls(VnrWindow *window)
     box = gtk_hbox_new(FALSE, 0);
     gtk_container_add (GTK_CONTAINER (item), box);
 
-    widget = gtk_button_new_from_stock(GTK_STOCK_LEAVE_FULLSCREEN);
+    widget = gtk_button_new_from_icon_name("view-restore", GTK_ICON_SIZE_BUTTON);
     g_signal_connect(widget, "clicked", G_CALLBACK(leave_fs_cb), window);
     gtk_box_pack_end (GTK_BOX(box), widget, FALSE, FALSE, 0);
 
@@ -798,7 +798,7 @@ rotate_pixbuf(VnrWindow *window, GdkPixbufRotation angle)
         vnr_message_area_show_with_button(VNR_MESSAGE_AREA(window->msg_area),
                                           FALSE,
                                           _("Save modifications?\nThis will overwrite the image and may reduce its quality!"),
-                                          FALSE, GTK_STOCK_SAVE,
+                                          FALSE, _("_Save"),
                                           G_CALLBACK(save_image_cb));
 }
 
@@ -856,7 +856,7 @@ flip_pixbuf(VnrWindow *window, gboolean horizontal)
         vnr_message_area_show_with_button(VNR_MESSAGE_AREA(window->msg_area),
                                           FALSE,
                                           _("Save modifications?\nThis will overwrite the image and may reduce its quality!"),
-                                          FALSE, GTK_STOCK_SAVE,
+                                          FALSE, _("_Save"),
                                           G_CALLBACK(save_image_cb));
 }
 
@@ -1355,8 +1355,8 @@ vnr_window_cmd_open(GtkAction *action, VnrWindow *window)
     dialog = gtk_file_chooser_dialog_new (_("Open Image"),
                           GTK_WINDOW(window),
                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                          GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                          _("_Open"), GTK_RESPONSE_ACCEPT,
                           NULL);
 
     img_filter = gtk_file_filter_new ();
@@ -1406,8 +1406,8 @@ vnr_window_cmd_open_dir(GtkAction *action, VnrWindow *window)
     dialog = gtk_file_chooser_dialog_new (_("Open Folder"),
                           GTK_WINDOW(window),
                           GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                          GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                          _("_Open"), GTK_RESPONSE_ACCEPT,
                           NULL);
 
     gtk_window_set_modal (GTK_WINDOW(dialog), FALSE);
@@ -1701,8 +1701,8 @@ vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
                                        markup);
 
         gtk_dialog_add_buttons (GTK_DIALOG (dlg),
-                                GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                GTK_STOCK_DELETE, GTK_RESPONSE_YES,
+                                _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                _("_Delete"), GTK_RESPONSE_YES,
                                 NULL);
     }
 
@@ -1837,7 +1837,7 @@ vnr_window_cmd_crop(GtkAction *action, VnrWindow *window)
         vnr_message_area_show_with_button(VNR_MESSAGE_AREA(window->msg_area),
                                           FALSE,
                                           _("Save modifications?\nThis will overwrite the image and may reduce its quality!"),
-                                          FALSE, GTK_STOCK_SAVE,
+                                          FALSE, _("_Save"),
                                           G_CALLBACK(save_image_cb));
 
     g_object_unref(crop);
@@ -1851,31 +1851,31 @@ static const GtkActionEntry action_entries_window[] = {
     { "Go",    NULL, N_("_Go") },
     { "Help",  NULL, N_("_Help") },
 
-    { "FileOpen", GTK_STOCK_FILE, N_("Open _Image..."), "<control>O",
+    { "FileOpen", "text-x-generic", N_("Open _Image..."), "<control>O",
       N_("Open an Image"),
       G_CALLBACK (vnr_window_cmd_open) },
-    { "FileOpenDir", GTK_STOCK_DIRECTORY, N_("Open _Folder..."), "<control>F",
+    { "FileOpenDir", "folder", N_("Open _Folder..."), "<control>F",
       N_("Open a Folder"),
       G_CALLBACK (vnr_window_cmd_open_dir) },
-    { "FileClose", GTK_STOCK_CLOSE, N_("_Close"), "<control>W",
+    { "FileClose", "window-close", N_("_Close"), "<control>W",
       N_("Close window"),
       G_CALLBACK (gtk_main_quit) },
-    { "HelpAbout", GTK_STOCK_ABOUT, N_("_About"), NULL,
+    { "HelpAbout", "help-about", N_("_About"), NULL,
       N_("About this application"),
       G_CALLBACK (vnr_window_cmd_about) },
-    { "EditPreferences", GTK_STOCK_PREFERENCES, N_("_Preferences..."), NULL,
+    { "EditPreferences", "preferences-system", N_("_Preferences..."), NULL,
       N_("User preferences for Viewnior"),
       G_CALLBACK (vnr_window_cmd_preferences) }
 };
 
 static const GtkActionEntry action_entry_save[] = {
-    { "FileSave", GTK_STOCK_SAVE, N_("_Save"), "<control>S",
+    { "FileSave", "document-save", N_("_Save"), "<control>S",
       N_("Save changes"),
       G_CALLBACK (save_image_cb) },
 };
 
 static const GtkToggleActionEntry toggle_entry_properties[] = {
-    { "Properties", GTK_STOCK_PROPERTIES, N_("_Properties"), NULL,
+    { "Properties", "document-properties", N_("_Properties"), NULL,
       N_("Properties"),
       G_CALLBACK (vnr_window_cmd_open_menu) },
 };
@@ -1890,37 +1890,37 @@ static const GtkActionEntry action_entries_image[] = {
     { "FileOpenWith", NULL, N_("Open _With"), NULL,
       N_("Open the selected image with a different application"),
       NULL},
-    { "FileDelete", GTK_STOCK_DELETE, N_("_Delete"), NULL,
+    { "FileDelete", "edit-delete", N_("_Delete"), NULL,
       N_("Delete the current file"),
       G_CALLBACK (vnr_window_cmd_delete) },
-    { "FileProperties", GTK_STOCK_PROPERTIES, N_("_Properties..."), "<Alt>Return",
+    { "FileProperties", "document-properties", N_("_Properties..."), "<Alt>Return",
       N_("Show information about the current file"),
       G_CALLBACK (vnr_window_cmd_properties) },
-    { "FileReload", GTK_STOCK_REFRESH, N_("_Reload"), NULL,
+    { "FileReload", "view-refresh", N_("_Reload"), NULL,
       N_("Reload the current file"),
       G_CALLBACK (vnr_window_cmd_reload) },
     { "Delete", NULL, N_("_Delete"), "Delete",
       N_("Delete the current file"),
       G_CALLBACK (vnr_window_cmd_delete) },
-    { "ViewZoomIn", GTK_STOCK_ZOOM_IN, N_("_Zoom In"), "<control>plus",
+    { "ViewZoomIn", "zoom-in", N_("_Zoom In"), "<control>plus",
       N_("Enlarge the image"),
       G_CALLBACK (vnr_window_cmd_zoom_in) },
-    { "ViewZoomOut", GTK_STOCK_ZOOM_OUT, N_("Zoom _Out"), "<control>minus",
+    { "ViewZoomOut", "zoom-out", N_("Zoom _Out"), "<control>minus",
       N_("Shrink the image"),
       G_CALLBACK (vnr_window_cmd_zoom_out) },
-    { "ViewZoomNormal", GTK_STOCK_ZOOM_100, N_("_Normal Size"), "<control>0",
+    { "ViewZoomNormal", "zoom-original", N_("_Normal Size"), "<control>0",
       N_("Show the image at its normal size"),
       G_CALLBACK (vnr_window_cmd_normal_size) },
-    { "ViewZoomFit", GTK_STOCK_ZOOM_FIT, N_("Best _Fit"), NULL,
+    { "ViewZoomFit", "zoom-fit-best", N_("Best _Fit"), NULL,
       N_("Fit the image to the window"),
       G_CALLBACK (vnr_window_cmd_fit) },
-    { "ControlEqual", GTK_STOCK_ZOOM_IN, N_("_Zoom In"), "<control>equal",
+    { "ControlEqual", "zoom-in", N_("_Zoom In"), "<control>equal",
       N_("Shrink the image"),
       G_CALLBACK (vnr_window_cmd_zoom_in) },
-    { "ControlKpAdd", GTK_STOCK_ZOOM_IN, N_("_Zoom In"), "<control>KP_Add",
+    { "ControlKpAdd", "zoom-in", N_("_Zoom In"), "<control>KP_Add",
       N_("Shrink the image"),
       G_CALLBACK (vnr_window_cmd_zoom_in) },
-    { "ControlKpSub", GTK_STOCK_ZOOM_OUT, N_("Zoom _Out"), "<control>KP_Subtract",
+    { "ControlKpSub", "zoom-out", N_("Zoom _Out"), "<control>KP_Subtract",
       N_("Shrink the image"),
       G_CALLBACK (vnr_window_cmd_zoom_out) },
 };
@@ -1944,7 +1944,7 @@ static const GtkActionEntry action_entries_static_image[] = {
 };
 
 static const GtkToggleActionEntry toggle_entries_image[] = {
-    { "ViewFullscreen", GTK_STOCK_FULLSCREEN, N_("Full _Screen"), "F11",
+    { "ViewFullscreen", "view-fullscreen", N_("Full _Screen"), "F11",
       N_("Show in fullscreen mode"),
       G_CALLBACK (vnr_window_cmd_fullscreen) },
     { "ViewResizeWindow", NULL, N_("_Adjust window size"), NULL,
@@ -1968,22 +1968,22 @@ static const GtkToggleActionEntry toggle_entries_window[] = {
 };
 
 static const GtkToggleActionEntry toggle_entries_collection[] = {
-    { "ViewSlideshow", GTK_STOCK_NETWORK, N_("Sli_deshow"), "F5",
+    { "ViewSlideshow", "media-playback-start", N_("Sli_deshow"), "F5",
       N_("Show in slideshow mode"),
       G_CALLBACK (vnr_window_cmd_slideshow) },
 };
 
 static const GtkActionEntry action_entries_collection[] = {
-    { "GoPrevious", GTK_STOCK_GO_BACK, N_("_Previous Image"), "<Alt>Left",
+    { "GoPrevious", "go-previous", N_("_Previous Image"), "<Alt>Left",
       N_("Go to the previous image of the collection"),
       G_CALLBACK (vnr_window_cmd_prev) },
-    { "GoNext", GTK_STOCK_GO_FORWARD, N_("_Next Image"), "<Alt>Right",
+    { "GoNext", "go-next", N_("_Next Image"), "<Alt>Right",
       N_("Go to the next image of the collection"),
       G_CALLBACK (vnr_window_cmd_next) },
-    { "GoFirst", GTK_STOCK_GOTO_FIRST, N_("_First Image"), "<Alt>Home",
+    { "GoFirst", "go-first", N_("_First Image"), "<Alt>Home",
       N_("Go to the first image of the collection"),
       G_CALLBACK (vnr_window_cmd_first) },
-    { "GoLast", GTK_STOCK_GOTO_LAST, N_("_Last Image"), "<Alt>End",
+    { "GoLast", "go-last", N_("_Last Image"), "<Alt>End",
       N_("Go to the last image of the collection"),
       G_CALLBACK (vnr_window_cmd_last) },
 };

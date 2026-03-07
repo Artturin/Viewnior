@@ -73,7 +73,7 @@ void        vnr_message_area_show_with_button (VnrMessageArea *msg_area,
                                                gboolean critical,
                                                const char *message,
                                                gboolean close_image,
-                                               const gchar *button_stock_id,
+                                               const gchar *button_label,
                                                GCallback c_handler);
 
 void        vnr_message_area_hide         (VnrMessageArea *msg_area);

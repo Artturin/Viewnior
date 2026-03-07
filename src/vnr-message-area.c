@@ -17,6 +17,7 @@
  * along with Viewnior.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <glib/gi18n.h>
 #include <gtk/gtk.h>
 #include "vnr-message-area.h"
 
@@ -63,7 +64,7 @@ vnr_message_area_initialize(VnrMessageArea * msg_area)
     gtk_container_add(GTK_CONTAINER(msg_area->button_box),
                       msg_area->user_button);
 
-    msg_area->cancel_button = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+    msg_area->cancel_button = gtk_button_new_with_mnemonic(_("_Cancel"));
     g_signal_connect(msg_area->cancel_button, "clicked",
                      G_CALLBACK(cancel_button_cb), msg_area);
     gtk_container_add(GTK_CONTAINER(msg_area->button_box),
@@ -95,12 +96,12 @@ vnr_message_area_show_basic (VnrMessageArea *msg_area,
     msg_area->is_critical = critical;
 
     if(critical)
-        gtk_image_set_from_stock (GTK_IMAGE(msg_area->image),
-                                  GTK_STOCK_DIALOG_ERROR,
+        gtk_image_set_from_icon_name (GTK_IMAGE(msg_area->image),
+                                  "dialog-error",
                                   GTK_ICON_SIZE_DIALOG);
     else
-        gtk_image_set_from_stock (GTK_IMAGE(msg_area->image),
-                                  GTK_STOCK_DIALOG_INFO,
+        gtk_image_set_from_icon_name (GTK_IMAGE(msg_area->image),
+                                  "dialog-information",
                                   GTK_ICON_SIZE_DIALOG);
 
     msg_area->is_critical = critical;
@@ -140,13 +141,12 @@ vnr_message_area_show_with_button (VnrMessageArea *msg_area,
                                    gboolean critical,
                                    const char *message,
                                    gboolean close_image,
-                                   const gchar *button_stock_id,
+                                   const gchar *button_label,
                                    GCallback c_handler)
 {
     vnr_message_area_show_basic(msg_area, critical, message, close_image);
 
-    gtk_button_set_use_stock (GTK_BUTTON(msg_area->user_button), TRUE);
-    gtk_button_set_label (GTK_BUTTON(msg_area->user_button), button_stock_id);
+    gtk_button_set_label (GTK_BUTTON(msg_area->user_button), button_label);
 
     if(msg_area->with_button)
         g_signal_handlers_disconnect_by_func (msg_area->user_button,
