@@ -62,7 +62,6 @@ main (int argc, char *argv[])
 
     opt_context = g_option_context_new ("- Elegant Image Viewer");
     g_option_context_add_main_entries (opt_context, opt_entries, NULL);
-    g_option_context_add_group (opt_context, gtk_get_option_group (TRUE));
     g_option_context_parse (opt_context, &argc, &argv, &error);
 
     if (error != NULL)
@@ -78,11 +77,10 @@ main (int argc, char *argv[])
         return 0;
     }
 
-    gtk_icon_theme_append_search_path(gtk_icon_theme_get_default(), PIXMAP_DIR);
+    gtk_icon_theme_add_search_path(gtk_icon_theme_get_for_display(gdk_display_get_default()), PIXMAP_DIR);
 
     window = vnr_window_new ();
     gtk_window_set_default_size (window, 480, 300);
-    gtk_window_set_position (window, GTK_WIN_POS_CENTER);
 
     uri_list = vnr_tools_get_list_from_array (files);
 
@@ -129,7 +127,9 @@ main (int argc, char *argv[])
     	gtk_window_maximize(window);
     }
     gtk_widget_show (GTK_WIDGET (window));
-    gtk_main ();
+
+    while (g_list_model_get_n_items(gtk_window_get_toplevels()) > 0)
+        g_main_context_iteration(NULL, TRUE);
 
     return 0;
 }
