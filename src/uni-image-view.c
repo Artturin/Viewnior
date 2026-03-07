@@ -510,17 +510,14 @@ uni_image_view_realize (GtkWidget * widget)
     gtk_widget_set_window (widget, window);
     gdk_window_set_user_data (window, view);
 
-    GtkStyleContext *context = gtk_widget_get_style_context (widget);
-    gtk_style_context_set_background (context, window);
-
-    view->void_cursor = gdk_cursor_new (GDK_ARROW);
+    view->void_cursor = gdk_cursor_new_for_display(gdk_display_get_default(), GDK_ARROW);
 }
 
 static void
 uni_image_view_unrealize (GtkWidget * widget)
 {
     UniImageView *view = UNI_IMAGE_VIEW (widget);
-    gdk_cursor_unref (view->void_cursor);
+    g_object_unref (view->void_cursor);
     GTK_WIDGET_CLASS (uni_image_view_parent_class)->unrealize (widget);
 }
 

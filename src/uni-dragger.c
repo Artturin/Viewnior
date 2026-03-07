@@ -43,7 +43,9 @@ uni_dragger_grab_pointer (UniDragger * tool,
 {
     int mask = (GDK_POINTER_MOTION_MASK
                 | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_RELEASE_MASK);
-    gdk_pointer_grab (window, FALSE, mask, NULL, tool->grab_cursor, time);
+    GdkDisplay *display = gdk_window_get_display(window);
+    GdkDevice *device = gdk_seat_get_pointer(gdk_display_get_default_seat(display));
+    gdk_device_grab(device, window, GDK_OWNERSHIP_NONE, FALSE, mask, tool->grab_cursor, time);
 }
 
 static void
@@ -75,7 +77,9 @@ uni_dragger_button_release (UniDragger * tool, GdkEventButton * ev)
 {
     if (ev->button != 1)
         return FALSE;
-    gdk_pointer_ungrab (ev->time);
+    GdkDisplay *display = gdk_window_get_display(ev->window);
+    GdkDevice *device = gdk_seat_get_pointer(gdk_display_get_default_seat(display));
+    gdk_device_ungrab(device, ev->time);
     tool->pressed = FALSE;
     tool->dragging = FALSE;
     return TRUE;
@@ -202,7 +206,7 @@ uni_dragger_init (UniDragger * tool)
     tool->drag_base_y = 0;
     tool->drag_ofs_x = 0;
     tool->drag_ofs_y = 0;
-    tool->grab_cursor = gdk_cursor_new (GDK_FLEUR);
+    tool->grab_cursor = gdk_cursor_new_for_display(gdk_display_get_default(), GDK_FLEUR);
 }
 
 /**

@@ -218,7 +218,10 @@ uni_nav_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
 {
     UniNav *nav = UNI_NAV (widget);
     int mx, my;
-    gdk_window_get_pointer (gtk_widget_get_window (widget), &mx, &my, NULL);
+    GdkWindow *gdk_window = gtk_widget_get_window(widget);
+    GdkDisplay *display = gdk_window_get_display(gdk_window);
+    GdkDevice *device = gdk_seat_get_pointer(gdk_display_get_default_seat(display));
+    gdk_window_get_device_position(gdk_window, device, &mx, &my, NULL);
 
     /* Make coordinates relative to window. */
     mx -= 4;
@@ -415,27 +418,31 @@ uni_nav_grab (UniNav * nav)
 
     gtk_grab_add (preview);
 
-    GdkCursor *cursor = gdk_cursor_new (GDK_FLEUR);
+    GdkCursor *cursor = gdk_cursor_new_for_display(gdk_display_get_default(), GDK_FLEUR);
     int mask = (GDK_POINTER_MOTION_MASK
                 | GDK_POINTER_MOTION_HINT_MASK
                 | GDK_BUTTON_RELEASE_MASK);
     window = gtk_widget_get_window (preview);
-    gdk_pointer_grab (window, TRUE, mask, window, cursor,
-                      0);
-    gdk_cursor_unref (cursor);
+    GdkDisplay *display = gdk_window_get_display(window);
+    GdkDevice *device = gdk_seat_get_pointer(gdk_display_get_default_seat(display));
+    gdk_device_grab(device, window, GDK_OWNERSHIP_NONE, TRUE, mask, cursor, GDK_CURRENT_TIME);
+    g_object_unref(cursor);
 
     /* Capture keyboard events. */
-    gdk_keyboard_grab (window, TRUE, GDK_CURRENT_TIME);
+    GdkDevice *keyboard = gdk_seat_get_keyboard(gdk_display_get_default_seat(display));
+    gdk_device_grab(keyboard, window, GDK_OWNERSHIP_NONE, TRUE, GDK_ALL_EVENTS_MASK, NULL, GDK_CURRENT_TIME);
     gtk_widget_grab_focus (preview);
 }
 
 void
 uni_nav_release (UniNav * nav)
 {
-    gdk_pointer_ungrab (GDK_CURRENT_TIME);
-
     /* Release keyboard focus. */
-    gdk_keyboard_ungrab (GDK_CURRENT_TIME);
+    GdkDisplay *display = gdk_display_get_default();
+    GdkDevice *pointer = gdk_seat_get_pointer(gdk_display_get_default_seat(display));
+    GdkDevice *keyboard = gdk_seat_get_keyboard(gdk_display_get_default_seat(display));
+    gdk_device_ungrab(pointer, GDK_CURRENT_TIME);
+    gdk_device_ungrab(keyboard, GDK_CURRENT_TIME);
     gtk_grab_remove (nav->preview);
 }
 
