@@ -2413,11 +2413,7 @@ vnr_window_init (VnrWindow * window)
     window->ss_timeout = window->prefs->slideshow_timeout;
 
     /* Care for Properties dialog */
-    window->props_dlg = vnr_properties_dialog_new(window,
-                             gtk_action_group_get_action (window->actions_collection,
-                                                          "GoNext"),
-                             gtk_action_group_get_action (window->actions_collection,
-                                                          "GoPrevious"));
+    window->props_dlg = vnr_properties_dialog_new(window);
 
     vnr_window_apply_preferences(window);
 

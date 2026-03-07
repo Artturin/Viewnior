@@ -34,9 +34,11 @@ G_DEFINE_TYPE (VnrPropertiesDialog, vnr_properties_dialog, GTK_TYPE_DIALOG);
 static void vnr_properties_dialog_update_metadata(VnrPropertiesDialog *dialog);
 
 static gboolean
-key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+key_pressed_cb (GtkEventControllerKey *ctrl, guint keyval, guint keycode,
+                GdkModifierType state, gpointer user_data)
 {
-    if(event->keyval == GDK_KEY_Escape)
+    GtkWidget *widget = GTK_WIDGET(user_data);
+    if (keyval == GDK_KEY_Escape)
     {
         gtk_widget_hide(widget);
         return TRUE;
@@ -79,7 +81,7 @@ set_new_pixbuf(VnrPropertiesDialog *dialog, GdkPixbuf* original)
 
     if(original == NULL)
     {
-        gtk_image_set_from_stock(GTK_IMAGE(dialog->image), GTK_STOCK_MISSING_IMAGE, GTK_ICON_SIZE_DIALOG);
+        gtk_image_set_from_icon_name(GTK_IMAGE(dialog->image), "image-missing");
         return;
     }
 
@@ -97,8 +99,20 @@ set_new_pixbuf(VnrPropertiesDialog *dialog, GdkPixbuf* original)
 static void
 vnr_properties_dialog_class_init (VnrPropertiesDialogClass * klass) {}
 
+static void
+on_next_clicked (GtkButton *btn, gpointer data)
+{
+    vnr_window_next (VNR_WINDOW(data), TRUE);
+}
+
+static void
+on_prev_clicked (GtkButton *btn, gpointer data)
+{
+    vnr_window_prev (VNR_WINDOW(data));
+}
+
 GtkWidget *
-vnr_properties_dialog_new (VnrWindow *vnr_win, GtkAction *next_action, GtkAction *prev_action)
+vnr_properties_dialog_new (VnrWindow *vnr_win)
 {
     VnrPropertiesDialog *dialog;
 
@@ -107,8 +121,10 @@ vnr_properties_dialog_new (VnrWindow *vnr_win, GtkAction *next_action, GtkAction
     dialog->thumbnail = NULL;
     dialog->vnr_win = vnr_win;
 
-    gtk_activatable_set_related_action (GTK_ACTIVATABLE(dialog->next_button), next_action);
-    gtk_activatable_set_related_action (GTK_ACTIVATABLE(dialog->prev_button), prev_action);
+    g_signal_connect (dialog->next_button, "clicked",
+                      G_CALLBACK(on_next_clicked), vnr_win);
+    g_signal_connect (dialog->prev_button, "clicked",
+                      G_CALLBACK(on_prev_clicked), vnr_win);
 
     gtk_button_set_label (GTK_BUTTON(dialog->next_button), _("_Next"));
     gtk_button_set_label (GTK_BUTTON(dialog->prev_button), _("_Previous"));
@@ -122,142 +138,144 @@ static void
 vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
 {
     GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-    GtkWidget *action_area = gtk_dialog_get_action_area(GTK_DIALOG(dialog));
+    GtkWidget *action_area = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     GtkWidget *temp_box;
     GtkWidget *temp_label;
 
     gtk_window_set_title(GTK_WINDOW(dialog), _("Image Properties"));
+    gtk_window_set_hide_on_close(GTK_WINDOW(dialog), TRUE);
 
     /* VBox containing the Location labels */
-    temp_box = gtk_vbox_new(FALSE,0);
-    gtk_container_set_border_width (GTK_CONTAINER(temp_box), 10);
-    gtk_box_pack_start (GTK_BOX(content_area), temp_box, FALSE,FALSE,0);
+    temp_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_widget_set_margin_start(temp_box, 10);
+    gtk_widget_set_margin_end(temp_box, 10);
+    gtk_widget_set_margin_top(temp_box, 10);
+    gtk_widget_set_margin_bottom(temp_box, 10);
+    gtk_box_append(GTK_BOX(content_area), temp_box);
 
     temp_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Location:</b>"));
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), temp_label);
 
     dialog->location_label = gtk_label_new(NULL);
-    gtk_misc_set_alignment (GTK_MISC(dialog->location_label), 0, 0);
+    gtk_widget_set_halign(dialog->location_label, GTK_ALIGN_START);
     gtk_label_set_selectable (GTK_LABEL(dialog->location_label), TRUE);
     gtk_label_set_ellipsize (GTK_LABEL(dialog->location_label), PANGO_ELLIPSIZE_END);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->location_label, FALSE,FALSE,0);
+    gtk_box_append(GTK_BOX(temp_box), dialog->location_label);
 
     /* VBox containing the image and meta data */
-    dialog->layout = gtk_vbox_new(FALSE,10);
-    gtk_container_set_border_width (GTK_CONTAINER(dialog->layout), 10);
-    gtk_box_pack_start ( GTK_BOX (content_area) , dialog->layout, FALSE,FALSE,0);
+    dialog->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_widget_set_margin_start(dialog->layout, 10);
+    gtk_widget_set_margin_end(dialog->layout, 10);
+    gtk_widget_set_margin_top(dialog->layout, 10);
+    gtk_widget_set_margin_bottom(dialog->layout, 10);
+    gtk_box_append(GTK_BOX(content_area), dialog->layout);
 
     /* HBox containing the image and the two columns with labels */
-    dialog->image_layout = gtk_hbox_new(FALSE,10);
-    gtk_container_set_border_width (GTK_CONTAINER(dialog->image_layout), 10);
-    gtk_box_pack_start ( GTK_BOX (dialog->layout) , dialog->image_layout, FALSE,FALSE,0);
+    dialog->image_layout = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_widget_set_margin_start(dialog->image_layout, 10);
+    gtk_widget_set_margin_end(dialog->image_layout, 10);
+    gtk_widget_set_margin_top(dialog->image_layout, 10);
+    gtk_widget_set_margin_bottom(dialog->image_layout, 10);
+    gtk_box_append(GTK_BOX(dialog->layout), dialog->image_layout);
 
     /* The frame around the image */
     temp_box = gtk_frame_new(NULL);
     gtk_widget_set_size_request (temp_box, 105, 105);
-    gtk_box_pack_start (GTK_BOX (dialog->image_layout), temp_box, FALSE,FALSE,0);
+    gtk_box_append(GTK_BOX(dialog->image_layout), temp_box);
 
-    dialog->image = gtk_image_new_from_stock(GTK_STOCK_MISSING_IMAGE, GTK_ICON_SIZE_DIALOG);
-    gtk_container_add (GTK_CONTAINER (temp_box), dialog->image);
-
-
-    /* Buttons */
-    dialog->prev_button = gtk_button_new();
-    gtk_button_set_image (GTK_BUTTON(dialog->prev_button),
-                          gtk_image_new_from_stock(GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON));
-    gtk_container_add (GTK_CONTAINER (action_area), dialog->prev_button);
-
-    dialog->next_button = gtk_button_new();
-    gtk_button_set_image (GTK_BUTTON(dialog->next_button),
-                          gtk_image_new_from_stock(GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON));
-    gtk_container_add (GTK_CONTAINER (action_area), dialog->next_button);
-
-    dialog->close_button = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-    gtk_container_add (GTK_CONTAINER (action_area), dialog->close_button);
-
+    dialog->image = gtk_image_new_from_icon_name("image-missing");
+    gtk_frame_set_child(GTK_FRAME(temp_box), dialog->image);
 
     /* Image Data Labels */
-    temp_box = gtk_vbox_new(FALSE,0);
-    gtk_box_pack_start (GTK_BOX (dialog->image_layout), temp_box, FALSE,FALSE,0);
+    temp_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_append(GTK_BOX(dialog->image_layout), temp_box);
 
     temp_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Name:</b>"));
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), temp_label);
     temp_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Type:</b>"));
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), temp_label);
     temp_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Size:</b>"));
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), temp_label);
     temp_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Width:</b>"));
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), temp_label);
     temp_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Height:</b>"));
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), temp_label);
     temp_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Modified:</b>"));
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), temp_label);
 
-
-    temp_box = gtk_vbox_new(FALSE,0);
-    gtk_box_pack_start (GTK_BOX (dialog->image_layout), temp_box, FALSE,FALSE,0);
+    temp_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_append(GTK_BOX(dialog->image_layout), temp_box);
 
     dialog->name_label = gtk_label_new(NULL);
     gtk_label_set_selectable (GTK_LABEL(dialog->name_label), TRUE);
-    gtk_misc_set_alignment (GTK_MISC(dialog->name_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->name_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(dialog->name_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), dialog->name_label);
     dialog->type_label = gtk_label_new(NULL);
     gtk_label_set_selectable (GTK_LABEL(dialog->type_label), TRUE);
-    gtk_misc_set_alignment (GTK_MISC(dialog->type_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->type_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(dialog->type_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), dialog->type_label);
     dialog->size_label = gtk_label_new(NULL);
     gtk_label_set_selectable (GTK_LABEL(dialog->size_label), TRUE);
-    gtk_misc_set_alignment (GTK_MISC(dialog->size_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->size_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(dialog->size_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), dialog->size_label);
     dialog->width_label = gtk_label_new(NULL);
     gtk_label_set_selectable (GTK_LABEL(dialog->width_label), TRUE);
-    gtk_misc_set_alignment (GTK_MISC(dialog->width_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->width_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(dialog->width_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), dialog->width_label);
     dialog->height_label = gtk_label_new(NULL);
     gtk_label_set_selectable (GTK_LABEL(dialog->height_label), TRUE);
-    gtk_misc_set_alignment (GTK_MISC(dialog->height_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->height_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(dialog->height_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), dialog->height_label);
     dialog->modified_label = gtk_label_new(NULL);
     gtk_label_set_selectable (GTK_LABEL(dialog->modified_label), TRUE);
-    gtk_misc_set_alignment (GTK_MISC(dialog->modified_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->modified_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(dialog->modified_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(temp_box), dialog->modified_label);
 
     /* Metadata Labels */
+    temp_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_box_append(GTK_BOX(dialog->layout), temp_box);
 
-    temp_box = gtk_hbox_new(FALSE,10);
-    gtk_box_pack_start (GTK_BOX (dialog->layout), temp_box, FALSE,FALSE,0);
+    dialog->meta_names_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_append(GTK_BOX(temp_box), dialog->meta_names_box);
 
-    dialog->meta_names_box = gtk_vbox_new(FALSE,0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->meta_names_box, FALSE,FALSE,0);
+    dialog->meta_values_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_box_append(GTK_BOX(temp_box), dialog->meta_values_box);
 
-    dialog->meta_values_box = gtk_vbox_new(FALSE,0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->meta_values_box, FALSE,FALSE,0);
+    /* Buttons */
+    dialog->prev_button = gtk_button_new_from_icon_name("go-previous");
+    gtk_box_append(GTK_BOX(action_area), dialog->prev_button);
+
+    dialog->next_button = gtk_button_new_from_icon_name("go-next");
+    gtk_box_append(GTK_BOX(action_area), dialog->next_button);
+
+    dialog->close_button = gtk_button_new_with_mnemonic(_("_Close"));
+    gtk_box_append(GTK_BOX(action_area), dialog->close_button);
+
+    gtk_box_append(GTK_BOX(content_area), action_area);
 
     /* Events and rest */
-
-    g_signal_connect(G_OBJECT(dialog), "delete-event",
-                     G_CALLBACK(gtk_widget_hide_on_delete), NULL);
     g_signal_connect_swapped(G_OBJECT(dialog->close_button), "clicked",
-                             G_CALLBACK(gtk_widget_hide_on_delete), dialog);
+                             G_CALLBACK(gtk_widget_hide), dialog);
 
-    g_signal_connect(G_OBJECT(dialog), "key-press-event", G_CALLBACK(key_press_cb), NULL);
+    GtkEventController *key_ctrl = gtk_event_controller_key_new();
+    g_signal_connect(key_ctrl, "key-pressed", G_CALLBACK(key_pressed_cb), dialog);
+    gtk_widget_add_controller(GTK_WIDGET(dialog), key_ctrl);
 
-    gtk_widget_show_all(content_area);
-    gtk_widget_show_all(action_area);
+    gtk_widget_show(content_area);
 }
 
 void
@@ -301,20 +319,21 @@ vnr_properties_dialog_update(VnrPropertiesDialog *dialog)
 static void
 vnr_properties_dialog_clear_metadata(VnrPropertiesDialog *dialog)
 {
-    GList *children;
-    GList *iter;
+    GtkWidget *child;
 
-    children = gtk_container_get_children(GTK_CONTAINER(dialog->meta_values_box));
-    for(iter = children; iter != NULL; iter = g_list_next(iter)) {
-        gtk_widget_destroy(GTK_WIDGET(iter->data));
+    child = gtk_widget_get_first_child(dialog->meta_values_box);
+    while (child != NULL) {
+        GtkWidget *next = gtk_widget_get_next_sibling(child);
+        gtk_widget_unparent(child);
+        child = next;
     }
-    g_list_free(children);
 
-    children = gtk_container_get_children(GTK_CONTAINER(dialog->meta_names_box));
-    for(iter = children; iter != NULL; iter = g_list_next(iter)) {
-        gtk_widget_destroy(GTK_WIDGET(iter->data));
+    child = gtk_widget_get_first_child(dialog->meta_names_box);
+    while (child != NULL) {
+        GtkWidget *next = gtk_widget_get_next_sibling(child);
+        gtk_widget_unparent(child);
+        child = next;
     }
-    g_list_free(children);
 }
 
 static void
@@ -327,8 +346,8 @@ vnr_cb_add_metadata(const char *label, const char *value, void *user_data) {
     temp_label = gtk_label_new(NULL);
     gtk_label_set_text(GTK_LABEL(temp_label), value);
     gtk_label_set_selectable (GTK_LABEL(temp_label), TRUE);
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX(dialog->meta_values_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(dialog->meta_values_box), temp_label);
 
     gtk_widget_show(temp_label);
 
@@ -337,8 +356,8 @@ vnr_cb_add_metadata(const char *label, const char *value, void *user_data) {
 
     temp_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(temp_label), formatted_label);
-    gtk_misc_set_alignment (GTK_MISC(temp_label), 0, 0);
-    gtk_box_pack_start (GTK_BOX(dialog->meta_names_box), temp_label, FALSE,FALSE,0);
+    gtk_widget_set_halign(temp_label, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(dialog->meta_names_box), temp_label);
 
     g_free(formatted_label);
     gtk_widget_show(temp_label);

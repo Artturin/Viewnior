@@ -38,7 +38,7 @@ typedef struct _VnrMessageAreaClass VnrMessageAreaClass;
 #define VNR_MESSAGE_AREA_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj),  VNR_TYPE_MESSAGE_AREA, VnrMessageAreaClass))
 
 struct _VnrMessageArea {
-    GtkEventBox parent;
+    GtkBox parent;
 
     VnrWindow *vnr_win;
     GtkWidget *hbox;
@@ -57,7 +57,7 @@ struct _VnrMessageArea {
 };
 
 struct _VnrMessageAreaClass {
-    GtkEventBoxClass parent_class;
+    GtkBoxClass parent_class;
 };
 
 GType       vnr_message_area_get_type (void) G_GNUC_CONST;

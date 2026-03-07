@@ -27,24 +27,9 @@
 
 G_DEFINE_TYPE (UniDragger, uni_dragger, G_TYPE_OBJECT);
 
-
-/* Drag 'n Drop */
-static GtkTargetEntry target_table[] = {
-	{ "text/uri-list", 0, 0},
-};
-
 /*************************************************************/
 /***** Static stuff ******************************************/
 /*************************************************************/
-
-static void
-uni_dragger_grab_pointer (UniDragger * tool,
-                            GdkWindow * window, guint32 time)
-{
-    int mask = (GDK_POINTER_MOTION_MASK
-                | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_RELEASE_MASK);
-    gdk_pointer_grab (window, FALSE, mask, NULL, tool->grab_cursor, time);
-}
 
 static void
 uni_dragger_get_drag_delta (UniDragger * tool, int *x, int *y)
@@ -58,62 +43,40 @@ uni_dragger_get_drag_delta (UniDragger * tool, int *x, int *y)
 /*************************************************************/
 
 gboolean
-uni_dragger_button_press (UniDragger * tool, GdkEventButton * ev)
+uni_dragger_button_press (UniDragger * tool, gdouble x, gdouble y)
 {
-    uni_dragger_grab_pointer (tool, ev->window, ev->time);
     tool->pressed = TRUE;
-    tool->drag_base_x = ev->x;
-    tool->drag_base_y = ev->y;
-    tool->drag_ofs_x = ev->x;
-    tool->drag_ofs_y = ev->y;
+    tool->drag_base_x = x;
+    tool->drag_base_y = y;
+    tool->drag_ofs_x = x;
+    tool->drag_ofs_y = y;
 
     return TRUE;
 }
 
 gboolean
-uni_dragger_button_release (UniDragger * tool, GdkEventButton * ev)
+uni_dragger_button_release (UniDragger * tool)
 {
-    if (ev->button != 1)
-        return FALSE;
-    gdk_pointer_ungrab (ev->time);
     tool->pressed = FALSE;
     tool->dragging = FALSE;
     return TRUE;
 }
 
 gboolean
-uni_dragger_motion_notify (UniDragger * tool, GdkEventMotion * ev)
+uni_dragger_motion_notify (UniDragger * tool, gdouble x, gdouble y)
 {
-    GtkAdjustment * vadj;
-    GtkAdjustment * hadj;
-
     if (tool->pressed)
         tool->dragging = TRUE;
     else
     	return FALSE;
 
-    tool->drag_ofs_x = ev->x;
-    tool->drag_ofs_y = ev->y;
+    tool->drag_ofs_x = x;
+    tool->drag_ofs_y = y;
 
     int dx, dy;
     uni_dragger_get_drag_delta (tool, &dx, &dy);
     if (abs (dx) < 1 && abs (dy) < 1)
         return FALSE;
-
-    vadj = uni_image_view_get_vadjustment(UNI_IMAGE_VIEW(tool->view));
-    hadj = uni_image_view_get_hadjustment(UNI_IMAGE_VIEW(tool->view));
-    if ( pow(dx, 2) + pow(dy, 2) > 7 && UNI_IMAGE_VIEW(tool->view)->pixbuf != NULL && 
-    		gtk_adjustment_get_upper(vadj) <= gtk_adjustment_get_page_size(vadj) && 
-    		gtk_adjustment_get_upper(hadj) <= gtk_adjustment_get_page_size(hadj) ) 
-    {
-		uni_dragger_button_release (tool, (GdkEventButton*)ev);
-    	gtk_drag_begin (GTK_WIDGET(tool->view),
-                gtk_target_list_new(target_table, G_N_ELEMENTS(target_table)),
-                GDK_ACTION_COPY,
-                1,
-                (GdkEvent*)ev);
-		return TRUE;
-    }
 
     GdkRectangle viewport;
     uni_image_view_get_viewport (UNI_IMAGE_VIEW (tool->view), &viewport);
@@ -202,7 +165,7 @@ uni_dragger_init (UniDragger * tool)
     tool->drag_base_y = 0;
     tool->drag_ofs_x = 0;
     tool->drag_ofs_y = 0;
-    tool->grab_cursor = gdk_cursor_new (GDK_FLEUR);
+    tool->grab_cursor = gdk_cursor_new_from_name ("grabbing", NULL);
 }
 
 /**

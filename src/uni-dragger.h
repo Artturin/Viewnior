@@ -69,14 +69,13 @@ UniDragger* uni_dragger_new         (GtkWidget * view);
 
 /* Actions */
 gboolean    uni_dragger_button_press    (UniDragger * tool,
-                                         GdkEventButton * ev);
+                                         gdouble x, gdouble y);
 
 
-gboolean    uni_dragger_button_release  (UniDragger * tool,
-                                         GdkEventButton * ev);
+gboolean    uni_dragger_button_release  (UniDragger * tool);
 
 gboolean    uni_dragger_motion_notify   (UniDragger * tool,
-                                         GdkEventMotion * ev);
+                                         gdouble x, gdouble y);
 
 
 void    uni_dragger_pixbuf_changed      (UniDragger * tool,

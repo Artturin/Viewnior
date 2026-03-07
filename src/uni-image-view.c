@@ -589,7 +589,7 @@ uni_image_view_button_press (GtkWidget * widget, GdkEventButton * ev)
     }
     else if (ev->type == GDK_BUTTON_PRESS && ev->button == 1)
     {
-        return uni_dragger_button_press (UNI_DRAGGER(view->tool), ev);
+        return uni_dragger_button_press (UNI_DRAGGER(view->tool), ev->x, ev->y);
     }
     else if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1)
     {
@@ -623,7 +623,7 @@ static int
 uni_image_view_button_release (GtkWidget * widget, GdkEventButton * ev)
 {
     UniImageView *view = UNI_IMAGE_VIEW (widget);
-    return uni_dragger_button_release (UNI_DRAGGER(view->tool), ev);
+    return uni_dragger_button_release (UNI_DRAGGER(view->tool));
 }
 
 static int
@@ -632,7 +632,7 @@ uni_image_view_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
     UniImageView *view = UNI_IMAGE_VIEW (widget);
     if (view->is_rendering)
         return FALSE;
-    return uni_dragger_motion_notify (UNI_DRAGGER(view->tool), ev);
+    return uni_dragger_motion_notify (UNI_DRAGGER(view->tool), ev->x, ev->y);
 }
 
 static gboolean

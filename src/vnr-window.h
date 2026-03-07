@@ -46,16 +46,16 @@ typedef enum {
 struct _VnrWindow {
     GtkWindow win;
 
-    GtkUIManager *ui_mngr;
+    GObject *ui_mngr;
 
-    GtkActionGroup *actions_window;
-    GtkActionGroup *actions_image;
-    GtkActionGroup *actions_static_image;
-    GtkActionGroup *actions_collection;
-    GtkActionGroup *action_save;
-    GtkActionGroup *action_properties;
-    GtkActionGroup *actions_bars;
-    GtkActionGroup *actions_open_with;
+    GObject *actions_window;
+    GObject *actions_image;
+    GObject *actions_static_image;
+    GObject *actions_collection;
+    GObject *action_save;
+    GObject *action_properties;
+    GObject *actions_bars;
+    GObject *actions_open_with;
 
     guint open_with_menu_id;
 
@@ -104,7 +104,7 @@ struct _VnrWindow {
     gint ss_timeout;
     GtkWidget *ss_timeout_widget;
 
-    GtkActionGroup *action_wallpaper;
+    GObject *action_wallpaper;
 };
 
 struct _VnrWindowClass {

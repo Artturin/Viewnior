@@ -73,7 +73,7 @@ struct _VnrPropertiesDialogClass {
 
 GType       vnr_properties_dialog_get_type (void) G_GNUC_CONST;
 
-GtkWidget*  vnr_properties_dialog_new      (VnrWindow *vnr_win, GtkAction *next_action, GtkAction *prev_action);
+GtkWidget*  vnr_properties_dialog_new      (VnrWindow *vnr_win);
 
 void    vnr_properties_dialog_update        (VnrPropertiesDialog *dialog);
 void    vnr_properties_dialog_update_image  (VnrPropertiesDialog *dialog);

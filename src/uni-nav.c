@@ -139,10 +139,19 @@ uni_nav_update_position (UniNav * nav)
     x = nav->center_x - off_x;
     y = nav->center_y - off_y;
 
-    /* Popup shoudn't be out of the screen */
-    x = CLAMP (x, 0, gdk_screen_width () - pw.width);
-    y = CLAMP (y, 0, gdk_screen_height () - pw.height);
-    gtk_window_move (GTK_WINDOW (nav), x, y);
+    /* Popup shouldn't be out of the screen */
+    GdkDisplay *display = gdk_display_get_default ();
+    GListModel *monitors = gdk_display_get_monitors (display);
+    GdkMonitor *monitor = g_list_model_get_item (monitors, 0);
+    GdkRectangle geom;
+    gdk_monitor_get_geometry (monitor, &geom);
+    g_object_unref (monitor);
+    int screen_w = geom.width;
+    int screen_h = geom.height;
+
+    /* Note: gtk_window_move is removed in GTK4; popup positioning is compositor-managed */
+    (void) x; (void) y; (void) pw; (void) rect; (void) off_x; (void) off_y;
+    (void) screen_w; (void) screen_h;
 }
 
 static void
@@ -176,12 +185,12 @@ uni_nav_update_pixbuf (UniNav * nav)
 /*************************************************************/
 /***** Private signal handlers *******************************/
 /*************************************************************/
-static gboolean
-uni_nav_expose_drawing_area (GtkWidget * widget,
-                             cairo_t *cr, UniNav * nav)
+static void
+uni_nav_draw_func (GtkDrawingArea * area,
+                   cairo_t *cr, int width, int height, UniNav * nav)
 {
     if (!nav->pixbuf)
-        return FALSE;
+        return;
 
     cairo_save(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
@@ -190,7 +199,6 @@ uni_nav_expose_drawing_area (GtkWidget * widget,
     uni_nav_draw_rectangle (nav, cr, FALSE);
     cairo_restore(cr);
     uni_nav_update_position (nav);
-    return TRUE;
 }
 
 /**
@@ -200,29 +208,21 @@ uni_nav_expose_drawing_area (GtkWidget * widget,
  * #UniImageView which responds to them. That way, keyboard navigation
  * in #UniNav behaves consistently with #UniImageView.
  **/
-static int
-uni_nav_key_press (GtkWidget * widget, GdkEventKey * ev)
+static gboolean
+uni_nav_key_pressed_cb (GtkEventControllerKey * ctrl, guint keyval,
+                        guint keycode, GdkModifierType state, UniNav * nav)
 {
-    UniNav *nav = UNI_NAV (widget);
-    int retval = gtk_bindings_activate (G_OBJECT (nav->view),
-                                        ev->keyval,
-                                        ev->state);
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
-    return retval;
+    gtk_event_controller_key_forward (ctrl, GTK_WIDGET (nav->view));
+    gtk_widget_queue_draw (GTK_WIDGET (nav->preview));
+    return FALSE;
 }
 
-static int
-uni_nav_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
+static gboolean
+uni_nav_motion_cb (GtkEventControllerMotion * ctrl, gdouble x, gdouble y,
+                   UniNav * nav)
 {
-    UniNav *nav = UNI_NAV (widget);
-    int mx, my;
-    gdk_window_get_pointer (gtk_widget_get_window (widget), &mx, &my, NULL);
-
-    /* Make coordinates relative to window. */
-    mx -= 4;
-    my -= 4;
+    int mx = (int)x - 4;
+    int my = (int)y - 4;
 
     /* Convert Nav space to Zoom space coordinates. */
     gdouble zoom2nav_factor = uni_nav_get_zoom2nav_factor (nav);
@@ -242,9 +242,7 @@ uni_nav_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
     int zoom_y_ofs = my * zoom2nav_factor;
 
     uni_image_view_set_offset (nav->view, zoom_x_ofs, zoom_y_ofs, TRUE);
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
+    gtk_widget_queue_draw (GTK_WIDGET (nav->preview));
 
     return TRUE;
 }
@@ -281,9 +279,7 @@ uni_nav_pixbuf_changed (UniNav * nav)
 static void
 uni_nav_zoom_changed (UniNav * nav)
 {
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
+    gtk_widget_queue_draw (GTK_WIDGET (nav->preview));
 }
 
 /**
@@ -293,9 +289,11 @@ uni_nav_zoom_changed (UniNav * nav)
  * is released, the nav is hidden.
  **/
 static void
-uni_nav_button_released (UniNav * nav, GdkEventButton * ev)
+uni_nav_button_released_cb (GtkGestureClick * gesture, gint n_press,
+                             gdouble x, gdouble y, gpointer data)
 {
-    if (ev->button != 1)
+    UniNav *nav = UNI_NAV (gtk_event_controller_get_widget (GTK_EVENT_CONTROLLER (gesture)));
+    if (gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (gesture)) != 1)
         return;
     uni_nav_release (nav);
     gtk_widget_hide (GTK_WIDGET (nav));
@@ -314,14 +312,28 @@ uni_nav_init (UniNav * nav)
     nav->update_when_shown = FALSE;
 
     GtkWidget *out_frame = gtk_frame_new (NULL);
-    gtk_frame_set_shadow_type (GTK_FRAME (out_frame), GTK_SHADOW_OUT);
-    gtk_container_add (GTK_CONTAINER (nav), out_frame);
+    /* GTK_SHADOW_OUT removed in GTK4 - CSS handles shadow styling */
+    gtk_window_set_child (GTK_WINDOW (nav), out_frame);
 
     nav->preview = gtk_drawing_area_new ();
-    gtk_container_add (GTK_CONTAINER (out_frame), nav->preview);
-    g_signal_connect (G_OBJECT (nav->preview),
-                      "draw",
-                      G_CALLBACK (uni_nav_expose_drawing_area), nav);
+    gtk_frame_set_child (GTK_FRAME (out_frame), nav->preview);
+    gtk_drawing_area_set_draw_func (GTK_DRAWING_AREA (nav->preview),
+                                    (GtkDrawingAreaDrawFunc) uni_nav_draw_func,
+                                    nav, NULL);
+
+    GtkEventController *key_ctrl = gtk_event_controller_key_new ();
+    g_signal_connect (key_ctrl, "key-pressed",
+                      G_CALLBACK (uni_nav_key_pressed_cb), nav);
+    gtk_widget_add_controller (GTK_WIDGET (nav), key_ctrl);
+
+    GtkEventController *motion = gtk_event_controller_motion_new ();
+    g_signal_connect (motion, "motion", G_CALLBACK (uni_nav_motion_cb), nav);
+    gtk_widget_add_controller (GTK_WIDGET (nav), motion);
+
+    GtkGesture *click = gtk_gesture_click_new ();
+    g_signal_connect (click, "released",
+                      G_CALLBACK (uni_nav_button_released_cb), NULL);
+    gtk_widget_add_controller (GTK_WIDGET (nav), GTK_EVENT_CONTROLLER (click));
 }
 
 static void
@@ -377,8 +389,7 @@ uni_nav_class_init (UniNavClass * klass)
     g_object_class_install_property (object_class, PROP_IMAGE_VIEW, pspec);
 
     GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
-    widget_class->key_press_event = uni_nav_key_press;
-    widget_class->motion_notify_event = uni_nav_motion_notify;
+    (void) widget_class; /* event controllers used in init instead */
 }
 
 /**
@@ -395,12 +406,12 @@ uni_nav_new (UniImageView * view)
     g_return_val_if_fail (view, NULL);
 
     gpointer data = g_object_new (UNI_TYPE_NAV,
-                                  "type", GTK_WINDOW_POPUP,
                                   /* The window must be non-resizable, otherwise it will not
                                      respond correctly to size requests which shrinks it. */
                                   "resizable", FALSE,
                                   "view", view,
                                   NULL);
+    gtk_window_set_decorated (GTK_WINDOW (data), FALSE);
     return GTK_WIDGET (data);
 }
 
@@ -410,33 +421,13 @@ uni_nav_new (UniImageView * view)
 void
 uni_nav_grab (UniNav * nav)
 {
-    GtkWidget *preview = nav->preview;
-    GdkWindow *window;
-
-    gtk_grab_add (preview);
-
-    GdkCursor *cursor = gdk_cursor_new (GDK_FLEUR);
-    int mask = (GDK_POINTER_MOTION_MASK
-                | GDK_POINTER_MOTION_HINT_MASK
-                | GDK_BUTTON_RELEASE_MASK);
-    window = gtk_widget_get_window (preview);
-    gdk_pointer_grab (window, TRUE, mask, window, cursor,
-                      0);
-    gdk_cursor_unref (cursor);
-
-    /* Capture keyboard events. */
-    gdk_keyboard_grab (window, TRUE, GDK_CURRENT_TIME);
-    gtk_widget_grab_focus (preview);
+    gtk_widget_grab_focus (nav->preview);
 }
 
 void
 uni_nav_release (UniNav * nav)
 {
-    gdk_pointer_ungrab (GDK_CURRENT_TIME);
-
-    /* Release keyboard focus. */
-    gdk_keyboard_ungrab (GDK_CURRENT_TIME);
-    gtk_grab_remove (nav->preview);
+    /* Pointer/keyboard grab not available in GTK4 */
 }
 
 
@@ -465,13 +456,10 @@ uni_nav_show_and_grab (UniNav * nav, int center_x, int center_y)
     if (nav->update_when_shown)
         uni_nav_update_pixbuf (nav);
 
-
-    /* Connect signals and run! */
-    gtk_widget_show_all (GTK_WIDGET (nav));
+    /* Show the nav and grab input. */
+    gtk_widget_show (GTK_WIDGET (nav));
     uni_nav_grab (nav);
 
-    g_signal_connect (G_OBJECT (nav), "button-release-event",
-                      G_CALLBACK (uni_nav_button_released), NULL);
     g_signal_connect_swapped (G_OBJECT (nav->view), "zoom_changed",
                               G_CALLBACK (uni_nav_zoom_changed), nav);
 }

@@ -4,7 +4,7 @@ project('viewnior', 'c', 'cpp',
   meson_version: '>= 0.43.0'
 )
 
-add_global_arguments('-Wno-deprecated-declarations', language: 'c')
+
 
 # Directory variables
 datadir = get_option('datadir')
@@ -23,7 +23,7 @@ i18n = import('i18n')
 glib_ver = '>= 2.32'
 
 viewnior_deps = [
-  dependency('gtk+-3.0'),
+  dependency('gtk4'),
   dependency('glib-2.0', version: glib_ver),
   dependency('gio-2.0', version: glib_ver),
   dependency('shared-mime-info', version: '>= 0.20'),
