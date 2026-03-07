@@ -1580,6 +1580,13 @@ vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
     }
 }
 
+static gboolean
+vnr_message_area_hide_cb(gpointer data)
+{
+    vnr_message_area_hide(VNR_MESSAGE_AREA(data));
+    return G_SOURCE_REMOVE;
+}
+
 static void
 vnr_copy_image(GtkAction *action, VnrWindow *win)
 {
@@ -1597,7 +1604,7 @@ vnr_copy_image(GtkAction *action, VnrWindow *win)
                               _("Image copied to clipboard."),
                               FALSE);
 
-        g_timeout_add_seconds(3, (GSourceFunc)vnr_message_area_hide, VNR_MESSAGE_AREA(win->msg_area));
+        g_timeout_add_seconds(3, vnr_message_area_hide_cb, VNR_MESSAGE_AREA(win->msg_area));
     }
 }
 
