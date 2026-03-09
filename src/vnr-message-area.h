@@ -76,7 +76,7 @@ void        vnr_message_area_show_with_button (VnrMessageArea *msg_area,
                                                const gchar *button_stock_id,
                                                GCallback c_handler);
 
-void        vnr_message_area_hide         (VnrMessageArea *msg_area);
+gboolean        vnr_message_area_hide         (VnrMessageArea *msg_area);
 
 gboolean    vnr_message_area_is_critical  (VnrMessageArea *msg_area);
 gboolean    vnr_message_area_is_visible  (VnrMessageArea *msg_area);

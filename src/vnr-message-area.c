@@ -161,7 +161,7 @@ vnr_message_area_show_with_button (VnrMessageArea *msg_area,
     gtk_widget_show_all(GTK_WIDGET (msg_area));
 }
 
-void
+gboolean
 vnr_message_area_hide (VnrMessageArea *msg_area)
 {
     gtk_widget_hide(GTK_WIDGET (msg_area));
@@ -172,6 +172,10 @@ vnr_message_area_hide (VnrMessageArea *msg_area)
                                               msg_area->vnr_win);
         msg_area->with_button = FALSE;
     }
+
+    // Doc says
+    // The function is called repeatedly until it returns G_SOURCE_REMOVE, at which point the timeout is automatically destroyed and the function will not be called again.
+    return G_SOURCE_REMOVE;
 }
 
 gboolean
