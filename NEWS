@@ -73,7 +73,7 @@ New features included:
 Fixed:
  - Wallpaper support for XFCE
  - Minor fixes
- 
+
 Viewnior 1.2
 ------------
 
@@ -95,7 +95,7 @@ New features included:
  - Remember window state (maximized) between startups
  - Add "Last Used Mode" zoom option
  - --slideshow argument to start in Slideshow mode
- - Gnome 3.0 ready 
+ - Gnome 3.0 ready
 
 Fixed:
  - Remove deprecated gtk+/glib symbols

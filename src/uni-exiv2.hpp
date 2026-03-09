@@ -21,7 +21,7 @@
  */
 
 #ifndef __UNI_EXIV2__H_
-#define __UNI_EXIV2__H_ 
+#define __UNI_EXIV2__H_
 
 #ifdef __cplusplus
 
@@ -29,7 +29,7 @@
 
 extern "C" {
 #include <glib/gi18n.h>
-    
+
     typedef Exiv2::ExifData::const_iterator (*ExifDataFinder)(const Exiv2::ExifData& ed);
     typedef struct _ExifDataDictionary ExifDataDictionary;
     typedef struct _IptcDataDictionary IptcDataDictionary;
@@ -70,8 +70,8 @@ extern "C" {
 
 #endif /* __cplusplus */
 
-void    uni_read_exiv2_map          (const char *uri, 
-                                     void (*callback)(const char*, const char*, void*), 
+void    uni_read_exiv2_map          (const char *uri,
+                                     void (*callback)(const char*, const char*, void*),
                                      void *user_data);
 
 int     uni_read_exiv2_to_cache     (const char *uri);

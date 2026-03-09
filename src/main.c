@@ -122,7 +122,7 @@ main (int argc, char *argv[])
             vnr_window_set_list(VNR_WINDOW(window), file_list, TRUE);
         }
     }
-    
+
     VNR_WINDOW(window)->prefs->start_slideshow = slideshow;
     VNR_WINDOW(window)->prefs->start_fullscreen = fullscreen;
     if ( VNR_WINDOW(window)->prefs->start_maximized ) {

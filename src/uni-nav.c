@@ -111,7 +111,7 @@ uni_nav_draw_rectangle (UniNav * nav, cairo_t *cr, gboolean clear_last)
     gdk_cairo_rectangle(cr, &rect);
     cairo_stroke(cr);
     cairo_restore(cr);
-    
+
     nav->last_rect = rect;
 }
 

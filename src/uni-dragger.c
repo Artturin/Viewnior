@@ -102,9 +102,9 @@ uni_dragger_motion_notify (UniDragger * tool, GdkEventMotion * ev)
 
     vadj = uni_image_view_get_vadjustment(UNI_IMAGE_VIEW(tool->view));
     hadj = uni_image_view_get_hadjustment(UNI_IMAGE_VIEW(tool->view));
-    if ( pow(dx, 2) + pow(dy, 2) > 7 && UNI_IMAGE_VIEW(tool->view)->pixbuf != NULL && 
-    		gtk_adjustment_get_upper(vadj) <= gtk_adjustment_get_page_size(vadj) && 
-    		gtk_adjustment_get_upper(hadj) <= gtk_adjustment_get_page_size(hadj) ) 
+    if ( pow(dx, 2) + pow(dy, 2) > 7 && UNI_IMAGE_VIEW(tool->view)->pixbuf != NULL &&
+    		gtk_adjustment_get_upper(vadj) <= gtk_adjustment_get_page_size(vadj) &&
+    		gtk_adjustment_get_upper(hadj) <= gtk_adjustment_get_page_size(hadj) )
     {
 		uni_dragger_button_release (tool, (GdkEventButton*)ev);
     	gtk_drag_begin (GTK_WIDGET(tool->view),
@@ -195,7 +195,7 @@ uni_dragger_init (UniDragger * tool)
 {
     tool->view = NULL;
     tool->cache = uni_pixbuf_draw_cache_new ();
-    
+
     tool->pressed = FALSE;
     tool->dragging = FALSE;
     tool->drag_base_x = 0;
