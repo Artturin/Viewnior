@@ -267,9 +267,10 @@ drawable_draw_cb (GtkWidget *widget, cairo_t *cr, VnrCrop *crop)
         crop->sub_height = crop->height;
     }
 
+    cairo_set_operator(cr, CAIRO_OPERATOR_DIFFERENCE);
     cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 1.0);
     cairo_set_line_width(cr, 3);
-    cairo_rectangle(cr, crop->sub_x, crop->sub_y, crop->sub_width, crop->sub_height);
+    cairo_rectangle(cr, (int)crop->sub_x + 0.5, (int)crop->sub_y + 0.5, (int)crop->sub_width, (int)crop->sub_height);
     cairo_stroke(cr);
 
     return FALSE;
