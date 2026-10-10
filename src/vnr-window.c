@@ -1580,6 +1580,73 @@ vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
     }
 }
 
+enum {
+    VNR_CLIPBOARD_TARGET_IMAGE,
+    VNR_CLIPBOARD_TARGET_URI,
+    VNR_CLIPBOARD_TARGET_GNOME_COPIED_FILES
+};
+
+typedef struct {
+    GdkPixbuf *pixbuf;
+    gchar *uri;
+} VnrClipboardData;
+
+static void
+vnr_clipboard_data_free(VnrClipboardData *data)
+{
+    if (data) {
+        if (data->pixbuf)
+            g_object_unref(data->pixbuf);
+        g_free(data->uri);
+        g_free(data);
+    }
+}
+
+static void
+vnr_clipboard_get_func(GtkClipboard *clipboard,
+                       GtkSelectionData *selection_data,
+                       guint info,
+                       gpointer user_data)
+{
+    VnrClipboardData *data = (VnrClipboardData *)user_data;
+    if (!data)
+        return;
+
+    GdkAtom target = gtk_selection_data_get_target(selection_data);
+    gchar *target_name = gdk_atom_name(target);
+
+    if (info == VNR_CLIPBOARD_TARGET_IMAGE || (target_name && g_str_has_prefix(target_name, "image/"))) {
+        if (data->pixbuf)
+            gtk_selection_data_set_pixbuf(selection_data, data->pixbuf);
+    } else if (info == VNR_CLIPBOARD_TARGET_URI || (target_name && g_strcmp0(target_name, "text/uri-list") == 0)) {
+        if (data->uri) {
+            gchar *uris[2];
+            uris[0] = data->uri;
+            uris[1] = NULL;
+            gtk_selection_data_set_uris(selection_data, uris);
+        }
+    } else if (info == VNR_CLIPBOARD_TARGET_GNOME_COPIED_FILES || (target_name && g_strcmp0(target_name, "x-special/gnome-copied-files") == 0)) {
+        if (data->uri) {
+            gchar *buf = g_strdup_printf("copy\n%s", data->uri);
+            gtk_selection_data_set(selection_data,
+                                   target,
+                                   8,
+                                   (const guchar *)buf,
+                                   strlen(buf));
+            g_free(buf);
+        }
+    }
+
+    g_free(target_name);
+}
+
+static void
+vnr_clipboard_clear_func(GtkClipboard *clipboard,
+                         gpointer user_data)
+{
+    vnr_clipboard_data_free((VnrClipboardData *)user_data);
+}
+
 static void
 vnr_copy_image(GtkAction *action, VnrWindow *win)
 {
@@ -1587,10 +1654,48 @@ vnr_copy_image(GtkAction *action, VnrWindow *win)
 
     if (view_pixbuf) {
         GtkClipboard *clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+        GtkTargetList *list = gtk_target_list_new(NULL, 0);
+        gchar *uri = NULL;
+        GtkTargetEntry *targets;
+        gint n_targets;
+        VnrClipboardData *clip_data;
 
-        gtk_clipboard_set_image(clipboard, view_pixbuf);
+        if (win->file_list && win->file_list->data) {
+            const gchar *path = VNR_FILE(win->file_list->data)->path;
+            if (path && g_file_test(path, G_FILE_TEST_EXISTS)) {
+                uri = g_filename_to_uri(path, NULL, NULL);
+            }
+        }
 
-        gtk_clipboard_store(clipboard);
+        if (uri) {
+            gtk_target_list_add_uri_targets(list, VNR_CLIPBOARD_TARGET_URI);
+            gtk_target_list_add(list,
+                                gdk_atom_intern_static_string("x-special/gnome-copied-files"),
+                                0,
+                                VNR_CLIPBOARD_TARGET_GNOME_COPIED_FILES);
+        }
+        gtk_target_list_add_image_targets(list, VNR_CLIPBOARD_TARGET_IMAGE, TRUE);
+
+        targets = gtk_target_table_new_from_list(list, &n_targets);
+
+        clip_data = g_new0(VnrClipboardData, 1);
+        clip_data->pixbuf = g_object_ref(view_pixbuf);
+        clip_data->uri = uri;
+
+        if (gtk_clipboard_set_with_data(clipboard,
+                                        targets,
+                                        n_targets,
+                                        vnr_clipboard_get_func,
+                                        vnr_clipboard_clear_func,
+                                        clip_data)) {
+            gtk_clipboard_set_can_store(clipboard, targets, n_targets);
+            gtk_clipboard_store(clipboard);
+        } else {
+            vnr_clipboard_data_free(clip_data);
+        }
+
+        gtk_target_table_free(targets, n_targets);
+        gtk_target_list_unref(list);
 
         vnr_message_area_show(VNR_MESSAGE_AREA(win->msg_area),
                               FALSE,
