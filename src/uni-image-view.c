@@ -316,68 +316,6 @@ uni_image_view_repaint_area (UniImageView * view, GdkRectangle * paint_rect, cai
 }
 
 /**
- * uni_image_view_fast_scroll:
- *
- * Actually scroll the views window using gdk_draw_drawable().
- * GTK_WIDGET (view)->window is guaranteed to be non-NULL in this
- * function.
- **/
-static void
-uni_image_view_fast_scroll (UniImageView * view, int delta_x, int delta_y)
-{
-    int src_x, src_y;
-    int dest_x, dest_y;
-    if (delta_x < 0)
-    {
-        src_x = 0;
-        dest_x = -delta_x;
-    }
-    else
-    {
-        src_x = delta_x;
-        dest_x = 0;
-    }
-    if (delta_y < 0)
-    {
-        src_y = 0;
-        dest_y = -delta_y;
-    }
-    else
-    {
-        src_y = delta_y;
-        dest_y = 0;
-    }
-
-    Size alloc = uni_image_view_get_allocated_size (view);
-    GdkWindow *window = gtk_widget_get_window (GTK_WIDGET (view));
-    cairo_t *cr = gdk_cairo_create (window);
-    GdkPixbuf *win = gdk_pixbuf_get_from_window (window, src_x, src_y, alloc.width - abs (delta_x), alloc.height - abs (delta_y));
-    gdk_cairo_set_source_pixbuf (cr, win, dest_x, dest_y);
-    cairo_paint (cr);
-    g_object_unref (win);
-
-    /* If we moved in both the x and y directions, two "strips" of the
-       image becomes visible. One horizontal strip and one vertical
-       strip. */
-    GdkRectangle horiz_strip = {
-        0,
-        (delta_y < 0) ? 0 : alloc.height - abs (delta_y),
-        alloc.width,
-        abs (delta_y)
-    };
-    uni_image_view_repaint_area (view, &horiz_strip, cr);
-
-    GdkRectangle vert_strip = {
-        (delta_x < 0) ? 0 : alloc.width - abs (delta_x),
-        0,
-        abs (delta_x),
-        alloc.height
-    };
-    uni_image_view_repaint_area (view, &vert_strip, cr);
-    cairo_destroy (cr);
-}
-
-/**
  * uni_image_view_scroll_to:
  * @offset_x: X part of the offset in zoom space coordinates.
  * @offset_y: Y part of the offset in zoom space coordinates.
@@ -430,7 +368,10 @@ uni_image_view_scroll_to (UniImageView * view,
         if (invalidate)
             gdk_window_invalidate_rect (window, NULL, TRUE);
         else
-            uni_image_view_fast_scroll (view, delta_x, delta_y);
+            /* In GTK 3.24 this does not copy the old contents; it
+               invalidates the whole window, so the next draw repaints
+               everything. */
+            gdk_window_scroll (window, -delta_x, -delta_y);
     }
 }
 
@@ -552,6 +493,12 @@ uni_image_view_expose (GtkWidget * widget, cairo_t *cr)
     gtk_widget_get_allocation (GTK_WIDGET (VNR_WINDOW (gtk_widget_get_toplevel (widget))->scroll_view), &allocation);
     allocation.x = 0;
     allocation.y = 0;
+
+    /* Only repaint the damaged part. */
+    GdkRectangle clip;
+    if (gdk_cairo_get_clip_rectangle (cr, &clip))
+        gdk_rectangle_intersect (&allocation, &clip, &allocation);
+
     return uni_image_view_repaint_area (UNI_IMAGE_VIEW (widget), &allocation, cr);
 }
 

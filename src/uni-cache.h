@@ -71,7 +71,7 @@ struct _UniPixbufDrawOpts {
  * This object is present purely to ensure optimal speed. A
  * #GtkIImageTool that is asked to redraw a part of the image view
  * widget could either do it by itself using gdk_pixbuf_scale() and
- * gdk_draw_pixbuf().
+ * gdk_cairo_set_source_pixbuf().
  **/
 struct _UniPixbufDrawCache {
     GdkPixbuf *last_pixbuf;

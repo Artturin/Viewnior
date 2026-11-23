@@ -93,7 +93,7 @@ gtk_image_get_current_rectangle (UniNav * nav)
 }
 
 static void
-uni_nav_draw_rectangle (UniNav * nav, cairo_t *cr, gboolean clear_last)
+uni_nav_draw_rectangle (UniNav * nav, cairo_t *cr)
 {
     GdkRectangle rect;
     rect = gtk_image_get_current_rectangle (nav);
@@ -101,18 +101,9 @@ uni_nav_draw_rectangle (UniNav * nav, cairo_t *cr, gboolean clear_last)
     cairo_save(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_DIFFERENCE);
     cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 1.0);
-    /* Clear the last drawn rectangle. */
-    if (clear_last)
-    {
-        gdk_cairo_rectangle(cr, &nav->last_rect);
-        cairo_stroke(cr);
-    }
-
     gdk_cairo_rectangle(cr, &rect);
     cairo_stroke(cr);
     cairo_restore(cr);
-
-    nav->last_rect = rect;
 }
 
 static void
@@ -177,8 +168,8 @@ uni_nav_update_pixbuf (UniNav * nav)
 /***** Private signal handlers *******************************/
 /*************************************************************/
 static gboolean
-uni_nav_expose_drawing_area (GtkWidget * widget,
-                             cairo_t *cr, UniNav * nav)
+uni_nav_draw_preview (GtkWidget * widget,
+                      cairo_t *cr, UniNav * nav)
 {
     if (!nav->pixbuf)
         return FALSE;
@@ -187,7 +178,7 @@ uni_nav_expose_drawing_area (GtkWidget * widget,
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     gdk_cairo_set_source_pixbuf(cr, nav->pixbuf, 0, 0);
     cairo_paint(cr);
-    uni_nav_draw_rectangle (nav, cr, FALSE);
+    uni_nav_draw_rectangle (nav, cr);
     cairo_restore(cr);
     uni_nav_update_position (nav);
     return TRUE;
@@ -207,9 +198,7 @@ uni_nav_key_press (GtkWidget * widget, GdkEventKey * ev)
     int retval = gtk_bindings_activate (G_OBJECT (nav->view),
                                         ev->keyval,
                                         ev->state);
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
+    gtk_widget_queue_draw (nav->preview);
     return retval;
 }
 
@@ -242,9 +231,7 @@ uni_nav_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
     int zoom_y_ofs = my * zoom2nav_factor;
 
     uni_image_view_set_offset (nav->view, zoom_x_ofs, zoom_y_ofs, TRUE);
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
+    gtk_widget_queue_draw (nav->preview);
 
     return TRUE;
 }
@@ -281,9 +268,7 @@ uni_nav_pixbuf_changed (UniNav * nav)
 static void
 uni_nav_zoom_changed (UniNav * nav)
 {
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
+    gtk_widget_queue_draw (nav->preview);
 }
 
 /**
@@ -308,9 +293,6 @@ static void
 uni_nav_init (UniNav * nav)
 {
     nav->view = NULL;
-    nav->last_rect = (GdkRectangle)
-    {
-    -1, -1, -1, -1};
     nav->update_when_shown = FALSE;
 
     GtkWidget *out_frame = gtk_frame_new (NULL);
@@ -321,7 +303,7 @@ uni_nav_init (UniNav * nav)
     gtk_container_add (GTK_CONTAINER (out_frame), nav->preview);
     g_signal_connect (G_OBJECT (nav->preview),
                       "draw",
-                      G_CALLBACK (uni_nav_expose_drawing_area), nav);
+                      G_CALLBACK (uni_nav_draw_preview), nav);
 }
 
 static void
