@@ -93,7 +93,7 @@ gtk_image_get_current_rectangle (UniNav * nav)
 }
 
 static void
-uni_nav_draw_rectangle (UniNav * nav, cairo_t *cr, gboolean clear_last)
+uni_nav_draw_rectangle (UniNav * nav, cairo_t *cr)
 {
     GdkRectangle rect;
     rect = gtk_image_get_current_rectangle (nav);
@@ -101,18 +101,9 @@ uni_nav_draw_rectangle (UniNav * nav, cairo_t *cr, gboolean clear_last)
     cairo_save(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_DIFFERENCE);
     cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 1.0);
-    /* Clear the last drawn rectangle. */
-    if (clear_last)
-    {
-        gdk_cairo_rectangle(cr, &nav->last_rect);
-        cairo_stroke(cr);
-    }
-
     gdk_cairo_rectangle(cr, &rect);
     cairo_stroke(cr);
     cairo_restore(cr);
-
-    nav->last_rect = rect;
 }
 
 static void
@@ -124,25 +115,45 @@ uni_nav_update_position (UniNav * nav)
         return;
     }
 
-    int off_x, off_y, x, y;
-    GdkRectangle rect;
+    /* The popup is positioned relative to its parent window, which
+       is the only option on Wayland. */
+    GtkWindow *parent = gtk_window_get_transient_for (GTK_WINDOW (nav));
+    if (parent == NULL || !gtk_widget_get_realized (GTK_WIDGET (parent)))
+        return;
 
-    /* Calculate position of popup. */
-    Size pw = uni_nav_get_preview_size (nav);
+    int off_x, off_y, origin_x, origin_y;
+    GdkRectangle rect;
 
     rect = gtk_image_get_current_rectangle (nav);
 
-    /* 3 is the rectangle's line width, defined in nav->gc */
+    /* Center the viewport rectangle under the pointer. 3 is the
+       rectangle's line width. */
     off_x = rect.x + rect.width / 2 + 3;
     off_y = rect.y + rect.height / 2 + 3;
 
-    x = nav->center_x - off_x;
-    y = nav->center_y - off_y;
+    gdk_window_get_origin (gtk_widget_get_window (GTK_WIDGET (parent)),
+                           &origin_x, &origin_y);
+    GdkRectangle anchor = {
+        nav->center_x - origin_x - off_x,
+        nav->center_y - origin_y - off_y,
+        1, 1
+    };
 
-    /* Popup shoudn't be out of the screen */
-    x = CLAMP (x, 0, gdk_screen_width () - pw.width);
-    y = CLAMP (y, 0, gdk_screen_height () - pw.height);
-    gtk_window_move (GTK_WINDOW (nav), x, y);
+    /* Size the window before positioning it, otherwise the slide is
+       computed with a stale size. Then let the windowing system slide
+       the popup back onto the monitor if it would end up partially
+       off-screen. */
+    GtkRequisition size;
+    gtk_widget_realize (GTK_WIDGET (nav));
+    gtk_widget_get_preferred_size (GTK_WIDGET (nav), NULL, &size);
+    gdk_window_resize (gtk_widget_get_window (GTK_WIDGET (nav)),
+                       size.width, size.height);
+    gdk_window_move_to_rect (gtk_widget_get_window (GTK_WIDGET (nav)),
+                             &anchor,
+                             GDK_GRAVITY_NORTH_WEST,
+                             GDK_GRAVITY_NORTH_WEST,
+                             GDK_ANCHOR_SLIDE,
+                             0, 0);
 }
 
 static void
@@ -177,8 +188,8 @@ uni_nav_update_pixbuf (UniNav * nav)
 /***** Private signal handlers *******************************/
 /*************************************************************/
 static gboolean
-uni_nav_expose_drawing_area (GtkWidget * widget,
-                             cairo_t *cr, UniNav * nav)
+uni_nav_draw_preview (GtkWidget * widget,
+                      cairo_t *cr, UniNav * nav)
 {
     if (!nav->pixbuf)
         return FALSE;
@@ -187,7 +198,7 @@ uni_nav_expose_drawing_area (GtkWidget * widget,
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     gdk_cairo_set_source_pixbuf(cr, nav->pixbuf, 0, 0);
     cairo_paint(cr);
-    uni_nav_draw_rectangle (nav, cr, FALSE);
+    uni_nav_draw_rectangle (nav, cr);
     cairo_restore(cr);
     uni_nav_update_position (nav);
     return TRUE;
@@ -207,9 +218,7 @@ uni_nav_key_press (GtkWidget * widget, GdkEventKey * ev)
     int retval = gtk_bindings_activate (G_OBJECT (nav->view),
                                         ev->keyval,
                                         ev->state);
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
+    gtk_widget_queue_draw (nav->preview);
     return retval;
 }
 
@@ -218,7 +227,8 @@ uni_nav_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
 {
     UniNav *nav = UNI_NAV (widget);
     int mx, my;
-    gdk_window_get_pointer (gtk_widget_get_window (widget), &mx, &my, NULL);
+    gdk_window_get_device_position (gtk_widget_get_window (widget),
+                                    ev->device, &mx, &my, NULL);
 
     /* Make coordinates relative to window. */
     mx -= 4;
@@ -242,9 +252,7 @@ uni_nav_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
     int zoom_y_ofs = my * zoom2nav_factor;
 
     uni_image_view_set_offset (nav->view, zoom_x_ofs, zoom_y_ofs, TRUE);
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
+    gtk_widget_queue_draw (nav->preview);
 
     return TRUE;
 }
@@ -281,9 +289,7 @@ uni_nav_pixbuf_changed (UniNav * nav)
 static void
 uni_nav_zoom_changed (UniNav * nav)
 {
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(nav->preview));
-    uni_nav_draw_rectangle (nav, cr, TRUE);
-    cairo_destroy(cr);
+    gtk_widget_queue_draw (nav->preview);
 }
 
 /**
@@ -308,9 +314,6 @@ static void
 uni_nav_init (UniNav * nav)
 {
     nav->view = NULL;
-    nav->last_rect = (GdkRectangle)
-    {
-    -1, -1, -1, -1};
     nav->update_when_shown = FALSE;
 
     GtkWidget *out_frame = gtk_frame_new (NULL);
@@ -319,9 +322,14 @@ uni_nav_init (UniNav * nav)
 
     nav->preview = gtk_drawing_area_new ();
     gtk_container_add (GTK_CONTAINER (out_frame), nav->preview);
+
+    /* Make the contents visible up front, so the popup can be sized
+       correctly before it is positioned and shown. */
+    gtk_widget_show (out_frame);
+    gtk_widget_show (nav->preview);
     g_signal_connect (G_OBJECT (nav->preview),
                       "draw",
-                      G_CALLBACK (uni_nav_expose_drawing_area), nav);
+                      G_CALLBACK (uni_nav_draw_preview), nav);
 }
 
 static void
@@ -411,31 +419,24 @@ void
 uni_nav_grab (UniNav * nav)
 {
     GtkWidget *preview = nav->preview;
-    GdkWindow *window;
+    GdkWindow *window = gtk_widget_get_window (preview);
+    GdkDisplay *display = gtk_widget_get_display (preview);
 
     gtk_grab_add (preview);
 
-    GdkCursor *cursor = gdk_cursor_new (GDK_FLEUR);
-    int mask = (GDK_POINTER_MOTION_MASK
-                | GDK_POINTER_MOTION_HINT_MASK
-                | GDK_BUTTON_RELEASE_MASK);
-    window = gtk_widget_get_window (preview);
-    gdk_pointer_grab (window, TRUE, mask, window, cursor,
-                      0);
-    gdk_cursor_unref (cursor);
+    /* Grab the pointer and capture keyboard events. */
+    GdkCursor *cursor = gdk_cursor_new_for_display (display, GDK_FLEUR);
+    gdk_seat_grab (gdk_display_get_default_seat (display), window,
+                   GDK_SEAT_CAPABILITY_ALL, TRUE, cursor, NULL, NULL, NULL);
+    g_object_unref (cursor);
 
-    /* Capture keyboard events. */
-    gdk_keyboard_grab (window, TRUE, GDK_CURRENT_TIME);
     gtk_widget_grab_focus (preview);
 }
 
 void
 uni_nav_release (UniNav * nav)
 {
-    gdk_pointer_ungrab (GDK_CURRENT_TIME);
-
-    /* Release keyboard focus. */
-    gdk_keyboard_ungrab (GDK_CURRENT_TIME);
+    gdk_seat_ungrab (gdk_display_get_default_seat (gtk_widget_get_display (nav->preview)));
     gtk_grab_remove (nav->preview);
 }
 
@@ -460,6 +461,14 @@ uni_nav_show_and_grab (UniNav * nav, int center_x, int center_y)
 {
     nav->center_x = center_x;
     nav->center_y = center_y;
+
+    /* A popup needs a parent, otherwise it cannot be positioned on
+       Wayland. */
+    GtkWidget *toplevel = gtk_widget_get_toplevel (GTK_WIDGET (nav->view));
+    if (GTK_IS_WINDOW (toplevel)
+        && gtk_window_get_transient_for (GTK_WINDOW (nav)) != GTK_WINDOW (toplevel))
+        gtk_window_set_transient_for (GTK_WINDOW (nav), GTK_WINDOW (toplevel));
+
     uni_nav_update_position (nav);
 
     if (nav->update_when_shown)

@@ -207,7 +207,7 @@ build_dialog (VnrPrefs *prefs)
     GtkToggleButton *confirm_delete;
     GtkToggleButton *reload_on_save;
     GtkSpinButton *slideshow_timeout;
-    GtkTable *behavior_table;
+    GtkGrid *behavior_table;
     GtkComboBoxText *action_wheel;
     GtkComboBoxText *action_click;
     GtkComboBoxText *action_modify;
@@ -317,7 +317,7 @@ build_dialog (VnrPrefs *prefs)
     g_signal_connect(G_OBJECT(desktop_env), "changed", G_CALLBACK(change_desktop_env_cb), prefs);
 
     /* Behavior combo boxes */
-    behavior_table = GTK_TABLE (gtk_builder_get_object (builder, "behavior_table"));
+    behavior_table = GTK_GRID (gtk_builder_get_object (builder, "behavior_table"));
 
     action_wheel = (GtkComboBoxText*) gtk_combo_box_text_new();
     gtk_combo_box_text_append_text(action_wheel, _("Navigate images"));
@@ -325,7 +325,7 @@ build_dialog (VnrPrefs *prefs)
     gtk_combo_box_text_append_text(action_wheel, _("Scroll image up/down"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(action_wheel), prefs->behavior_wheel);
 
-    gtk_table_attach (behavior_table, GTK_WIDGET(action_wheel), 1,2,0,1, GTK_FILL,0, 0,0);
+    gtk_grid_attach (behavior_table, GTK_WIDGET(action_wheel), 1, 0, 1, 1);
     gtk_widget_show(GTK_WIDGET(action_wheel));
     g_signal_connect(G_OBJECT(action_wheel), "changed", G_CALLBACK(change_action_wheel_cb), prefs);
 
@@ -335,7 +335,7 @@ build_dialog (VnrPrefs *prefs)
     gtk_combo_box_text_append_text(action_click, _("Navigate images"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(action_click), prefs->behavior_click);
 
-    gtk_table_attach (behavior_table, GTK_WIDGET(action_click), 1,2,1,2, GTK_FILL,0, 0,0);
+    gtk_grid_attach (behavior_table, GTK_WIDGET(action_click), 1, 1, 1, 1);
     gtk_widget_show(GTK_WIDGET(action_click));
     g_signal_connect(G_OBJECT(action_click), "changed", G_CALLBACK(change_action_click_cb), prefs);
 
@@ -345,7 +345,7 @@ build_dialog (VnrPrefs *prefs)
     gtk_combo_box_text_append_text(action_modify, _("Ignore changes"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(action_modify), prefs->behavior_modify);
 
-    gtk_table_attach (behavior_table, GTK_WIDGET(action_modify), 1,2,2,3, GTK_FILL,0, 0,0);
+    gtk_grid_attach (behavior_table, GTK_WIDGET(action_modify), 1, 2, 1, 1);
     gtk_widget_show(GTK_WIDGET(action_modify));
     g_signal_connect(G_OBJECT(action_modify), "changed", G_CALLBACK(change_action_modify_cb), prefs);
 

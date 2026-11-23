@@ -38,12 +38,16 @@ static GtkTargetEntry target_table[] = {
 /*************************************************************/
 
 static void
-uni_dragger_grab_pointer (UniDragger * tool,
-                            GdkWindow * window, guint32 time)
+uni_dragger_grab_pointer (UniDragger * tool, GdkEvent * event)
 {
-    int mask = (GDK_POINTER_MOTION_MASK
-                | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_RELEASE_MASK);
-    gdk_pointer_grab (window, FALSE, mask, NULL, tool->grab_cursor, time);
+    if (tool->grab_cursor == NULL)
+        tool->grab_cursor =
+            gdk_cursor_new_for_display (gdk_window_get_display (event->any.window),
+                                        GDK_FLEUR);
+
+    gdk_seat_grab (gdk_event_get_seat (event), event->any.window,
+                   GDK_SEAT_CAPABILITY_ALL_POINTING, FALSE,
+                   tool->grab_cursor, event, NULL, NULL);
 }
 
 static void
@@ -60,7 +64,7 @@ uni_dragger_get_drag_delta (UniDragger * tool, int *x, int *y)
 gboolean
 uni_dragger_button_press (UniDragger * tool, GdkEventButton * ev)
 {
-    uni_dragger_grab_pointer (tool, ev->window, ev->time);
+    uni_dragger_grab_pointer (tool, (GdkEvent *) ev);
     tool->pressed = TRUE;
     tool->drag_base_x = ev->x;
     tool->drag_base_y = ev->y;
@@ -75,7 +79,7 @@ uni_dragger_button_release (UniDragger * tool, GdkEventButton * ev)
 {
     if (ev->button != 1)
         return FALSE;
-    gdk_pointer_ungrab (ev->time);
+    gdk_seat_ungrab (gdk_event_get_seat ((GdkEvent *) ev));
     tool->pressed = FALSE;
     tool->dragging = FALSE;
     return TRUE;
@@ -106,12 +110,18 @@ uni_dragger_motion_notify (UniDragger * tool, GdkEventMotion * ev)
     		gtk_adjustment_get_upper(vadj) <= gtk_adjustment_get_page_size(vadj) &&
     		gtk_adjustment_get_upper(hadj) <= gtk_adjustment_get_page_size(hadj) )
     {
-		uni_dragger_button_release (tool, (GdkEventButton*)ev);
-    	gtk_drag_begin (GTK_WIDGET(tool->view),
+        /* End our own grab before handing over to DnD. Don't route this
+         * through uni_dragger_button_release(): ev is a motion event, so
+         * its ->button check would read unrelated memory. */
+        gdk_seat_ungrab (gdk_event_get_seat ((GdkEvent *) ev));
+        tool->pressed = FALSE;
+        tool->dragging = FALSE;
+    	gtk_drag_begin_with_coordinates (GTK_WIDGET(tool->view),
                 gtk_target_list_new(target_table, G_N_ELEMENTS(target_table)),
                 GDK_ACTION_COPY,
                 1,
-                (GdkEvent*)ev);
+                (GdkEvent*)ev,
+                -1, -1);
 		return TRUE;
     }
 
@@ -153,6 +163,7 @@ uni_dragger_finalize (GObject * object)
 {
     UniDragger *dragger = UNI_DRAGGER (object);
     uni_pixbuf_draw_cache_free (dragger->cache);
+    g_clear_object (&dragger->grab_cursor);
 
     /* Chain up */
     G_OBJECT_CLASS (uni_dragger_parent_class)->finalize (object);
@@ -202,7 +213,7 @@ uni_dragger_init (UniDragger * tool)
     tool->drag_base_y = 0;
     tool->drag_ofs_x = 0;
     tool->drag_ofs_y = 0;
-    tool->grab_cursor = gdk_cursor_new (GDK_FLEUR);
+    tool->grab_cursor = NULL;
 }
 
 /**

@@ -67,9 +67,6 @@ struct _UniNav {
     /* A downsampled version of the UniImageView's pixbuf to display. */
     GdkPixbuf *pixbuf;
 
-    /* The last drawn XOR rectangle. */
-    GdkRectangle last_rect;
-
     /* Center coordinate of where UniNav is mapped. */
     int center_x;
     int center_y;

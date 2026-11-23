@@ -106,13 +106,10 @@ vnr_crop_build_dialog (VnrCrop *crop)
     height = crop->vnr_win->current_image_height;
 
     {
-        GdkScreen *screen;
         GdkRectangle monitor;
-        screen = gtk_window_get_screen (GTK_WINDOW (crop->vnr_win));
-        gdk_screen_get_monitor_geometry (screen,
-                                        gdk_screen_get_monitor_at_window (screen,
-                                        gtk_widget_get_window (GTK_WIDGET (crop->vnr_win))),
-                                        &monitor);
+        gdk_monitor_get_geometry (gdk_display_get_monitor_at_window (gtk_widget_get_display (GTK_WIDGET (crop->vnr_win)),
+                                                                     gtk_widget_get_window (GTK_WIDGET (crop->vnr_win))),
+                                  &monitor);
 
         max_width = monitor.width * 0.9 - 100;
         max_height = monitor.height * 0.9 - 200;
