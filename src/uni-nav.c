@@ -115,30 +115,45 @@ uni_nav_update_position (UniNav * nav)
         return;
     }
 
-    int off_x, off_y, x, y;
-    GdkRectangle rect;
+    /* The popup is positioned relative to its parent window, which
+       is the only option on Wayland. */
+    GtkWindow *parent = gtk_window_get_transient_for (GTK_WINDOW (nav));
+    if (parent == NULL || !gtk_widget_get_realized (GTK_WIDGET (parent)))
+        return;
 
-    /* Calculate position of popup. */
-    Size pw = uni_nav_get_preview_size (nav);
+    int off_x, off_y, origin_x, origin_y;
+    GdkRectangle rect;
 
     rect = gtk_image_get_current_rectangle (nav);
 
-    /* 3 is the rectangle's line width, defined in nav->gc */
+    /* Center the viewport rectangle under the pointer. 3 is the
+       rectangle's line width. */
     off_x = rect.x + rect.width / 2 + 3;
     off_y = rect.y + rect.height / 2 + 3;
 
-    x = nav->center_x - off_x;
-    y = nav->center_y - off_y;
+    gdk_window_get_origin (gtk_widget_get_window (GTK_WIDGET (parent)),
+                           &origin_x, &origin_y);
+    GdkRectangle anchor = {
+        nav->center_x - origin_x - off_x,
+        nav->center_y - origin_y - off_y,
+        1, 1
+    };
 
-    /* Popup shoudn't be out of the monitor */
-    GdkRectangle geometry;
-    GdkMonitor *monitor =
-        gdk_display_get_monitor_at_point (gtk_widget_get_display (GTK_WIDGET (nav)),
-                                          nav->center_x, nav->center_y);
-    gdk_monitor_get_geometry (monitor, &geometry);
-    x = CLAMP (x, geometry.x, geometry.x + geometry.width - pw.width);
-    y = CLAMP (y, geometry.y, geometry.y + geometry.height - pw.height);
-    gtk_window_move (GTK_WINDOW (nav), x, y);
+    /* Size the window before positioning it, otherwise the slide is
+       computed with a stale size. Then let the windowing system slide
+       the popup back onto the monitor if it would end up partially
+       off-screen. */
+    GtkRequisition size;
+    gtk_widget_realize (GTK_WIDGET (nav));
+    gtk_widget_get_preferred_size (GTK_WIDGET (nav), NULL, &size);
+    gdk_window_resize (gtk_widget_get_window (GTK_WIDGET (nav)),
+                       size.width, size.height);
+    gdk_window_move_to_rect (gtk_widget_get_window (GTK_WIDGET (nav)),
+                             &anchor,
+                             GDK_GRAVITY_NORTH_WEST,
+                             GDK_GRAVITY_NORTH_WEST,
+                             GDK_ANCHOR_SLIDE,
+                             0, 0);
 }
 
 static void
@@ -307,6 +322,11 @@ uni_nav_init (UniNav * nav)
 
     nav->preview = gtk_drawing_area_new ();
     gtk_container_add (GTK_CONTAINER (out_frame), nav->preview);
+
+    /* Make the contents visible up front, so the popup can be sized
+       correctly before it is positioned and shown. */
+    gtk_widget_show (out_frame);
+    gtk_widget_show (nav->preview);
     g_signal_connect (G_OBJECT (nav->preview),
                       "draw",
                       G_CALLBACK (uni_nav_draw_preview), nav);
@@ -441,6 +461,14 @@ uni_nav_show_and_grab (UniNav * nav, int center_x, int center_y)
 {
     nav->center_x = center_x;
     nav->center_y = center_y;
+
+    /* A popup needs a parent, otherwise it cannot be positioned on
+       Wayland. */
+    GtkWidget *toplevel = gtk_widget_get_toplevel (GTK_WIDGET (nav->view));
+    if (GTK_IS_WINDOW (toplevel)
+        && gtk_window_get_transient_for (GTK_WINDOW (nav)) != GTK_WINDOW (toplevel))
+        gtk_window_set_transient_for (GTK_WINDOW (nav), GTK_WINDOW (toplevel));
+
     uni_nav_update_position (nav);
 
     if (nav->update_when_shown)
