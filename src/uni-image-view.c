@@ -446,14 +446,14 @@ uni_image_view_realize (GtkWidget * widget)
     gtk_widget_set_window (widget, window);
     gdk_window_set_user_data (window, view);
 
-    view->void_cursor = gdk_cursor_new (GDK_ARROW);
+    view->void_cursor = gdk_cursor_new_for_display (gtk_widget_get_display (widget), GDK_ARROW);
 }
 
 static void
 uni_image_view_unrealize (GtkWidget * widget)
 {
     UniImageView *view = UNI_IMAGE_VIEW (widget);
-    gdk_cursor_unref (view->void_cursor);
+    g_clear_object (&view->void_cursor);
     GTK_WIDGET_CLASS (uni_image_view_parent_class)->unrealize (widget);
 }
 
@@ -542,9 +542,8 @@ uni_image_view_button_press (GtkWidget * widget, GdkEventButton * ev)
     }
     else if(ev->type == GDK_BUTTON_PRESS && ev->button == 3)
     {
-        gtk_menu_popup(GTK_MENU(VNR_WINDOW(gtk_widget_get_toplevel (widget))->popup_menu),
-                NULL, NULL, NULL, NULL, ev->button,
-                gtk_get_current_event_time());
+        gtk_menu_popup_at_pointer(GTK_MENU(VNR_WINDOW(gtk_widget_get_toplevel (widget))->popup_menu),
+                                  (GdkEvent *) ev);
 
     }
     else if(ev->type == GDK_BUTTON_PRESS && ev->button == 8)

@@ -130,9 +130,14 @@ uni_nav_update_position (UniNav * nav)
     x = nav->center_x - off_x;
     y = nav->center_y - off_y;
 
-    /* Popup shoudn't be out of the screen */
-    x = CLAMP (x, 0, gdk_screen_width () - pw.width);
-    y = CLAMP (y, 0, gdk_screen_height () - pw.height);
+    /* Popup shoudn't be out of the monitor */
+    GdkRectangle geometry;
+    GdkMonitor *monitor =
+        gdk_display_get_monitor_at_point (gtk_widget_get_display (GTK_WIDGET (nav)),
+                                          nav->center_x, nav->center_y);
+    gdk_monitor_get_geometry (monitor, &geometry);
+    x = CLAMP (x, geometry.x, geometry.x + geometry.width - pw.width);
+    y = CLAMP (y, geometry.y, geometry.y + geometry.height - pw.height);
     gtk_window_move (GTK_WINDOW (nav), x, y);
 }
 
@@ -207,7 +212,8 @@ uni_nav_motion_notify (GtkWidget * widget, GdkEventMotion * ev)
 {
     UniNav *nav = UNI_NAV (widget);
     int mx, my;
-    gdk_window_get_pointer (gtk_widget_get_window (widget), &mx, &my, NULL);
+    gdk_window_get_device_position (gtk_widget_get_window (widget),
+                                    ev->device, &mx, &my, NULL);
 
     /* Make coordinates relative to window. */
     mx -= 4;
@@ -393,31 +399,24 @@ void
 uni_nav_grab (UniNav * nav)
 {
     GtkWidget *preview = nav->preview;
-    GdkWindow *window;
+    GdkWindow *window = gtk_widget_get_window (preview);
+    GdkDisplay *display = gtk_widget_get_display (preview);
 
     gtk_grab_add (preview);
 
-    GdkCursor *cursor = gdk_cursor_new (GDK_FLEUR);
-    int mask = (GDK_POINTER_MOTION_MASK
-                | GDK_POINTER_MOTION_HINT_MASK
-                | GDK_BUTTON_RELEASE_MASK);
-    window = gtk_widget_get_window (preview);
-    gdk_pointer_grab (window, TRUE, mask, window, cursor,
-                      0);
-    gdk_cursor_unref (cursor);
+    /* Grab the pointer and capture keyboard events. */
+    GdkCursor *cursor = gdk_cursor_new_for_display (display, GDK_FLEUR);
+    gdk_seat_grab (gdk_display_get_default_seat (display), window,
+                   GDK_SEAT_CAPABILITY_ALL, TRUE, cursor, NULL, NULL, NULL);
+    g_object_unref (cursor);
 
-    /* Capture keyboard events. */
-    gdk_keyboard_grab (window, TRUE, GDK_CURRENT_TIME);
     gtk_widget_grab_focus (preview);
 }
 
 void
 uni_nav_release (UniNav * nav)
 {
-    gdk_pointer_ungrab (GDK_CURRENT_TIME);
-
-    /* Release keyboard focus. */
-    gdk_keyboard_ungrab (GDK_CURRENT_TIME);
+    gdk_seat_ungrab (gdk_display_get_default_seat (gtk_widget_get_display (nav->preview)));
     gtk_grab_remove (nav->preview);
 }
 
