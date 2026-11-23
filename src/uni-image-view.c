@@ -22,6 +22,9 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#ifdef GDK_WINDOWING_WAYLAND
+#include <gdk/gdkwayland.h>
+#endif
 #include <math.h>
 #include <stdlib.h>
 
@@ -504,6 +507,304 @@ uni_image_view_expose (GtkWidget * widget, cairo_t *cr)
     return uni_image_view_repaint_area (UNI_IMAGE_VIEW (widget), &allocation, cr);
 }
 
+/* Press-drag-release in the context menu on Wayland.
+ *
+ * The menu pops up on button press. Until the button is released the
+ * compositor keeps sending pointer events to the surface the press
+ * happened on, so GTK hands the menu motion and release events whose
+ * window belongs to the image view. GtkMenu only reacts to events on
+ * its own items and ignores these, so holding the button and moving
+ * over the menu highlights nothing, and releasing activates nothing.
+ * On X11 the menu's pointer grab redirects the events to the menu, which
+ * is why the gesture works there.
+ *
+ * Map such events onto the menu here instead. GDK places a Wayland
+ * toplevel and the popups positioned relative to it in one shared root
+ * coordinate space, so an event's root coordinates can be compared with
+ * the menu items' origins. The origins GDK reports for a popup are off,
+ * though, so each menu's error is worked out from where the compositor
+ * really placed it (see popup_menu_item_at()). */
+
+/* Mirrors MENU_SHELL_TIMEOUT in GTK: a release this soon after the
+   press that opened the menu counts as a click, which leaves the menu
+   open. */
+#define POPUP_MENU_CLICK_TIMEOUT 500
+
+/* The size of the shadow GTK draws around @menu's popup window, which
+   lies outside the window geometry the compositor positions. GtkWindow
+   allocates the menu just inside the shadow, offset further only by
+   its own border width and the menu's CSS margin. */
+static void
+popup_menu_shadow (GtkMenu *menu, int *left, int *top)
+{
+    GtkWidget *widget = GTK_WIDGET (menu);
+    GtkStyleContext *context = gtk_widget_get_style_context (widget);
+    GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
+    int border = gtk_container_get_border_width (GTK_CONTAINER (toplevel));
+
+    GtkBorder margin;
+    gtk_style_context_get_margin (context, gtk_style_context_get_state (context),
+                                  &margin);
+
+    GtkAllocation alloc;
+    gtk_widget_get_allocation (widget, &alloc);
+
+    *left = alloc.x - border - margin.left;
+    *top = alloc.y - border - margin.top;
+}
+
+/* Where the compositor placed @menu's window geometry, relative to the
+   window it was positioned against. */
+static void
+popup_menu_popped_up_cb (GtkMenu *menu, const GdkRectangle *flipped_rect,
+                         const GdkRectangle *final_rect, gboolean flipped_x,
+                         gboolean flipped_y, gpointer data)
+{
+    g_object_set_data (G_OBJECT (menu), "vnr-popup-placed", GINT_TO_POINTER (TRUE));
+    g_object_set_data (G_OBJECT (menu), "vnr-popup-x", GINT_TO_POINTER (final_rect->x));
+    g_object_set_data (G_OBJECT (menu), "vnr-popup-y", GINT_TO_POINTER (final_rect->y));
+}
+
+/* Finds the item of @menu, or of its open submenus, at the given true
+   root coordinates.
+
+   @rect_window is the window GTK positioned @menu against: the image
+   view for the context menu, the parent menu's item for a submenu.
+   @parent_error is how far the root origins GDK reports for
+   @rect_window are off.
+
+   GDK places a popup at its position relative to @rect_window, but
+   adds that to the origin of @rect_window's native parent window
+   rather than to @rect_window's own origin. It also leaves out the
+   popup's shadow. The popup's real position is known, though, as
+   popped-up reports where its window geometry was placed relative to
+   @rect_window. */
+static GtkWidget *
+popup_menu_item_at (GtkMenu *menu, GdkWindow *rect_window,
+                    int parent_error_x, int parent_error_y,
+                    gdouble x_root, gdouble y_root)
+{
+    if (!gtk_widget_get_mapped (GTK_WIDGET (menu)) ||
+        g_object_get_data (G_OBJECT (menu), "vnr-popup-placed") == NULL)
+        return NULL;
+
+    int shadow_left, shadow_top;
+    popup_menu_shadow (menu, &shadow_left, &shadow_top);
+
+    int rect_x, rect_y;
+    gdk_window_get_origin (rect_window, &rect_x, &rect_y);
+    int real_x = rect_x - parent_error_x - shadow_left +
+                 GPOINTER_TO_INT (g_object_get_data (G_OBJECT (menu), "vnr-popup-x"));
+    int real_y = rect_y - parent_error_y - shadow_top +
+                 GPOINTER_TO_INT (g_object_get_data (G_OBJECT (menu), "vnr-popup-y"));
+
+    int reported_x, reported_y;
+    gdk_window_get_origin (gtk_widget_get_window (gtk_widget_get_toplevel (GTK_WIDGET (menu))),
+                           &reported_x, &reported_y);
+    int error_x = reported_x - real_x;
+    int error_y = reported_y - real_y;
+
+    /* An open submenu is stacked above its parent, so look there first. */
+    GtkWidget *selected = gtk_menu_shell_get_selected_item (GTK_MENU_SHELL (menu));
+    if (selected != NULL)
+    {
+        GtkWidget *submenu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (selected));
+        if (submenu != NULL)
+        {
+            GtkWidget *item = popup_menu_item_at (GTK_MENU (submenu),
+                                                  gtk_widget_get_window (selected),
+                                                  error_x, error_y,
+                                                  x_root, y_root);
+            if (item != NULL)
+                return item;
+        }
+    }
+
+    /* Compare against the origins GDK reports for this menu from here. */
+    x_root += error_x;
+    y_root += error_y;
+
+    /* Ignore items scrolled out of the visible part of the menu. */
+    GdkWindow *window = gtk_widget_get_window (GTK_WIDGET (menu));
+    int x, y;
+    gdk_window_get_origin (window, &x, &y);
+    if (x_root < x || x_root >= x + gdk_window_get_width (window) ||
+        y_root < y || y_root >= y + gdk_window_get_height (window))
+        return NULL;
+
+    GtkWidget *found = NULL;
+    GList *children = gtk_container_get_children (GTK_CONTAINER (menu));
+    for (GList *l = children; l != NULL && found == NULL; l = l->next)
+    {
+        GtkWidget *item = l->data;
+        if (!gtk_widget_get_mapped (item))
+            continue;
+
+        /* Menu items draw on the menu's scrolled bin window, which
+           their allocation is relative to. */
+        GtkAllocation alloc;
+        gtk_widget_get_allocation (item, &alloc);
+        gdk_window_get_origin (gtk_widget_get_window (item), &x, &y);
+        x += alloc.x;
+        y += alloc.y;
+        if (x_root >= x && x_root < x + alloc.width &&
+            y_root >= y && y_root < y + alloc.height)
+            found = item;
+    }
+    g_list_free (children);
+    return found;
+}
+
+/* Finds the item of the context menu @root, or of its open submenus,
+   at the root coordinates of an event on the main window. */
+static GtkWidget *
+popup_menu_item_at_pointer (GtkMenu *root, gdouble x_root, gdouble y_root)
+{
+    GdkWindow *rect_window = g_object_get_data (G_OBJECT (root), "vnr-rect-window");
+    if (rect_window == NULL)
+        return NULL;
+    return popup_menu_item_at (root, rect_window, 0, 0, x_root, y_root);
+}
+
+static void
+popup_menu_unmap_cb (GtkWidget *menu, gpointer data)
+{
+    g_object_set_data (G_OBJECT (menu), "vnr-popup-placed", NULL);
+}
+
+/* Whether @event is on the main window, which the context menu @root
+   was popped up from, rather than on one of the menus. GtkMenu handles
+   events on the menus itself, and their root coordinates are relative
+   to the origins GDK reports for the menu, not the true ones
+   popup_menu_item_at() expects. */
+static gboolean
+popup_menu_event_on_view (GdkEvent *event, GtkMenu *root)
+{
+    GdkWindow *rect_window = g_object_get_data (G_OBJECT (root), "vnr-rect-window");
+    return rect_window != NULL &&
+           gdk_window_get_toplevel (event->any.window) ==
+           gdk_window_get_toplevel (rect_window);
+}
+
+/* @menu is the innermost open menu, which holds the GTK grab and so
+   receives the events; @root is the context menu itself. */
+static gboolean
+popup_menu_motion_cb (GtkWidget *menu, GdkEventMotion *ev, GtkMenu *root)
+{
+    if (!popup_menu_event_on_view ((GdkEvent *) ev, root))
+        return FALSE;
+
+    GtkWidget *item = popup_menu_item_at_pointer (root, ev->x_root, ev->y_root);
+    if (item != NULL)
+    {
+        /* Selecting an item also pops its submenu up, or the submenu
+           of the previously selected item down. */
+        GtkMenuShell *shell = GTK_MENU_SHELL (gtk_widget_get_parent (item));
+        if (gtk_menu_shell_get_selected_item (shell) != item)
+            gtk_menu_shell_select_item (shell, item);
+    }
+    else
+    {
+        /* Like leaving an item: drop the highlight, unless the item
+           has a submenu the pointer may be heading to. */
+        GtkMenuShell *shell = GTK_MENU_SHELL (menu);
+        GtkWidget *selected = gtk_menu_shell_get_selected_item (shell);
+        if (selected != NULL &&
+            gtk_menu_item_get_submenu (GTK_MENU_ITEM (selected)) == NULL)
+            gtk_menu_shell_deselect (shell);
+    }
+
+    /* GtkMenu still gets the event, to scroll a menu that does not fit
+       while the pointer is over a scroll arrow. It compares the root
+       coordinates with the origin GDK reports for the menu, though, so
+       during the drag the arrows react off from where they are drawn,
+       by the same error popup_menu_item_at() corrects for. */
+    return FALSE;
+}
+
+static gboolean
+popup_menu_release_cb (GtkWidget *menu, GdkEventButton *ev, GtkMenu *root)
+{
+    if (!popup_menu_event_on_view ((GdkEvent *) ev, root))
+        return FALSE;
+
+    guint32 popup_time =
+        GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (root), "vnr-popup-time"));
+    if (ev->time - popup_time < POPUP_MENU_CLICK_TIMEOUT)
+        return FALSE;
+
+    /* Off the items GtkMenu closes the menu, as it does for a release
+       outside of it. */
+    GtkWidget *item = popup_menu_item_at_pointer (root, ev->x_root, ev->y_root);
+    if (item == NULL)
+        return FALSE;
+
+    /* Like GtkMenuShell, releasing on a separator or an insensitive item
+       leaves the menu open. */
+    if (GTK_IS_SEPARATOR_MENU_ITEM (item) || !gtk_widget_is_sensitive (item))
+        return TRUE;
+
+    /* Only act on the item the drag highlighted. */
+    GtkMenuShell *shell = GTK_MENU_SHELL (gtk_widget_get_parent (item));
+    if (gtk_menu_shell_get_selected_item (shell) != item)
+        return FALSE;
+
+    /* Releasing on an item with a submenu leaves the menu open. */
+    if (gtk_menu_item_get_submenu (GTK_MENU_ITEM (item)) == NULL)
+        gtk_menu_shell_activate_item (shell, item, TRUE);
+    return TRUE;
+}
+
+static void
+popup_menu_track_drag (GtkMenu *menu, GtkMenu *root)
+{
+    /* Submenus are rebuilt, like the Open With one, so check them on
+       every popup. */
+    if (g_object_get_data (G_OBJECT (menu), "vnr-drag-tracked") == NULL)
+    {
+        g_object_set_data (G_OBJECT (menu), "vnr-drag-tracked", GINT_TO_POINTER (TRUE));
+        g_signal_connect (menu, "motion-notify-event",
+                          G_CALLBACK (popup_menu_motion_cb), root);
+        g_signal_connect (menu, "button-release-event",
+                          G_CALLBACK (popup_menu_release_cb), root);
+        g_signal_connect (menu, "popped-up",
+                          G_CALLBACK (popup_menu_popped_up_cb), NULL);
+        g_signal_connect (menu, "unmap",
+                          G_CALLBACK (popup_menu_unmap_cb), NULL);
+    }
+
+    GList *children = gtk_container_get_children (GTK_CONTAINER (menu));
+    for (GList *l = children; l != NULL; l = l->next)
+    {
+        if (!GTK_IS_MENU_ITEM (l->data))
+            continue;
+        GtkWidget *submenu = gtk_menu_item_get_submenu (GTK_MENU_ITEM (l->data));
+        if (submenu != NULL)
+            popup_menu_track_drag (GTK_MENU (submenu), root);
+    }
+    g_list_free (children);
+}
+
+static void
+uni_image_view_popup_menu (GtkWidget *widget, GdkEventButton *ev)
+{
+    GtkMenu *menu = GTK_MENU (VNR_WINDOW (gtk_widget_get_toplevel (widget))->popup_menu);
+
+#ifdef GDK_WINDOWING_WAYLAND
+    if (GDK_IS_WAYLAND_DISPLAY (gtk_widget_get_display (widget)))
+    {
+        g_object_set_data (G_OBJECT (menu), "vnr-popup-time",
+                           GUINT_TO_POINTER (ev->time));
+        /* gtk_menu_popup_at_pointer() positions the menu against the
+           trigger event's window. */
+        g_object_set_data (G_OBJECT (menu), "vnr-rect-window", ev->window);
+        popup_menu_track_drag (menu, menu);
+    }
+#endif
+
+    gtk_menu_popup_at_pointer (menu, (GdkEvent *) ev);
+}
+
 static int
 uni_image_view_button_press (GtkWidget * widget, GdkEventButton * ev)
 {
@@ -544,9 +845,7 @@ uni_image_view_button_press (GtkWidget * widget, GdkEventButton * ev)
     }
     else if(ev->type == GDK_BUTTON_PRESS && ev->button == 3)
     {
-        gtk_menu_popup_at_pointer(GTK_MENU(VNR_WINDOW(gtk_widget_get_toplevel (widget))->popup_menu),
-                                  (GdkEvent *) ev);
-
+        uni_image_view_popup_menu (widget, ev);
     }
     else if(ev->type == GDK_BUTTON_PRESS && ev->button == 8)
     {
