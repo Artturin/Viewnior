@@ -42,6 +42,18 @@ G_DEFINE_TYPE (UniAnimView, uni_anim_view, UNI_TYPE_IMAGE_VIEW);
 /***** Static stuff ******************************************/
 /*************************************************************/
 
+/* gdk-pixbuf's animation API still takes the deprecated GTimeVal. */
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+static GTimeVal
+uni_anim_view_to_timeval (gint64 usec)
+{
+    GTimeVal tv;
+    tv.tv_sec = usec / G_USEC_PER_SEC;
+    tv.tv_usec = usec % G_USEC_PER_SEC;
+    return tv;
+}
+G_GNUC_END_IGNORE_DEPRECATIONS
+
 static gboolean
 uni_anim_view_updator (gpointer data)
 {
@@ -57,10 +69,12 @@ uni_anim_view_updator (gpointer data)
         // uni_anim_view_updator() is run.
         delay_us = 200;
     }
-    g_time_val_add (&aview->time, delay_us);
+    aview->time += delay_us;
 
-    gboolean next = gdk_pixbuf_animation_iter_advance (aview->iter,
-                                                       &aview->time);
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    GTimeVal tv = uni_anim_view_to_timeval (aview->time);
+    gboolean next = gdk_pixbuf_animation_iter_advance (aview->iter, &tv);
+    G_GNUC_END_IGNORE_DEPRECATIONS
     uni_anim_view_set_is_playing (aview, FALSE);
 
     aview->delay = gdk_pixbuf_animation_iter_get_delay_time (aview->iter);
@@ -257,8 +271,11 @@ uni_anim_view_set_anim (UniAnimView * aview, GdkPixbufAnimation * anim)
     if (aview->iter)
         g_object_unref (aview->iter);
 
-    g_get_current_time (&aview->time);
-    aview->iter = gdk_pixbuf_animation_get_iter (aview->anim, &aview->time);
+    aview->time = g_get_real_time ();
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    GTimeVal tv = uni_anim_view_to_timeval (aview->time);
+    aview->iter = gdk_pixbuf_animation_get_iter (aview->anim, &tv);
+    G_GNUC_END_IGNORE_DEPRECATIONS
 
     GdkPixbuf *pixbuf;
 

@@ -122,7 +122,6 @@ static void
 vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
 {
     GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-    GtkWidget *action_area = gtk_dialog_get_action_area(GTK_DIALOG(dialog));
     GtkWidget *temp_box;
     GtkWidget *temp_label;
 
@@ -167,15 +166,15 @@ vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
     dialog->prev_button = gtk_button_new();
     gtk_button_set_image (GTK_BUTTON(dialog->prev_button),
                           gtk_image_new_from_icon_name("go-previous", GTK_ICON_SIZE_BUTTON));
-    gtk_container_add (GTK_CONTAINER (action_area), dialog->prev_button);
+    gtk_dialog_add_action_widget (GTK_DIALOG(dialog), dialog->prev_button, GTK_RESPONSE_NONE);
 
     dialog->next_button = gtk_button_new();
     gtk_button_set_image (GTK_BUTTON(dialog->next_button),
                           gtk_image_new_from_icon_name("go-next", GTK_ICON_SIZE_BUTTON));
-    gtk_container_add (GTK_CONTAINER (action_area), dialog->next_button);
+    gtk_dialog_add_action_widget (GTK_DIALOG(dialog), dialog->next_button, GTK_RESPONSE_NONE);
 
     dialog->close_button = gtk_button_new_with_mnemonic(_("_Close"));
-    gtk_container_add (GTK_CONTAINER (action_area), dialog->close_button);
+    gtk_dialog_add_action_widget (GTK_DIALOG(dialog), dialog->close_button, GTK_RESPONSE_CLOSE);
 
 
     /* Image Data Labels */
@@ -257,7 +256,9 @@ vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
     g_signal_connect(G_OBJECT(dialog), "key-press-event", G_CALLBACK(key_press_cb), NULL);
 
     gtk_widget_show_all(content_area);
-    gtk_widget_show_all(action_area);
+    gtk_widget_show_all(dialog->prev_button);
+    gtk_widget_show_all(dialog->next_button);
+    gtk_widget_show_all(dialog->close_button);
 }
 
 void

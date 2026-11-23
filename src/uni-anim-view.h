@@ -54,8 +54,8 @@ struct _UniAnimView {
     /* ID of the currently running animation timer. */
     int timer_id;
 
-    /* Timer used to get the right frame. */
-    GTimeVal time;
+    /* Animation time in microseconds, used to get the right frame. */
+    gint64 time;
     int delay;
 
 };

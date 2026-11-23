@@ -80,7 +80,9 @@ struct _UniImageViewPrivate
 
 static guint uni_image_view_signals[LAST_SIGNAL] = { 0 };
 
-G_DEFINE_TYPE_WITH_CODE (UniImageView, uni_image_view, GTK_TYPE_WIDGET, G_IMPLEMENT_INTERFACE (GTK_TYPE_SCROLLABLE, NULL));
+G_DEFINE_TYPE_WITH_CODE (UniImageView, uni_image_view, GTK_TYPE_WIDGET,
+                         G_ADD_PRIVATE (UniImageView)
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_SCROLLABLE, NULL));
 
 /*************************************************************/
 /***** Static stuff ******************************************/
@@ -155,8 +157,8 @@ uni_image_view_update_adjustments (UniImageView * view)
 
     g_signal_handlers_block_by_data (G_OBJECT (view->priv->hadjustment), view);
     g_signal_handlers_block_by_data (G_OBJECT (view->priv->vadjustment), view);
-    gtk_adjustment_changed (view->priv->hadjustment);
-    gtk_adjustment_changed (view->priv->vadjustment);
+    g_signal_emit_by_name (view->priv->hadjustment, "changed");
+    g_signal_emit_by_name (view->priv->vadjustment, "changed");
     g_signal_handlers_unblock_by_data (G_OBJECT (view->priv->hadjustment), view);
     g_signal_handlers_unblock_by_data (G_OBJECT (view->priv->vadjustment), view);
 }
@@ -747,7 +749,7 @@ uni_image_view_init (UniImageView * view)
     view->void_cursor = NULL;
     view->tool = G_OBJECT (uni_dragger_new ((GtkWidget *) view));
 
-    view->priv = (UniImageViewPrivate *) g_type_instance_get_private ((GTypeInstance *) view, UNI_TYPE_IMAGE_VIEW);
+    view->priv = uni_image_view_get_instance_private (view);
 
     view->priv->hadjustment = view->priv->vadjustment = NULL;
     uni_image_view_set_scroll_adjustments(view, GTK_ADJUSTMENT (gtk_adjustment_new (0.0, 1.0, 0.0,
@@ -1039,7 +1041,6 @@ uni_image_view_class_init (UniImageViewClass * klass)
                                   GTK_SCROLL_NONE,
                                   GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_PAGE_DOWN);
 
-    g_type_class_add_private (object_class, sizeof (UniImageViewPrivate));
 }
 
 /**

@@ -20,7 +20,7 @@ i18n = import('i18n')
 #
 
 # Dependencies
-glib_ver = '>= 2.34'
+glib_ver = '>= 2.38'
 
 viewnior_deps = [
   dependency('gtk+-3.0', version: '>= 3.22'),
