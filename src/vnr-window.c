@@ -399,6 +399,36 @@ vnr_window_load_accel_map()
     g_free (accelfile);
 }
 
+/* Set the background color of the image view, or reset it to the
+ * theme's when color is NULL. */
+static void
+vnr_window_set_view_background(VnrWindow *window, const char *color)
+{
+    GtkCssProvider *provider;
+
+    provider = g_object_get_data (G_OBJECT (window->view), "vnr-bg-provider");
+    if (provider == NULL)
+    {
+        provider = gtk_css_provider_new ();
+        gtk_style_context_add_provider (gtk_widget_get_style_context (window->view),
+                                        GTK_STYLE_PROVIDER (provider),
+                                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+        g_object_set_data_full (G_OBJECT (window->view), "vnr-bg-provider",
+                                provider, g_object_unref);
+    }
+
+    if (color != NULL)
+    {
+        gchar *css = g_strdup_printf ("* { background-color: %s; }", color);
+        gtk_css_provider_load_from_data (provider, css, -1, NULL);
+        g_free (css);
+    }
+    else
+    {
+        gtk_css_provider_load_from_data (provider, "", -1, NULL);
+    }
+}
+
 static void
 vnr_window_hide_cursor(VnrWindow *window)
 {
@@ -548,10 +578,7 @@ vnr_window_set_drag(VnrWindow *window)
 static void
 vnr_window_fullscreen(VnrWindow *window)
 {
-    GdkColor color;
     GtkAction *action;
-
-    gdk_color_parse ("black", &color);
 
     gtk_widget_hide(window->menu_bar);
     gtk_window_fullscreen(GTK_WINDOW(window));
@@ -561,7 +588,7 @@ vnr_window_fullscreen(VnrWindow *window)
                                           "ViewFullscreen");
 
     gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
-    gtk_widget_modify_bg(window->view, GTK_STATE_NORMAL, &color);
+    vnr_window_set_view_background(window, "black");
 
     if (window->prefs->fit_on_fullscreen)
         uni_image_view_set_zoom_mode (UNI_IMAGE_VIEW(window->view),
@@ -619,14 +646,8 @@ vnr_window_unfullscreen(VnrWindow *window)
 
     gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
 
-    if (window->prefs->dark_background) {
-        GdkColor color;
-        gdk_color_parse (DARK_BACKGROUND_COLOR, &color);
-        gtk_widget_modify_bg(window->view, GTK_STATE_NORMAL, &color);
-    }
-    else {
-        gtk_widget_modify_bg(window->view, GTK_STATE_NORMAL, NULL);
-    }
+    vnr_window_set_view_background(window,
+                                   window->prefs->dark_background ? DARK_BACKGROUND_COLOR : NULL);
 
     if (window->prefs->fit_on_fullscreen)
         uni_image_view_set_zoom_mode (UNI_IMAGE_VIEW(window->view),
@@ -2954,9 +2975,7 @@ void
 vnr_window_apply_preferences (VnrWindow *window)
 {
     if ( window->prefs->dark_background ) {
-        GdkColor color;
-        gdk_color_parse(DARK_BACKGROUND_COLOR, &color);
-        gtk_widget_modify_bg(window->view, GTK_STATE_NORMAL, &color);
+        vnr_window_set_view_background(window, DARK_BACKGROUND_COLOR);
     }
 
     if(window->prefs->smooth_images && UNI_IMAGE_VIEW(window->view)->interp != GDK_INTERP_BILINEAR)

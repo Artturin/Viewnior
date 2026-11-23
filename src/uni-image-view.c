@@ -240,25 +240,20 @@ uni_image_view_draw_background (UniImageView * view,
 {
     GtkWidget *widget = GTK_WIDGET (view);
     int n;
-    GdkRGBA rgba;
 
-    cairo_save (cr);
     GtkStyleContext *context = gtk_widget_get_style_context (widget);
-    GtkStateFlags state = gtk_widget_get_state_flags (widget);
-    gtk_style_context_get_background_color (context, state, &rgba);
-    gdk_cairo_set_source_rgba (cr, &rgba);
 
     GdkRectangle borders[4];
     GdkRectangle outer = { 0, 0, alloc.width, alloc.height };
     uni_rectangle_get_rects_around (&outer, image_area, borders);
     for (n = 0; n < 4; n++)
     {
-        // Not sure why incrementing the size is necessary.
-        borders[n].width++;
-        borders[n].height++;
-        uni_draw_rect (cr, TRUE, &borders[n]);
+        if (borders[n].width <= 0 || borders[n].height <= 0)
+            continue;
+        gtk_render_background (context, cr,
+                               borders[n].x, borders[n].y,
+                               borders[n].width, borders[n].height);
     }
-    cairo_restore (cr);
 }
 
 /**
@@ -509,9 +504,6 @@ uni_image_view_realize (GtkWidget * widget)
     GdkWindow *window = gdk_window_new (parent, &attrs, attr_mask);
     gtk_widget_set_window (widget, window);
     gdk_window_set_user_data (window, view);
-
-    GtkStyleContext *context = gtk_widget_get_style_context (widget);
-    gtk_style_context_set_background (context, window);
 
     view->void_cursor = gdk_cursor_new (GDK_ARROW);
 }

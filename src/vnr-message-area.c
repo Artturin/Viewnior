@@ -71,8 +71,8 @@ vnr_message_area_initialize(VnrMessageArea * msg_area)
                       msg_area->cancel_button);
 
     gtk_widget_hide(msg_area->hbox);
-    gtk_widget_set_state(GTK_WIDGET(msg_area), GTK_STATE_SELECTED);
-    gtk_widget_set_state(msg_area->button_box, GTK_STATE_NORMAL);
+    gtk_widget_set_state_flags(GTK_WIDGET(msg_area), GTK_STATE_FLAG_SELECTED, TRUE);
+    gtk_widget_set_state_flags(msg_area->button_box, GTK_STATE_FLAG_NORMAL, TRUE);
     msg_area->initialized = TRUE;
 }
 
