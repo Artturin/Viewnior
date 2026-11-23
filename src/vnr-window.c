@@ -1658,11 +1658,15 @@ vnr_copy_image(GtkAction *action, VnrWindow *win)
         VnrCopyData *data = g_new0(VnrCopyData, 1);
 
         data->pixbuf = g_object_ref(view_pixbuf);
-        if (win->file_list != NULL) {
+        /* Unsaved rotations, flips and crops exist only in the view, so
+         * the file on disk no longer matches: copy just the pixels. */
+        if (win->file_list != NULL && win->modifications == 0) {
             const gchar *path = VNR_FILE(win->file_list->data)->path;
             data->uri = g_filename_to_uri(path, NULL, NULL);
+            /* Text targets must be UTF-8, but the path is in the
+             * filesystem encoding; skip them if it can't be converted. */
             if (data->uri != NULL)
-                data->path = g_strdup(path);
+                data->path = g_filename_to_utf8(path, -1, NULL, NULL, NULL);
         }
 
         if (data->uri != NULL) {
@@ -2648,6 +2652,10 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
     {
         vnr_message_area_show(VNR_MESSAGE_AREA (window->msg_area),
                               TRUE, error->message, TRUE);
+
+        /* file_list already points at the failed file while the view still
+         * shows the previous image; copying would mix the two up. */
+        gtk_action_group_set_sensitive(window->action_copy, FALSE);
 
         if(gtk_widget_get_visible(window->props_dlg))
             vnr_properties_dialog_clear(VNR_PROPERTIES_DIALOG(window->props_dlg));
