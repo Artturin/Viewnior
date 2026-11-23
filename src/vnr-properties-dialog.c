@@ -79,7 +79,7 @@ set_new_pixbuf(VnrPropertiesDialog *dialog, GdkPixbuf* original)
 
     if(original == NULL)
     {
-        gtk_image_set_from_stock(GTK_IMAGE(dialog->image), GTK_STOCK_MISSING_IMAGE, GTK_ICON_SIZE_DIALOG);
+        gtk_image_set_from_icon_name(GTK_IMAGE(dialog->image), "image-missing", GTK_ICON_SIZE_DIALOG);
         return;
     }
 
@@ -159,22 +159,22 @@ vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
     gtk_widget_set_size_request (temp_box, 105, 105);
     gtk_box_pack_start (GTK_BOX (dialog->image_layout), temp_box, FALSE,FALSE,0);
 
-    dialog->image = gtk_image_new_from_stock(GTK_STOCK_MISSING_IMAGE, GTK_ICON_SIZE_DIALOG);
+    dialog->image = gtk_image_new_from_icon_name("image-missing", GTK_ICON_SIZE_DIALOG);
     gtk_container_add (GTK_CONTAINER (temp_box), dialog->image);
 
 
     /* Buttons */
     dialog->prev_button = gtk_button_new();
     gtk_button_set_image (GTK_BUTTON(dialog->prev_button),
-                          gtk_image_new_from_stock(GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON));
+                          gtk_image_new_from_icon_name("go-previous", GTK_ICON_SIZE_BUTTON));
     gtk_container_add (GTK_CONTAINER (action_area), dialog->prev_button);
 
     dialog->next_button = gtk_button_new();
     gtk_button_set_image (GTK_BUTTON(dialog->next_button),
-                          gtk_image_new_from_stock(GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON));
+                          gtk_image_new_from_icon_name("go-next", GTK_ICON_SIZE_BUTTON));
     gtk_container_add (GTK_CONTAINER (action_area), dialog->next_button);
 
-    dialog->close_button = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+    dialog->close_button = gtk_button_new_with_mnemonic(_("_Close"));
     gtk_container_add (GTK_CONTAINER (action_area), dialog->close_button);
 
 

@@ -491,7 +491,9 @@ get_fs_controls(VnrWindow *window)
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_add (GTK_CONTAINER (item), box);
 
-    widget = gtk_button_new_from_stock(GTK_STOCK_LEAVE_FULLSCREEN);
+    widget = gtk_button_new_with_mnemonic(_("_Leave Fullscreen"));
+    gtk_button_set_image(GTK_BUTTON(widget),
+                         gtk_image_new_from_icon_name("view-restore", GTK_ICON_SIZE_BUTTON));
     g_signal_connect(widget, "clicked", G_CALLBACK(leave_fs_cb), window);
     gtk_box_pack_end (GTK_BOX(box), widget, FALSE, FALSE, 0);
 
@@ -827,7 +829,7 @@ rotate_pixbuf(VnrWindow *window, GdkPixbufRotation angle)
         vnr_message_area_show_with_button(VNR_MESSAGE_AREA(window->msg_area),
                                           FALSE,
                                           _("Save modifications?\nThis will overwrite the image and may reduce its quality!"),
-                                          FALSE, GTK_STOCK_SAVE,
+                                          FALSE, _("_Save"),
                                           G_CALLBACK(save_image_cb));
 }
 
@@ -885,7 +887,7 @@ flip_pixbuf(VnrWindow *window, gboolean horizontal)
         vnr_message_area_show_with_button(VNR_MESSAGE_AREA(window->msg_area),
                                           FALSE,
                                           _("Save modifications?\nThis will overwrite the image and may reduce its quality!"),
-                                          FALSE, GTK_STOCK_SAVE,
+                                          FALSE, _("_Save"),
                                           G_CALLBACK(save_image_cb));
 }
 
@@ -1384,8 +1386,8 @@ vnr_window_cmd_open(GtkAction *action, VnrWindow *window)
     dialog = gtk_file_chooser_dialog_new (_("Open Image"),
                           GTK_WINDOW(window),
                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                          GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                          _("_Open"), GTK_RESPONSE_ACCEPT,
                           NULL);
 
     img_filter = gtk_file_filter_new ();
@@ -1435,8 +1437,8 @@ vnr_window_cmd_open_dir(GtkAction *action, VnrWindow *window)
     dialog = gtk_file_chooser_dialog_new (_("Open Folder"),
                           GTK_WINDOW(window),
                           GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                          GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                          _("_Open"), GTK_RESPONSE_ACCEPT,
                           NULL);
 
     gtk_window_set_modal (GTK_WINDOW(dialog), FALSE);
@@ -1851,8 +1853,8 @@ vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
                                        markup);
 
         gtk_dialog_add_buttons (GTK_DIALOG (dlg),
-                                GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                GTK_STOCK_DELETE, GTK_RESPONSE_YES,
+                                _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                _("_Delete"), GTK_RESPONSE_YES,
                                 NULL);
     }
 
@@ -1987,7 +1989,7 @@ vnr_window_cmd_crop(GtkAction *action, VnrWindow *window)
         vnr_message_area_show_with_button(VNR_MESSAGE_AREA(window->msg_area),
                                           FALSE,
                                           _("Save modifications?\nThis will overwrite the image and may reduce its quality!"),
-                                          FALSE, GTK_STOCK_SAVE,
+                                          FALSE, _("_Save"),
                                           G_CALLBACK(save_image_cb));
 
     g_object_unref(crop);
