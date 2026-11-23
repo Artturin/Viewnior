@@ -18,6 +18,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <libintl.h>
 #include <glib/gi18n.h>
 #define _(String) gettext (String)
@@ -1580,6 +1581,70 @@ vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
     }
 }
 
+enum {
+    VNR_COPY_TARGET_URI,
+    VNR_COPY_TARGET_GNOME_FILES,
+    VNR_COPY_TARGET_IMAGE,
+    VNR_COPY_TARGET_TEXT
+};
+
+typedef struct {
+    GdkPixbuf *pixbuf;
+    gchar *path;
+    gchar *uri;
+} VnrCopyData;
+
+static void
+vnr_copy_data_free(gpointer user_data)
+{
+    VnrCopyData *data = user_data;
+
+    g_object_unref(data->pixbuf);
+    g_free(data->path);
+    g_free(data->uri);
+    g_free(data);
+}
+
+static void
+vnr_copy_clear_cb(GtkClipboard *clipboard, gpointer user_data)
+{
+    vnr_copy_data_free(user_data);
+}
+
+static void
+vnr_copy_get_cb(GtkClipboard *clipboard,
+                GtkSelectionData *selection_data,
+                guint info,
+                gpointer user_data)
+{
+    VnrCopyData *data = user_data;
+
+    switch (info) {
+        case VNR_COPY_TARGET_URI: {
+            gchar *uris[] = { data->uri, NULL };
+            gtk_selection_data_set_uris(selection_data, uris);
+            break;
+        }
+        case VNR_COPY_TARGET_GNOME_FILES: {
+            gchar *buf = g_strconcat("copy\n", data->uri, NULL);
+            gtk_selection_data_set(selection_data,
+                                   gtk_selection_data_get_target(selection_data),
+                                   8, (const guchar *)buf, strlen(buf));
+            g_free(buf);
+            break;
+        }
+        case VNR_COPY_TARGET_IMAGE:
+            gtk_selection_data_set_pixbuf(selection_data, data->pixbuf);
+            break;
+        case VNR_COPY_TARGET_TEXT:
+            gtk_selection_data_set_text(selection_data, data->path, -1);
+            break;
+    }
+}
+
+/* Puts the image on the clipboard together with its file: apps that accept
+ * file pastes get the original file (and its name), text fields such as
+ * terminals get the path, and image-only consumers get the pixels. */
 static void
 vnr_copy_image(GtkAction *action, VnrWindow *win)
 {
@@ -1587,10 +1652,42 @@ vnr_copy_image(GtkAction *action, VnrWindow *win)
 
     if (view_pixbuf) {
         GtkClipboard *clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+        GtkTargetList *list = gtk_target_list_new(NULL, 0);
+        GtkTargetEntry *targets;
+        gint n_targets;
+        VnrCopyData *data = g_new0(VnrCopyData, 1);
 
-        gtk_clipboard_set_image(clipboard, view_pixbuf);
+        data->pixbuf = g_object_ref(view_pixbuf);
+        if (win->file_list != NULL) {
+            const gchar *path = VNR_FILE(win->file_list->data)->path;
+            data->uri = g_filename_to_uri(path, NULL, NULL);
+            if (data->uri != NULL)
+                data->path = g_strdup(path);
+        }
 
-        gtk_clipboard_store(clipboard);
+        if (data->uri != NULL) {
+            gtk_target_list_add_uri_targets(list, VNR_COPY_TARGET_URI);
+            gtk_target_list_add(list,
+                                gdk_atom_intern_static_string("x-special/gnome-copied-files"),
+                                0, VNR_COPY_TARGET_GNOME_FILES);
+        }
+        gtk_target_list_add_image_targets(list, VNR_COPY_TARGET_IMAGE, TRUE);
+        if (data->path != NULL)
+            gtk_target_list_add_text_targets(list, VNR_COPY_TARGET_TEXT);
+
+        targets = gtk_target_table_new_from_list(list, &n_targets);
+
+        if (gtk_clipboard_set_with_data(clipboard, targets, n_targets,
+                                        vnr_copy_get_cb, vnr_copy_clear_cb,
+                                        data)) {
+            gtk_clipboard_set_can_store(clipboard, targets, n_targets);
+            gtk_clipboard_store(clipboard);
+        } else {
+            vnr_copy_data_free(data);
+        }
+
+        gtk_target_table_free(targets, n_targets);
+        gtk_target_list_unref(list);
 
         vnr_message_area_show(VNR_MESSAGE_AREA(win->msg_area),
                               FALSE,
