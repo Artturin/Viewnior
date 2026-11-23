@@ -160,8 +160,11 @@ vnr_file_dir_content_to_list(gchar *path, gboolean sort, gboolean include_hidden
 
             vnr_file->mtime = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
 
-            vnr_file->path =g_strjoin(G_DIR_SEPARATOR_S, path,
-                                      vnr_file->display_name, NULL);
+            /* Use the on-disk name, not the display name: the latter is
+             * UTF-8 and differs for names in another encoding. */
+            vnr_file->path = g_build_filename(path,
+                                              g_file_info_get_name (file_info),
+                                              NULL);
 
             file_list = g_list_prepend(file_list, vnr_file);
         }
