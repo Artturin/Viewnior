@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <interface>
-  <!-- interface-requires gtk+ 2.12 -->
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.20"/>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="value">5</property>
     <property name="lower">1</property>
@@ -28,7 +27,8 @@
     <property name="icon_name">viewnior</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
+        <property name="orientation">vertical</property>
         <property name="visible">True</property>
         <property name="spacing">2</property>
         <child>
@@ -36,12 +36,13 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkVBox" id="general">
+              <object class="GtkBox" id="general">
+                <property name="orientation">vertical</property>
                 <property name="visible">True</property>
                 <property name="border_width">10</property>
                 <property name="spacing">6</property>
                 <child>
-                  <object class="GtkHBox" id="zoom_mode_box">
+                  <object class="GtkBox" id="zoom_mode_box">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label1">
@@ -64,7 +65,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="desktop_box">
+                  <object class="GtkBox" id="desktop_box">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label8">
@@ -152,12 +153,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="fullscreen">
+              <object class="GtkBox" id="fullscreen">
+                <property name="orientation">vertical</property>
                 <property name="visible">True</property>
                 <property name="border_width">10</property>
                 <property name="spacing">6</property>
                 <child>
-                  <object class="GtkHBox" id="timeout_box">
+                  <object class="GtkBox" id="timeout_box">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label7">
@@ -166,6 +168,7 @@
                         <property name="label" translatable="yes">Show next image after (in seconds): </property>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -177,6 +180,7 @@
                         <property name="adjustment">adjustment1</property>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -216,11 +220,9 @@
               </packing>
             </child>
             <child>
-              <object class="GtkTable" id="behavior_table">
+              <object class="GtkGrid" id="behavior_table">
                 <property name="visible">True</property>
                 <property name="border_width">10</property>
-                <property name="n_rows">4</property>
-                <property name="n_columns">2</property>
                 <property name="column_spacing">6</property>
                 <property name="row_spacing">6</property>
                 <child>
@@ -230,8 +232,8 @@
                     <property name="label" translatable="yes">On mouse wheel: </property>
                   </object>
                   <packing>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -241,10 +243,8 @@
                     <property name="label" translatable="yes">On double click: </property>
                   </object>
                   <packing>
+                    <property name="left_attach">0</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -254,14 +254,13 @@
                     <property name="label" translatable="yes">On image modification: </property>
                   </object>
                   <packing>
+                    <property name="left_attach">0</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkLabel" id="label2">
+                    <property name="vexpand">True</property>
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">&lt;small&gt;  (!) Navigating images with double click :
@@ -270,10 +269,9 @@
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
-                    <property name="right_attach">2</property>
+                    <property name="left_attach">0</property>
                     <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
-                    <property name="x_options">GTK_FILL</property>
+                    <property name="width">2</property>
                   </packing>
                 </child>
                 <child>
@@ -301,7 +299,8 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="save">
+              <object class="GtkBox" id="save">
+                <property name="orientation">vertical</property>
                 <property name="visible">True</property>
                 <property name="border_width">10</property>
                 <property name="spacing">5</property>
@@ -314,6 +313,7 @@
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -329,7 +329,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHScale" id="jpeg_scale">
+                  <object class="GtkScale" id="jpeg_scale">
+                    <property name="orientation">horizontal</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="adjustment">adjustment2</property>
@@ -353,7 +354,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHScale" id="png_scale">
+                  <object class="GtkScale" id="png_scale">
+                    <property name="orientation">horizontal</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="adjustment">adjustment3</property>
@@ -386,7 +388,7 @@
           </packing>
         </child>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
+          <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>

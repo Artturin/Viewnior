@@ -488,7 +488,7 @@ get_fs_controls(VnrWindow *window)
     item = gtk_tool_item_new();
     gtk_tool_item_set_expand(item, TRUE);
 
-    box = gtk_hbox_new(FALSE, 0);
+    box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_add (GTK_CONTAINER (item), box);
 
     widget = gtk_button_new_from_stock(GTK_STOCK_LEAVE_FULLSCREEN);
@@ -503,7 +503,7 @@ get_fs_controls(VnrWindow *window)
     gtk_box_pack_end (GTK_BOX(box), widget, TRUE, TRUE, 10);
 
 
-    widget = gtk_vseparator_new();
+    widget = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     gtk_box_pack_start (GTK_BOX(box), widget, FALSE, FALSE, 0);
 
     widget = gtk_check_button_new_with_label(_("Show next image after: "));
@@ -2496,11 +2496,11 @@ vnr_window_init (VnrWindow * window)
 
     /* Continue with layout */
 
-    window->layout = gtk_vbox_new(FALSE,0);
+    window->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add (GTK_CONTAINER (window), window->layout);
     gtk_widget_show(window->layout);
 
-    window->menus = gtk_vbox_new(FALSE,0);
+    window->menus = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start (GTK_BOX (window->layout), window->menus, FALSE,FALSE,0);
 
     window->menu_bar = gtk_ui_manager_get_widget (window->ui_mngr, "/MainMenu");

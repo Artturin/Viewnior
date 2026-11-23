@@ -41,7 +41,7 @@ static void
 vnr_message_area_initialize(VnrMessageArea * msg_area)
 {
     msg_area->with_button = FALSE;
-    msg_area->hbox = gtk_hbox_new(FALSE, 7);
+    msg_area->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7);
     gtk_container_add(GTK_CONTAINER (msg_area), msg_area->hbox);
     gtk_container_set_border_width(GTK_CONTAINER (msg_area->hbox), 7);
 
@@ -55,7 +55,7 @@ vnr_message_area_initialize(VnrMessageArea * msg_area)
     gtk_box_pack_start (GTK_BOX (msg_area->hbox), msg_area->message,
                         FALSE, FALSE, 0);
 
-    msg_area->button_box = gtk_vbutton_box_new();
+    msg_area->button_box = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
     gtk_box_pack_end(GTK_BOX (msg_area->hbox), msg_area->button_box,
                      FALSE, FALSE, 0);
 
