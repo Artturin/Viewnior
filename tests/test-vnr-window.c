@@ -116,6 +116,8 @@ press_key (VnrWindow *window, guint keyval, GdkModifierType state)
 {
     GdkEvent *event = gdk_event_new (GDK_KEY_PRESS);
     GdkDisplay *display = gtk_widget_get_display (GTK_WIDGET (window));
+    GdkKeymapKey *keys;
+    gint n_keys;
     gboolean handled;
 
     event->key.window = g_object_ref (gtk_widget_get_window (GTK_WIDGET (window)));
@@ -123,6 +125,13 @@ press_key (VnrWindow *window, guint keyval, GdkModifierType state)
     event->key.time = GDK_CURRENT_TIME;
     event->key.keyval = keyval;
     event->key.state = state;
+
+    /* Accelerators are matched by the key, not the keyval */
+    g_assert_true (gdk_keymap_get_entries_for_keyval (gdk_keymap_get_for_display (display),
+                                                      keyval, &keys, &n_keys));
+    event->key.hardware_keycode = keys[0].keycode;
+    event->key.group = keys[0].group;
+    g_free (keys);
     gdk_event_set_device (event, gdk_seat_get_keyboard (gdk_display_get_default_seat (display)));
 
     handled = gtk_widget_event (GTK_WIDGET (window), event);
@@ -328,9 +337,13 @@ test_random_key (Fixture *fixture, gconstpointer user_data)
 {
     VnrWindow *window = fixture->window;
 
-    /* Ctrl+r rotates and Alt+r is left alone */
+    /* Ctrl+r rotates instead */
     press_key (window, GDK_KEY_r, GDK_CONTROL_MASK);
     assert_current (window, "a.png");
+    g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, SMALL_H);
+    g_assert_cmpint (gdk_pixbuf_get_height (fixture->view->pixbuf), ==, SMALL_W);
+
+    /* Alt+r is left alone */
     press_key (window, GDK_KEY_r, GDK_MOD1_MASK);
     assert_current (window, "a.png");
 

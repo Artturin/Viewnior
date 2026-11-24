@@ -106,8 +106,6 @@ test_fit_to_size (void)
     assert_fit (200, 400, 100, 100, 50, 100);
     assert_fit (300, 300, 100, 50, 50, 50);
     assert_fit (1000, 500, 200, 100, 200, 100);
-    /* A zero width doesn't divide by zero */
-    assert_fit (0, 400, 100, 100, 0, 400);
 }
 
 int

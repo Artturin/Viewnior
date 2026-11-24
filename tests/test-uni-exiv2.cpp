@@ -96,7 +96,7 @@ test_map (Fixture *fixture, gconstpointer user_data)
 
     g_assert_cmpstr ((const char *) g_hash_table_lookup (map, "Camera make"), ==, "Canon");
     g_assert_cmpstr ((const char *) g_hash_table_lookup (map, "Camera model"), ==, "Canon EOS 40D");
-#if EXIV2_TEST_VERSION(0,27,4)
+#if defined(EXIV2_TEST_VERSION) && EXIV2_TEST_VERSION(0,27,4)
     /* Only found through the dateTimeOriginal() finder */
     g_assert_cmpstr ((const char *) g_hash_table_lookup (map, "Date Taken"), ==, "2008:05:30 15:56:01");
 #endif
