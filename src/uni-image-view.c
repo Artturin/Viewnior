@@ -1077,8 +1077,6 @@ uni_image_view_init (UniImageView * view)
     uni_image_view_set_scroll_adjustments(view, GTK_ADJUSTMENT (gtk_adjustment_new (0.0, 1.0, 0.0,
                                           1.0, 1.0, 1.0)), GTK_ADJUSTMENT (gtk_adjustment_new (0.0, 1.0, 0.0,
                                           1.0, 1.0, 1.0)));
-    g_object_ref_sink (view->priv->hadjustment);
-    g_object_ref_sink (view->priv->vadjustment);
 }
 
 static void
