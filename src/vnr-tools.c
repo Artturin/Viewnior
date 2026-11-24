@@ -154,14 +154,16 @@ get_position_of_element_in_list (GList *list, gint *current, gint *total)
     *total = before + after - 1;
 }
 
-void
+/* Rotates and flips a static image as its embedded EXIF orientation says.
+ * Returns whether that changed it. */
+gboolean
 vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim)
 {
     GdkPixbuf *pixbuf;
     GdkPixbuf *original;
 
     if(!gdk_pixbuf_animation_is_static_image (*anim))
-        return;
+        return FALSE;
 
     pixbuf = gdk_pixbuf_animation_get_static_image (*anim);
     original = pixbuf;
@@ -170,12 +172,13 @@ vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim)
     if(original == pixbuf)
     {
         g_object_unref(pixbuf);
-        return;
+        return FALSE;
     }
 
     g_object_unref(*anim);
     *anim = uni_pixbuf_animation_new_static (pixbuf);
     g_object_unref(pixbuf);
+    return TRUE;
 }
 
 /* "key-press-event" handler that hides the window on Escape */

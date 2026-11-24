@@ -1062,7 +1062,10 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
                          VNR_FILE(window->file_list->data)->path,
                          window->writable_format_name, &error, NULL);
     }
-    uni_write_exiv2_from_cache(VNR_FILE(window->file_list->data)->path);
+    /* The pixels have the orientation applied already, if gdk-pixbuf
+     * found one: don't let the copied tag rotate them again */
+    uni_write_exiv2_from_cache(VNR_FILE(window->file_list->data)->path,
+                               window->orientation_applied);
 
     vnr_window_set_busy(window, FALSE);
 
@@ -2608,7 +2611,7 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
     else
         window->writable_format_name = NULL;
 
-    vnr_tools_apply_embedded_orientation (&pixbuf);
+    window->orientation_applied = vnr_tools_apply_embedded_orientation (&pixbuf);
     window->current_image_width = gdk_pixbuf_animation_get_width (pixbuf);
     window->current_image_height = gdk_pixbuf_animation_get_height (pixbuf);
     window->modifications = 0;

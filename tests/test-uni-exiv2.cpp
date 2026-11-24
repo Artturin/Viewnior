@@ -25,10 +25,13 @@ typedef struct {
     gchar *dir;
     gchar *with_exif;
     gchar *without_exif;
+    gchar *thumbnail;
 } Fixture;
 
+/* Gives @path camera metadata, orientation 6 (a quarter turn) in EXIF
+ * and XMP, and @thumbnail as its embedded thumbnail */
 static void
-write_exif (const gchar *path)
+write_exif (const gchar *path, const gchar *thumbnail)
 {
     auto image = Exiv2::ImageFactory::open (path);
     image->readMetadata ();
@@ -39,8 +42,35 @@ write_exif (const gchar *path)
     /* Not Exif.Photo.DateTimeOriginal, the key Viewnior looks up when
      * exiv2 has no dateTimeOriginal() finder */
     exif["Exif.Image.DateTimeOriginal"] = "2008:05:30 15:56:01";
+    exif["Exif.Image.Orientation"] = static_cast<uint16_t> (6);
+    Exiv2::ExifThumb (exif).setJpegThumbnail (thumbnail);
+
+    image->xmpData ()["Xmp.tiff.Orientation"] = "6";
 
     image->writeMetadata ();
+}
+
+static gchar *
+read_xmp_orientation (const gchar *path)
+{
+    auto image = Exiv2::ImageFactory::open (path);
+    image->readMetadata ();
+
+    Exiv2::XmpData &xmp = image->xmpData ();
+    auto pos = xmp.findKey (Exiv2::XmpKey ("Xmp.tiff.Orientation"));
+    if (pos == xmp.end ())
+        return NULL;
+    return g_strdup (pos->toString ().c_str ());
+}
+
+static gboolean
+has_thumbnail (const gchar *path)
+{
+    auto image = Exiv2::ImageFactory::open (path);
+    image->readMetadata ();
+
+    /* An empty MIME type when there is none */
+    return Exiv2::ExifThumbC (image->exifData ()).mimeType ()[0] != '\0';
 }
 
 static gchar *
@@ -62,7 +92,8 @@ fixture_set_up (Fixture *fixture, gconstpointer user_data)
     fixture->dir = test_make_tmp_dir ();
     fixture->with_exif = test_write_jpeg (fixture->dir, "with-exif.jpg", 8, 8);
     fixture->without_exif = test_write_jpeg (fixture->dir, "without-exif.jpg", 8, 8);
-    write_exif (fixture->with_exif);
+    fixture->thumbnail = test_write_jpeg (fixture->dir, "thumbnail.jpg", 4, 4);
+    write_exif (fixture->with_exif, fixture->thumbnail);
 }
 
 static void
@@ -72,6 +103,7 @@ fixture_tear_down (Fixture *fixture, gconstpointer user_data)
     g_free (fixture->dir);
     g_free (fixture->with_exif);
     g_free (fixture->without_exif);
+    g_free (fixture->thumbnail);
 }
 
 static void
@@ -120,16 +152,63 @@ static void
 test_cache_copies_metadata (Fixture *fixture, gconstpointer user_data)
 {
     gchar *make;
+    gchar *xmp_orientation;
 
     g_assert_cmpint (uni_read_exiv2_to_cache (fixture->with_exif), ==, 0);
-    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif), ==, 0);
+    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif, FALSE), ==, 0);
 
     make = read_make (fixture->without_exif);
     g_assert_cmpstr (make, ==, "Canon");
     g_free (make);
 
+    /* Copied as it is: the pixels weren't turned */
+    g_assert_cmpint (test_get_orientation (fixture->without_exif), ==, 6);
+    xmp_orientation = read_xmp_orientation (fixture->without_exif);
+    g_assert_cmpstr (xmp_orientation, ==, "6");
+    g_free (xmp_orientation);
+    g_assert_true (has_thumbnail (fixture->without_exif));
+
     /* The cache is used up */
-    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif), ==, 1);
+    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif, FALSE), ==, 1);
+}
+
+/* Saving an image whose orientation was applied when it was opened: the
+ * saved pixels are upright, so viewers must not turn them again */
+static void
+test_cache_resets_orientation (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *make;
+    gchar *xmp_orientation;
+
+    g_assert_cmpint (uni_read_exiv2_to_cache (fixture->with_exif), ==, 0);
+    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif, TRUE), ==, 0);
+
+    g_assert_cmpint (test_get_orientation (fixture->without_exif), ==, 1);
+    xmp_orientation = read_xmp_orientation (fixture->without_exif);
+    g_assert_cmpstr (xmp_orientation, ==, "1");
+    g_free (xmp_orientation);
+    /* It still has the old orientation */
+    g_assert_false (has_thumbnail (fixture->without_exif));
+
+    /* The rest is copied */
+    make = read_make (fixture->without_exif);
+    g_assert_cmpstr (make, ==, "Canon");
+    g_free (make);
+}
+
+/* No orientation is added to an image that had none */
+static void
+test_cache_reset_without_orientation (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *copy = g_build_filename (fixture->dir, "copy.jpg", NULL);
+
+    g_free (test_write_jpeg (fixture->dir, "copy.jpg", 8, 8));
+    g_assert_cmpint (uni_read_exiv2_to_cache (fixture->without_exif), ==, 0);
+    g_assert_cmpint (uni_write_exiv2_from_cache (copy, TRUE), ==, 0);
+
+    g_assert_cmpint (test_get_orientation (copy), ==, -1);
+
+    g_free (copy);
 }
 
 int
@@ -143,6 +222,8 @@ main (int argc, char *argv[])
     ADD ("/exiv2/map", test_map);
     ADD ("/exiv2/map-without-exif", test_map_without_exif);
     ADD ("/exiv2/cache-copies-metadata", test_cache_copies_metadata);
+    ADD ("/exiv2/cache-resets-orientation", test_cache_resets_orientation);
+    ADD ("/exiv2/cache-reset-without-orientation", test_cache_reset_without_orientation);
 
     return g_test_run ();
 }

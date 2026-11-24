@@ -170,9 +170,28 @@ uni_read_exiv2_to_cache(const char *uri)
     return 0;
 }
 
+/* Marks @image as upright. The embedded thumbnail is dropped too: it
+ * still has the old orientation, which nothing would apply to it now. */
+static void
+reset_orientation(Exiv2::Image &image)
+{
+    Exiv2::ExifData &exif = image.exifData();
+    auto pos = exif.findKey(Exiv2::ExifKey("Exif.Image.Orientation"));
+    if (pos != exif.end()) {
+        pos->setValue("1");
+        Exiv2::ExifThumb(exif).erase();
+    }
+
+    Exiv2::XmpData &xmp = image.xmpData();
+    auto xmp_pos = xmp.findKey(Exiv2::XmpKey("Xmp.tiff.Orientation"));
+    if (xmp_pos != xmp.end()) {
+        xmp_pos->setValue("1");
+    }
+}
+
 extern "C"
 int
-uni_write_exiv2_from_cache(const char *uri)
+uni_write_exiv2_from_cache(const char *uri, int reset_orientation_tag)
 {
     Exiv2::LogMsg::setLevel(Exiv2::LogMsg::mute);
 
@@ -187,6 +206,9 @@ uni_write_exiv2_from_cache(const char *uri)
         }
 
         image->setMetadata( *cached_image );
+        if (reset_orientation_tag) {
+            reset_orientation(*image);
+        }
         image->writeMetadata();
 
         cached_image->clearMetadata();

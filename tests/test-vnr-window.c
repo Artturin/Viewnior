@@ -432,6 +432,47 @@ test_rotate (Fixture *fixture, gconstpointer user_data)
     g_assert_cmpint (gdk_pixbuf_get_height (fixture->view->pixbuf), ==, SMALL_W);
 }
 
+/* A photo whose EXIF orientation turns it: Viewnior shows it turned, so
+ * after rotating and saving, it must still look the way it was saved */
+static void
+test_save_oriented (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = test_write_jpeg (dir, "photo.jpg", SMALL_W, SMALL_H);
+    GSList *paths = g_slist_append (NULL, g_strdup (path));
+    GdkPixbuf *saved;
+    GdkPixbuf *shown;
+    GError *error = NULL;
+
+    /* A quarter turn */
+    test_set_orientation (path, 6);
+
+    g_assert_true (vnr_window_set_list_from_paths (fixture->window, paths));
+    g_slist_free_full (paths, g_free);
+    gtk_widget_show (GTK_WIDGET (fixture->window));
+    g_assert_true (test_wait_until (image_shown, fixture, TIMEOUT_MS));
+    g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, SMALL_H);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, SMALL_W);
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_assert_cmpint (test_get_orientation (path), ==, 1);
+
+    /* Opened again, as Viewnior and other viewers do */
+    saved = gdk_pixbuf_new_from_file (path, &error);
+    g_assert_no_error (error);
+    shown = gdk_pixbuf_apply_embedded_orientation (saved);
+    g_assert_cmpint (gdk_pixbuf_get_width (shown), ==, SMALL_W);
+    g_assert_cmpint (gdk_pixbuf_get_height (shown), ==, SMALL_H);
+
+    g_object_unref (shown);
+    g_object_unref (saved);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 /*************************************************************/
 /***** Main **************************************************/
 /*************************************************************/
@@ -515,6 +556,7 @@ main (int argc, char *argv[])
     ADD ("/window/zoom/smart-fit-small", "a.png", test_smart_fit_small);
 
     ADD ("/window/edit/rotate", "a.png", test_rotate);
+    ADD_EMPTY ("/window/edit/save-oriented", test_save_oriented);
 
     result = g_test_run ();
 

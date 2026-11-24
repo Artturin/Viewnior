@@ -42,7 +42,7 @@ test_orientation_rotates (void)
     GdkPixbufAnimation *original = new_static_anim (2, 1, "6");
     GdkPixbufAnimation *anim = g_object_ref (original);
 
-    vnr_tools_apply_embedded_orientation (&anim);
+    g_assert_true (vnr_tools_apply_embedded_orientation (&anim));
 
     /* Orientation 6 is a quarter turn */
     g_assert_true (anim != original);
@@ -79,7 +79,7 @@ test_orientation_none (void)
     GdkPixbufAnimation *original = new_static_anim (2, 1, NULL);
     GdkPixbufAnimation *anim = original;
 
-    vnr_tools_apply_embedded_orientation (&anim);
+    g_assert_false (vnr_tools_apply_embedded_orientation (&anim));
 
     g_assert_true (anim == original);
     g_assert_cmpint (gdk_pixbuf_animation_get_width (anim), ==, 2);

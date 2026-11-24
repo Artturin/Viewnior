@@ -25,7 +25,7 @@ void    vnr_tools_fit_to_size_double (gdouble * w, gdouble * h, gint mw, gint mh
 
 GSList *vnr_tools_get_list_from_array (gchar **files);
 GSList *vnr_tools_parse_uri_string_list_to_file_list (const gchar *uri_list);
-void    vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim);
+gboolean vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim);
 gint    compare_quarks (gconstpointer a, gconstpointer b);
 void    get_position_of_element_in_list(GList *list, gint *current, gint *total);
 gboolean vnr_tools_hide_on_escape_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data);

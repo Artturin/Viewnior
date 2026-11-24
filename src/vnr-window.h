@@ -82,6 +82,9 @@ struct _VnrWindow {
     gint max_width;
     gint max_height;
     gchar *writable_format_name;
+    /* Whether the image was rotated or flipped as its EXIF orientation
+     * says when it was opened */
+    gboolean orientation_applied;
 
     gint current_image_height;
     gint current_image_width;
