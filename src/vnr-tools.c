@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "vnr-tools.h"
+#include "uni-utils.h"
 
 void
 vnr_tools_fit_to_size (gint * width, gint * height, gint max_width, gint max_height)
@@ -172,19 +173,9 @@ vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim)
         return;
     }
 
-    GdkPixbufSimpleAnim *s_anim;
-
-    /* Any positive rate: gdk-pixbuf aborts when an iterator of an
-     * animation with a negative total time advances. */
-    s_anim = gdk_pixbuf_simple_anim_new (gdk_pixbuf_get_width(pixbuf),
-                                         gdk_pixbuf_get_height(pixbuf),
-                                         1);
-    gdk_pixbuf_simple_anim_add_frame(s_anim, pixbuf);
-
-    g_object_unref(pixbuf);
     g_object_unref(*anim);
-
-    *anim = GDK_PIXBUF_ANIMATION(s_anim);
+    *anim = uni_pixbuf_animation_new_static (pixbuf);
+    g_object_unref(pixbuf);
 }
 
 /* "key-press-event" handler that hides the window on Escape */

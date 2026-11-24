@@ -133,3 +133,24 @@ uni_detect_desktop_environment ()
 
     return environment;
 }
+
+/**
+ * uni_pixbuf_animation_new_static:
+ * @pixbuf: the image to show
+ * @returns: a new animation with @pixbuf as its only frame
+ *
+ * Wraps @pixbuf in an animation, for code that only takes animations.
+ **/
+GdkPixbufAnimation *
+uni_pixbuf_animation_new_static (GdkPixbuf *pixbuf)
+{
+    GdkPixbufSimpleAnim *anim;
+
+    /* Any positive rate: gdk-pixbuf aborts when an iterator of an
+     * animation with a negative total time advances. */
+    anim = gdk_pixbuf_simple_anim_new (gdk_pixbuf_get_width (pixbuf),
+                                       gdk_pixbuf_get_height (pixbuf), 1);
+    gdk_pixbuf_simple_anim_add_frame (anim, pixbuf);
+
+    return GDK_PIXBUF_ANIMATION (anim);
+}

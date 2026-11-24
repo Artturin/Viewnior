@@ -24,6 +24,7 @@
 #include <glib.h>
 #include <gdk/gdkkeysyms.h>
 #include "uni-anim-view.h"
+#include "uni-utils.h"
 
 /*************************************************************/
 /***** Private data ******************************************/
@@ -302,35 +303,14 @@ uni_anim_view_set_anim (UniAnimView * aview, GdkPixbufAnimation * anim)
 }
 
 
-/* No conversion from GdkPixbuf to GdkPixbufAnim can be made
- * directly using the current API, so this makes a static
- * GdkPixbufAnimation and updates the UniAnimView */
+/* Show @pixbuf as a static image. Doesn't take the caller's reference. */
 void
 uni_anim_view_set_static (UniAnimView * aview, GdkPixbuf * pixbuf)
 {
-    GdkPixbufSimpleAnim *s_anim;
+    GdkPixbufAnimation *anim = uni_pixbuf_animation_new_static (pixbuf);
 
-    s_anim = gdk_pixbuf_simple_anim_new (gdk_pixbuf_get_width(pixbuf),
-                                         gdk_pixbuf_get_height(pixbuf),
-                                         -1);
-    gdk_pixbuf_simple_anim_add_frame(s_anim, pixbuf);
-
-    /* Simple version of uni_anim_view_set_anim */
-    if (aview->anim)
-        g_object_unref (aview->anim);
-
-    aview->anim = (GdkPixbufAnimation*)s_anim;
-
-    g_object_ref (aview->anim);
-    if (aview->iter)
-        g_object_unref (aview->iter);
-
-    uni_image_view_set_pixbuf (UNI_IMAGE_VIEW (aview), pixbuf, TRUE);
-    uni_anim_view_set_is_playing (aview, FALSE);
-    aview->delay = -1;
-    aview->iter = NULL;
-
-    g_object_unref(pixbuf);
+    uni_anim_view_set_anim (aview, anim);
+    g_object_unref (anim);
 }
 
 
