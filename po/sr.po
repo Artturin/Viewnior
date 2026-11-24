@@ -324,7 +324,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Слика је умножена у оставу."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -430,12 +430,11 @@ msgstr "Поставите изабрану слику као позадину �
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Умножите слику у оставу"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Прилагодите слику величини прозора"
+msgstr "Умножите слику у оставу"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

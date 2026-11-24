@@ -328,7 +328,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Bild in die Zwischenablage kopiert."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -434,12 +434,11 @@ msgstr "Legt das ausgewählte Bild als Hintergrund der Arbeitsfläche fest"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Bild in die Zwischenablage kopieren"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Das Bild auf die Fenstergröße anpassen"
+msgstr "Kopiert das Bild in die Zwischenablage"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

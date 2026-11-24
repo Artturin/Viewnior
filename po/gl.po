@@ -323,7 +323,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Copiouse a imaxe no portapapeis."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -429,12 +429,11 @@ msgstr "Definir a imaxe seleccionada como o fondo de escritorio"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Copiar a imaxe no portapapeis"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Axusta a imaxe á xanela"
+msgstr "Copiar a imaxe no portapapeis"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

@@ -321,7 +321,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Imagem copiada para a área de transferência."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -427,12 +427,11 @@ msgstr "Definir imagem selecionada como fundo da área de trabalho"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Copiar imagem para a área de transferência"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Ajustar a imagem à janela"
+msgstr "Copiar a imagem para a área de transferência"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

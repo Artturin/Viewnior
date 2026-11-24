@@ -319,7 +319,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Bildet er kopiert til utklippstavlen."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -425,12 +425,11 @@ msgstr "Sett det valgte bilde som skrivebordsbakgrunn"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Kopier bildet til utklippstavlen"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Tilpass bildet til vinduet"
+msgstr "Kopier bildet til utklippstavlen"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

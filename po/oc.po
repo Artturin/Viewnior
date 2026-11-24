@@ -314,7 +314,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Imatge copiat al quichapapièrs."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -418,12 +418,11 @@ msgstr "Definir l'imatge seleccionat coma fons de burèu"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Copiar l'imatge al quichapapièrs"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Adapta la talha de l'imatge a la de la fenèstra"
+msgstr "Copiar l'imatge al quichapapièrs"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

@@ -318,7 +318,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Obrázok bol skopírovaný do schránky."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -422,12 +422,11 @@ msgstr "Vybraný obrázok nastaví ako pozadie plochy"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Kopírovať obrázok do schránky"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Prispôsobiť obrázok veľkosti okna"
+msgstr "Skopíruje obrázok do schránky"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

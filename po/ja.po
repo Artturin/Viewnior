@@ -321,7 +321,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "画像をクリップボードにコピーしました。"
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -427,12 +427,11 @@ msgstr "選択画像をデスクトップ背景に設定"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "画像をクリップボードにコピー"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "画像をウィンドウに合わせる"
+msgstr "画像をクリップボードにコピー"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

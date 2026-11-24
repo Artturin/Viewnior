@@ -323,7 +323,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Immagine copiata negli appunti."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -429,12 +429,11 @@ msgstr "Imposta l'immagine selezionata come sfondo della scrivania"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Copia l'immagine negli appunti"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Adatta l'immagine alla finestra"
+msgstr "Copia l'immagine negli appunti"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

@@ -321,7 +321,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Kuva kopioitiin leikepöydälle."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -427,12 +427,11 @@ msgstr "Aseta valittu kuva työpöydän taustakuvaksi"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Kopioi kuva leikepöydälle"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Sovita kuva ikkunaan"
+msgstr "Kopioi kuva leikepöydälle"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

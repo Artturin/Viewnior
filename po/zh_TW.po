@@ -319,7 +319,7 @@ msgstr "Hsiu-Ming Chang <cges30901@gmail.com>, 2018."
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "已將圖片複製到剪貼簿。"
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -425,12 +425,11 @@ msgstr "將選取的圖片設為桌面背景"
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "複製圖片到剪貼簿"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "圖片符合視窗大小"
+msgstr "將圖片複製到剪貼簿"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"

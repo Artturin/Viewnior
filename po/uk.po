@@ -328,7 +328,7 @@ msgstr ""
 
 #: src/vnr-window.c:1720
 msgid "Image copied to clipboard."
-msgstr ""
+msgstr "Зображення скопійовано до буфера обміну."
 
 #: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
@@ -434,12 +434,11 @@ msgstr "Встановити обране зображення як тло ро�
 
 #: src/vnr-window.c:2035
 msgid "Copy image to clipboard"
-msgstr ""
+msgstr "Копіювати зображення до буфера обміну"
 
 #: src/vnr-window.c:2036
-#, fuzzy
 msgid "Copy the image to the clipboard"
-msgstr "Розмістити зображення цілком у вікні"
+msgstr "Копіювати зображення до буфера обміну"
 
 #: src/vnr-window.c:2041
 msgid "Open _With"
