@@ -30,4 +30,9 @@ gint    compare_quarks (gconstpointer a, gconstpointer b);
 void    get_position_of_element_in_list(GList *list, gint *current, gint *total);
 gboolean vnr_tools_hide_on_escape_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
 
+/* A button label translated from GTK's own catalogue, as the stock items were.
+ * Use it for labels that match a GTK stock label, so they are translated in
+ * every language GTK supports. */
+#define VNR_GTK_LABEL(label) g_dpgettext2 ("gtk30", "Stock label", (label))
+
 #endif /* __VNR_TOOLS_H__ */

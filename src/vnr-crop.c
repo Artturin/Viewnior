@@ -95,6 +95,8 @@ vnr_crop_build_dialog (VnrCrop *crop)
     }
 
     window = GTK_WIDGET (gtk_builder_get_object (builder, "crop-dialog"));
+    gtk_button_set_label (GTK_BUTTON (gtk_builder_get_object (builder, "btn-cancel")),
+                          VNR_GTK_LABEL ("_Cancel"));
     gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(crop->vnr_win));
 
     original = uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(crop->vnr_win->view));
