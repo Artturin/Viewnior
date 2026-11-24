@@ -623,7 +623,7 @@ test_save_failed_keeps_original (Fixture *fixture, gconstpointer user_data)
     open_and_show (fixture, path);
 
     gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
-    /* Encoding fails, as with an encoder error or a full disk */
+    /* Encoding fails. Failed writes are tested with vnr_tools_replace_file(). */
     g_free (fixture->window->writable_format_name);
     fixture->window->writable_format_name = g_strdup ("no-such-format");
     gtk_action_activate (find_action (fixture->window, "FileSave"));
