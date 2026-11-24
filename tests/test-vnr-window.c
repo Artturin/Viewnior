@@ -145,6 +145,18 @@ message_text (VnrWindow *window)
     return gtk_label_get_text (GTK_LABEL (VNR_MESSAGE_AREA (window->msg_area)->message));
 }
 
+/* Opens @path in the window of an empty fixture and waits until it shows */
+static void
+open_and_show (Fixture *fixture, const gchar *path)
+{
+    GSList *paths = g_slist_append (NULL, g_strdup (path));
+
+    g_assert_true (vnr_window_set_list_from_paths (fixture->window, paths));
+    g_slist_free_full (paths, g_free);
+    gtk_widget_show (GTK_WIDGET (fixture->window));
+    g_assert_true (test_wait_until (image_shown, fixture, TIMEOUT_MS));
+}
+
 /*************************************************************/
 /***** Fixtures **********************************************/
 /*************************************************************/
@@ -439,7 +451,6 @@ test_save_oriented (Fixture *fixture, gconstpointer user_data)
 {
     gchar *dir = test_make_tmp_dir ();
     gchar *path = test_write_jpeg (dir, "photo.jpg", SMALL_W, SMALL_H);
-    GSList *paths = g_slist_append (NULL, g_strdup (path));
     GdkPixbuf *saved;
     GdkPixbuf *shown;
     GError *error = NULL;
@@ -447,10 +458,7 @@ test_save_oriented (Fixture *fixture, gconstpointer user_data)
     /* A quarter turn */
     test_set_orientation (path, 6);
 
-    g_assert_true (vnr_window_set_list_from_paths (fixture->window, paths));
-    g_slist_free_full (paths, g_free);
-    gtk_widget_show (GTK_WIDGET (fixture->window));
-    g_assert_true (test_wait_until (image_shown, fixture, TIMEOUT_MS));
+    open_and_show (fixture, path);
     g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, SMALL_H);
 
     gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
@@ -468,6 +476,31 @@ test_save_oriented (Fixture *fixture, gconstpointer user_data)
 
     g_object_unref (shown);
     g_object_unref (saved);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* An image Viewnior can't write is left alone, metadata too: its pixels
+ * on disk are still the unturned ones */
+static void
+test_save_unwritable (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = test_write_jpeg (dir, "photo.jpg", SMALL_W, SMALL_H);
+
+    test_set_orientation (path, 6);
+    open_and_show (fixture, path);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    /* As if gdk-pixbuf could read the format but not write it */
+    g_clear_pointer (&fixture->window->writable_format_name, g_free);
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_assert_cmpint (test_get_orientation (path), ==, 6);
+    g_assert_cmpstr (message_text (fixture->window), ==,
+                     "Image modifications cannot be saved.\nWriting in this format is not supported.");
+
     g_free (path);
     test_rm_rf (dir);
     g_free (dir);
@@ -557,6 +590,7 @@ main (int argc, char *argv[])
 
     ADD ("/window/edit/rotate", "a.png", test_rotate);
     ADD_EMPTY ("/window/edit/save-oriented", test_save_oriented);
+    ADD_EMPTY ("/window/edit/save-unwritable", test_save_unwritable);
 
     result = g_test_run ();
 

@@ -1028,6 +1028,17 @@ static void
 save_image_cb (GtkWidget *widget, VnrWindow *window)
 {
     GError *error = NULL;
+    gboolean saved;
+
+    if(window->writable_format_name == NULL)
+    {
+        vnr_message_area_show(VNR_MESSAGE_AREA(window->msg_area),
+                              TRUE,
+                              _("Image modifications cannot be saved.\nWriting in this format is not supported."),
+                              FALSE);
+        return;
+    }
+
     vnr_window_set_busy(window, TRUE);
 
     if(window->prefs->behavior_modify == VNR_PREFS_MODIFY_ASK)
@@ -1041,7 +1052,7 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
         gchar *quality;
         quality = g_strdup_printf ("%i", window->prefs->jpeg_quality);
 
-        gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
+        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
                          VNR_FILE(window->file_list->data)->path, "jpeg",
                          &error, "quality", quality, NULL);
         g_free(quality);
@@ -1051,21 +1062,23 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
         gchar *compression;
         compression = g_strdup_printf ("%i", window->prefs->png_compression);
 
-        gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
+        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
                          VNR_FILE(window->file_list->data)->path, "png",
                          &error, "compression", compression, NULL);
         g_free(compression);
     }
     else
     {
-        gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
+        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
                          VNR_FILE(window->file_list->data)->path,
                          window->writable_format_name, &error, NULL);
     }
-    /* The pixels have the orientation applied already, if gdk-pixbuf
-     * found one: don't let the copied tag rotate them again */
-    uni_write_exiv2_from_cache(VNR_FILE(window->file_list->data)->path,
-                               window->orientation_applied);
+    /* Only onto the new pixels: the old ones still need the original
+     * metadata. The pixels have the orientation applied already, if
+     * gdk-pixbuf found one: don't let the copied tag rotate them again. */
+    if(saved)
+        uni_write_exiv2_from_cache(VNR_FILE(window->file_list->data)->path,
+                                   window->orientation_applied);
 
     vnr_window_set_busy(window, FALSE);
 
