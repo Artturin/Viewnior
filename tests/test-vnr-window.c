@@ -19,6 +19,7 @@
  * xvfb-run, and skips them when it isn't installed. */
 
 #include <string.h>
+#include <unistd.h>
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
 #include "vnr-window.h"
@@ -629,6 +630,185 @@ test_save_unwritable (Fixture *fixture, gconstpointer user_data)
 }
 
 /*************************************************************/
+/***** Deleting **********************************************/
+/*************************************************************/
+
+/* A new folder holding @first and @second. Returns the path of @first. */
+static gchar *
+make_pair (gchar **dir, const gchar *first, const gchar *second)
+{
+    *dir = test_make_tmp_dir ();
+    g_free (test_write_png (*dir, second, SMALL_W, SMALL_H));
+    return test_write_png (*dir, first, SMALL_W, SMALL_H);
+}
+
+static gboolean
+in_trash (const gchar *name)
+{
+    gchar *path = g_build_filename (g_get_user_data_dir (), "Trash", "files", name, NULL);
+    gboolean found = g_file_test (path, G_FILE_TEST_EXISTS);
+
+    g_free (path);
+    return found;
+}
+
+typedef struct {
+    gint response;      /* what to answer */
+    gchar *text;        /* the question asked */
+    gboolean answered;
+} DialogAnswer;
+
+/* Answers the first message dialog that shows up, as the user would */
+static gboolean
+answer_dialog (gpointer data)
+{
+    DialogAnswer *answer = data;
+    GList *toplevels = gtk_window_list_toplevels ();
+    GList *it;
+
+    for (it = toplevels; it != NULL; it = it->next)
+    {
+        if (GTK_IS_MESSAGE_DIALOG (it->data) && gtk_widget_get_mapped (it->data))
+        {
+            g_object_get (it->data, "text", &answer->text, NULL);
+            answer->answered = TRUE;
+            gtk_dialog_response (it->data, answer->response);
+            break;
+        }
+    }
+    g_list_free (toplevels);
+
+    return answer->answered ? G_SOURCE_REMOVE : G_SOURCE_CONTINUE;
+}
+
+/* Deleting moves the image to the trash and shows the next one */
+static void
+test_delete_trash (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir;
+    gchar *path = make_pair (&dir, "trash-a.png", "trash-b.png");
+
+    open_and_show (fixture, path);
+    fixture->window->prefs->confirm_delete = FALSE;
+
+    gtk_action_activate (find_action (fixture->window, "Delete"));
+
+    g_assert_false (g_file_test (path, G_FILE_TEST_EXISTS));
+    g_assert_true (in_trash ("trash-a.png"));
+    assert_current (fixture->window, "trash-b.png");
+    g_assert_cmpuint (g_list_length (g_list_first (fixture->window->file_list)), ==, 1);
+
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* With confirmation on, saying no leaves the image where it is */
+static void
+test_delete_confirm_no (Fixture *fixture, gconstpointer user_data)
+{
+    DialogAnswer answer = { GTK_RESPONSE_CANCEL, NULL, FALSE };
+    gchar *dir;
+    gchar *path = make_pair (&dir, "keep-a.png", "keep-b.png");
+
+    open_and_show (fixture, path);
+    fixture->window->prefs->confirm_delete = TRUE;
+
+    g_timeout_add (50, answer_dialog, &answer);
+    gtk_action_activate (find_action (fixture->window, "Delete"));
+
+    g_assert_true (answer.answered);
+    g_assert_cmpstr (answer.text, ==, "Move \"keep-a.png\" to the trash?");
+    g_assert_true (g_file_test (path, G_FILE_TEST_EXISTS));
+    g_assert_false (in_trash ("keep-a.png"));
+    assert_current (fixture->window, "keep-a.png");
+
+    g_free (answer.text);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* With confirmation on, saying yes trashes it */
+static void
+test_delete_confirm_yes (Fixture *fixture, gconstpointer user_data)
+{
+    DialogAnswer answer = { GTK_RESPONSE_YES, NULL, FALSE };
+    gchar *dir;
+    gchar *path = make_pair (&dir, "confirmed-a.png", "confirmed-b.png");
+
+    open_and_show (fixture, path);
+    fixture->window->prefs->confirm_delete = TRUE;
+
+    g_timeout_add (50, answer_dialog, &answer);
+    gtk_action_activate (find_action (fixture->window, "Delete"));
+
+    g_assert_true (answer.answered);
+    g_assert_false (g_file_test (path, G_FILE_TEST_EXISTS));
+    g_assert_true (in_trash ("confirmed-a.png"));
+    assert_current (fixture->window, "confirmed-b.png");
+
+    g_free (answer.text);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* Trashing the only image leaves nothing to show */
+static void
+test_delete_last (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = test_write_png (dir, "trash-only.png", SMALL_W, SMALL_H);
+
+    open_and_show (fixture, path);
+    fixture->window->prefs->confirm_delete = FALSE;
+
+    gtk_action_activate (find_action (fixture->window, "Delete"));
+
+    g_assert_true (in_trash ("trash-only.png"));
+    g_assert_null (fixture->window->file_list);
+    g_assert_nonnull (strstr (message_text (fixture->window), "contain no images"));
+
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* When trashing fails, the image stays and the error is shown */
+static void
+test_delete_fails (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir;
+    gchar *path;
+
+    /* Root can move files out of a read-only folder */
+    if (geteuid () == 0)
+    {
+        g_test_skip ("running as root");
+        return;
+    }
+
+    path = make_pair (&dir, "stuck-a.png", "stuck-b.png");
+    open_and_show (fixture, path);
+    fixture->window->prefs->confirm_delete = FALSE;
+
+    g_assert_cmpint (g_chmod (dir, 0555), ==, 0);
+    gtk_action_activate (find_action (fixture->window, "Delete"));
+    g_assert_cmpint (g_chmod (dir, 0755), ==, 0);
+
+    g_assert_true (g_file_test (path, G_FILE_TEST_EXISTS));
+    g_assert_false (in_trash ("stuck-a.png"));
+    assert_current (fixture->window, "stuck-a.png");
+    g_assert_true (vnr_message_area_is_critical (VNR_MESSAGE_AREA (fixture->window->msg_area)));
+    g_assert_nonnull (strstr (message_text (fixture->window), "stuck-a.png"));
+
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/*************************************************************/
 /***** Main **************************************************/
 /*************************************************************/
 
@@ -678,6 +858,10 @@ main (int argc, char *argv[])
     dir = g_build_filename (home, "cache", NULL);
     g_setenv ("XDG_CACHE_HOME", dir, TRUE);
     g_free (dir);
+    /* Where deleted images go: the trash */
+    dir = g_build_filename (home, "data", NULL);
+    g_setenv ("XDG_DATA_HOME", dir, TRUE);
+    g_free (dir);
 
     g_test_init (&argc, &argv, NULL);
 
@@ -716,6 +900,12 @@ main (int argc, char *argv[])
     ADD_EMPTY ("/window/edit/save-after-failed-open", test_save_after_failed_open);
     ADD_EMPTY ("/window/edit/save-disabled-unwritable", test_save_disabled_unwritable);
     ADD_EMPTY ("/window/edit/save-unwritable", test_save_unwritable);
+
+    ADD_EMPTY ("/window/delete/trash", test_delete_trash);
+    ADD_EMPTY ("/window/delete/confirm-no", test_delete_confirm_no);
+    ADD_EMPTY ("/window/delete/confirm-yes", test_delete_confirm_yes);
+    ADD_EMPTY ("/window/delete/last", test_delete_last);
+    ADD_EMPTY ("/window/delete/fails", test_delete_fails);
 
     result = g_test_run ();
 
