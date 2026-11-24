@@ -174,9 +174,11 @@ vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim)
 
     GdkPixbufSimpleAnim *s_anim;
 
+    /* Any positive rate: gdk-pixbuf aborts when an iterator of an
+     * animation with a negative total time advances. */
     s_anim = gdk_pixbuf_simple_anim_new (gdk_pixbuf_get_width(pixbuf),
                                          gdk_pixbuf_get_height(pixbuf),
-                                         -1);
+                                         1);
     gdk_pixbuf_simple_anim_add_frame(s_anim, pixbuf);
 
     g_object_unref(pixbuf);
