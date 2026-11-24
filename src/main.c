@@ -24,8 +24,6 @@
 #include <gtk/gtk.h>
 #include "config.h"
 #include "vnr-window.h"
-#include "vnr-message-area.h"
-#include "vnr-file.h"
 #include "vnr-tools.h"
 
 #define PIXMAP_DIR        PACKAGE_DATA_DIR"/viewnior/pixmaps/"
@@ -53,7 +51,6 @@ main (int argc, char *argv[])
     GtkWindow *window;
 
     GSList *uri_list = NULL;
-    GList *file_list = NULL;
 
 
     bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
@@ -86,42 +83,9 @@ main (int argc, char *argv[])
 
     uri_list = vnr_tools_get_list_from_array (files);
 
+    /* The image is opened once the window is realized */
     if(uri_list != NULL)
-    {
-        if (g_slist_length(uri_list) == 1)
-        {
-            vnr_file_load_single_uri (uri_list->data, &file_list, VNR_WINDOW(window)->prefs->show_hidden, &error);
-        }
-        else
-        {
-            vnr_file_load_uri_list (uri_list, &file_list, VNR_WINDOW(window)->prefs->show_hidden, &error);
-        }
-
-        if(error != NULL && file_list != NULL)
-        {
-            deny_slideshow(VNR_WINDOW(window));
-            vnr_message_area_show(VNR_MESSAGE_AREA (VNR_WINDOW(window)->msg_area),
-                                  TRUE, error->message, TRUE);
-            vnr_window_set_list(VNR_WINDOW(window), file_list, TRUE);
-        }
-        else if(error != NULL)
-        {
-            deny_slideshow(VNR_WINDOW(window));
-            vnr_message_area_show(VNR_MESSAGE_AREA (VNR_WINDOW(window)->msg_area),
-                                  TRUE, error->message, TRUE);
-        }
-        else if(file_list == NULL)
-        {
-            deny_slideshow(VNR_WINDOW(window));
-            vnr_message_area_show(VNR_MESSAGE_AREA (VNR_WINDOW(window)->msg_area),
-                                  TRUE, _("The given locations contain no images."),
-                                  TRUE);
-        }
-        else
-        {
-            vnr_window_set_list(VNR_WINDOW(window), file_list, TRUE);
-        }
-    }
+        vnr_window_set_list_from_paths (VNR_WINDOW(window), uri_list);
 
     VNR_WINDOW(window)->prefs->start_slideshow = slideshow;
     VNR_WINDOW(window)->prefs->start_fullscreen = fullscreen;

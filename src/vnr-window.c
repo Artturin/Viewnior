@@ -834,6 +834,19 @@ deny_slideshow(VnrWindow *window)
     gtk_widget_set_sensitive(window->toggle_btn, FALSE);
 }
 
+/* Close the image, show @message as an error and turn off moving between
+ * images and the slideshow. vnr_window_set_list() turns them back on for
+ * a list of more than one image. */
+static void
+vnr_window_show_load_error(VnrWindow *window, const char *message)
+{
+    gtk_action_group_set_sensitive(window->actions_collection, FALSE);
+    deny_slideshow(window);
+    /* This also closes the image */
+    vnr_message_area_show(VNR_MESSAGE_AREA (window->msg_area), TRUE,
+                          message, TRUE);
+}
+
 /* Show @result, an edited copy of the current image, in its place.
  * Takes ownership of @result, which is NULL when the edit ran out of
  * memory. Returns FALSE in that case. */
@@ -1919,13 +1932,9 @@ vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
 
             if(next == NULL)
             {
-                vnr_window_close(window);
-                gtk_action_group_set_sensitive(window->actions_collection, FALSE);
-                deny_slideshow(window);
                 vnr_window_set_list(window, NULL, FALSE);
-                vnr_message_area_show(VNR_MESSAGE_AREA (window->msg_area), TRUE,
-                                      _("The given locations contain no images."),
-                                      TRUE);
+                vnr_window_show_load_error(window,
+                                           _("The given locations contain no images."));
                 restart_slideshow = FALSE;
 
 
@@ -2295,12 +2304,8 @@ vnr_window_drag_data_received (GtkWidget *widget,
         uri_list = vnr_tools_parse_uri_string_list_to_file_list ((gchar *) data);
         if(uri_list == NULL)
         {
-            vnr_window_close(VNR_WINDOW (widget));
-            gtk_action_group_set_sensitive(VNR_WINDOW (widget)->actions_collection, FALSE);
-            deny_slideshow(VNR_WINDOW (widget));
-            vnr_message_area_show(VNR_MESSAGE_AREA (VNR_WINDOW (widget)->msg_area), TRUE,
-                                  _("The given locations contain no images."),
-                                  TRUE);
+            vnr_window_show_load_error(VNR_WINDOW (widget),
+                                       _("The given locations contain no images."));
             return;
         }
 
@@ -2670,56 +2675,51 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
     return TRUE;
 }
 
-void
-vnr_window_open_from_list(VnrWindow *window, GSList *uri_list)
+gboolean
+vnr_window_set_list_from_paths(VnrWindow *window, GSList *uri_list)
 {
     GList *file_list = NULL;
     GError *error = NULL;
 
-    if (g_slist_length(uri_list) == 1)
-    {
+    /* A single file is loaded along with the other images in its folder,
+     * positioned at that file */
+    if(g_slist_length(uri_list) == 1)
         vnr_file_load_single_uri (uri_list->data, &file_list, window->prefs->show_hidden, &error);
-    }
     else
-    {
         vnr_file_load_uri_list (uri_list, &file_list, window->prefs->show_hidden, &error);
+
+    if(error != NULL)
+    {
+        vnr_window_show_load_error(window, error->message);
+        g_error_free(error);
+
+        /* The other images in the folder of a file that isn't one. Keep
+         * this after the error, so the user can move to them. */
+        if(file_list != NULL)
+            vnr_window_set_list(window, file_list, TRUE);
+        return FALSE;
     }
 
-    if(error != NULL && file_list != NULL)
+    if(file_list == NULL)
     {
-        vnr_window_close(window);
-        gtk_action_group_set_sensitive(window->actions_collection, FALSE);
-        deny_slideshow(window);
-        vnr_message_area_show(VNR_MESSAGE_AREA (window->msg_area),
-                              TRUE, error->message, TRUE);
+        vnr_window_show_load_error(window, _("The given locations contain no images."));
+        return FALSE;
+    }
 
-        vnr_window_set_list(window, file_list, TRUE);
-    }
-    else if(error != NULL)
-    {
-        vnr_window_close(window);
-        deny_slideshow(window);
-        vnr_message_area_show(VNR_MESSAGE_AREA (window->msg_area),
-                              TRUE, error->message, TRUE);
-    }
-    else if(file_list == NULL)
-    {
-        vnr_window_close(window);
-        gtk_action_group_set_sensitive(window->actions_collection, FALSE);
-        deny_slideshow(window);
-        vnr_message_area_show(VNR_MESSAGE_AREA (window->msg_area), TRUE,
-                              _("The given locations contain no images."),
-                              TRUE);
-    }
-    else
-    {
-        vnr_window_set_list(window, file_list, TRUE);
-        vnr_window_set_busy(window, TRUE);
+    vnr_window_set_list(window, file_list, TRUE);
+    return TRUE;
+}
 
-        vnr_window_close(window);
-        vnr_window_open(window, FALSE);
-        vnr_window_set_busy(window, FALSE);
-    }
+void
+vnr_window_open_from_list(VnrWindow *window, GSList *uri_list)
+{
+    if(!vnr_window_set_list_from_paths(window, uri_list))
+        return;
+
+    vnr_window_set_busy(window, TRUE);
+    vnr_window_close(window);
+    vnr_window_open(window, FALSE);
+    vnr_window_set_busy(window, FALSE);
 }
 
 void
