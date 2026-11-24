@@ -563,7 +563,7 @@ get_fs_controls(VnrWindow *window)
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_add (GTK_CONTAINER (item), box);
 
-    widget = gtk_button_new_with_mnemonic(_("_Leave Fullscreen"));
+    widget = gtk_button_new_with_mnemonic(VNR_GTK_LABEL ("_Leave Fullscreen"));
     gtk_button_set_image(GTK_BUTTON(widget),
                          gtk_image_new_from_icon_name("view-restore", GTK_ICON_SIZE_BUTTON));
     g_signal_connect(widget, "clicked", G_CALLBACK(leave_fs_cb), window);
@@ -1411,8 +1411,8 @@ vnr_window_show_open_dialog(VnrWindow *window, gboolean folder)
                           GTK_WINDOW(window),
                           folder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
                                  : GTK_FILE_CHOOSER_ACTION_OPEN,
-                          _("_Cancel"), GTK_RESPONSE_CANCEL,
-                          _("_Open"), GTK_RESPONSE_ACCEPT,
+                          VNR_GTK_LABEL ("_Cancel"), GTK_RESPONSE_CANCEL,
+                          VNR_GTK_LABEL ("_Open"), GTK_RESPONSE_ACCEPT,
                           NULL);
 
     gtk_window_set_modal (GTK_WINDOW(dialog), FALSE);
@@ -1873,7 +1873,7 @@ vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
                                        markup);
 
         gtk_dialog_add_buttons (GTK_DIALOG (dlg),
-                                _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                VNR_GTK_LABEL ("_Cancel"), GTK_RESPONSE_CANCEL,
                                 _("_Delete"), GTK_RESPONSE_YES,
                                 NULL);
     }

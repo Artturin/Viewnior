@@ -20,6 +20,7 @@
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 #include "vnr-message-area.h"
+#include "vnr-tools.h"
 
 G_DEFINE_TYPE (VnrMessageArea, vnr_message_area, GTK_TYPE_EVENT_BOX);
 
@@ -64,7 +65,7 @@ vnr_message_area_initialize(VnrMessageArea * msg_area)
     gtk_container_add(GTK_CONTAINER(msg_area->button_box),
                       msg_area->user_button);
 
-    msg_area->cancel_button = gtk_button_new_with_mnemonic(_("_Cancel"));
+    msg_area->cancel_button = gtk_button_new_with_mnemonic(VNR_GTK_LABEL ("_Cancel"));
     g_signal_connect(msg_area->cancel_button, "clicked",
                      G_CALLBACK(cancel_button_cb), msg_area);
     gtk_container_add(GTK_CONTAINER(msg_area->button_box),

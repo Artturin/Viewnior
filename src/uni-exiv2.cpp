@@ -55,25 +55,25 @@ struct _IptcDataDictionary {
 };
 
 static ExifDataDictionary exifDataDictionary[] = {
-    { "Exif.Image.UniqueCameraModel", _("Camera make"), Exiv2::make },
-    { "Exif.Image.LocalizedCameraModel", _("Camera model"), Exiv2::model },
-    { "Exif.Photo.DateTimeOriginal", _("Date Taken"), UNI_EXIV2_FINDER_0_27_4(dateTimeOriginal) },
-    { "Exif.Photo.ExposureTime", _("Exposure time"), Exiv2::exposureTime },
-    { "Exif.Photo.ExposureMode", _("Exposure mode"), Exiv2::exposureMode },
-    { "Exif.Photo.ApertureValue", _("Aperture Value"), UNI_EXIV2_FINDER_0_27_4(apertureValue) },
-    { "Exif.Photo.ISOSpeedRatings", _("ISO speed"), Exiv2::isoSpeed },
-    { "Exif.Photo.Flash", _("Flash"), UNI_EXIV2_FINDER_0_27_4(flash) },
-    { "Exif.Photo.MeteringMode", _("Metering mode"), Exiv2::meteringMode },
-    { "Exif.Image.FocalLength", _("Focal length"), Exiv2::focalLength },
-    { "Exif.Image.Software", _("Software"), NULL },
-    { "Exif.Image.ImageDescription", _("Image description"), NULL },
-    { "Exif.Photo.UserComment", _("User comment"), NULL }
+    { "Exif.Image.UniqueCameraModel", N_("Camera make"), Exiv2::make },
+    { "Exif.Image.LocalizedCameraModel", N_("Camera model"), Exiv2::model },
+    { "Exif.Photo.DateTimeOriginal", N_("Date Taken"), UNI_EXIV2_FINDER_0_27_4(dateTimeOriginal) },
+    { "Exif.Photo.ExposureTime", N_("Exposure time"), Exiv2::exposureTime },
+    { "Exif.Photo.ExposureMode", N_("Exposure mode"), Exiv2::exposureMode },
+    { "Exif.Photo.ApertureValue", N_("Aperture Value"), UNI_EXIV2_FINDER_0_27_4(apertureValue) },
+    { "Exif.Photo.ISOSpeedRatings", N_("ISO speed"), Exiv2::isoSpeed },
+    { "Exif.Photo.Flash", N_("Flash"), UNI_EXIV2_FINDER_0_27_4(flash) },
+    { "Exif.Photo.MeteringMode", N_("Metering mode"), Exiv2::meteringMode },
+    { "Exif.Image.FocalLength", N_("Focal length"), Exiv2::focalLength },
+    { "Exif.Image.Software", N_("Software"), NULL },
+    { "Exif.Image.ImageDescription", N_("Image description"), NULL },
+    { "Exif.Photo.UserComment", N_("User comment"), NULL }
 };
 
 static IptcDataDictionary iptcDataDictionary[] = {
-    { "Iptc.Application2.Caption", _("Description") },
-    { "Iptc.Application2.Copyright", _("Copyright") },
-    { "Iptc.Application2.Byline", _("Author") }
+    { "Iptc.Application2.Caption", N_("Description") },
+    { "Iptc.Application2.Copyright", N_("Copyright") },
+    { "Iptc.Application2.Byline", N_("Author") }
 };
 
 #define ARRAY_SIZE(array) (sizeof array/sizeof(array[0]))
@@ -117,7 +117,7 @@ uni_read_exiv2_map(const char *uri, void (*callback)(const char*, const char*, v
                 }
 
                 if ( pos != exifData.end() ) {
-                    callback(dict.label, pos->print(&exifData).c_str(), user_data);
+                    callback(_(dict.label), pos->print(&exifData).c_str(), user_data);
                 }
             }
         }
@@ -136,7 +136,7 @@ uni_read_exiv2_map(const char *uri, void (*callback)(const char*, const char*, v
                 pos = iptcData.findKey(key);
 
                 if ( pos != iptcData.end() ) {
-                    callback(dict.label, pos->value().toString().c_str(), user_data);
+                    callback(_(dict.label), pos->value().toString().c_str(), user_data);
                 }
             }
         }

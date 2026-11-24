@@ -6,11 +6,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: viewnior\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-02-07 22:04+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-24 22:40+0200\n"
 "PO-Revision-Date: 2010-01-22 08:42+0000\n"
 "Last-Translator: Xu Zhen <Unknown>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,67 +19,75 @@ msgstr ""
 "X-Launchpad-Export-Date: 2018-03-04 17:52+0000\n"
 "X-Generator: Launchpad (build 18566)\n"
 
-#: ../data/viewnior.desktop.in.in.h:1
+#: data/viewnior.desktop.in:2
 msgid "Viewnior"
 msgstr "Viewnior"
 
-#: ../data/viewnior.desktop.in.in.h:2 ../src/vnr-window.c:1372
+#: data/viewnior.desktop.in:3 src/vnr-window.c:1503
 msgid "Elegant Image Viewer"
 msgstr "优雅的图像查看器"
 
-#: ../data/vnr-preferences-dialog.ui.h:1
+#: data/viewnior.desktop.in:12
+msgid "Image;Picture;Slideshow;"
+msgstr "图像;图片;照片;幻灯片;"
+
+#: data/vnr-preferences-dialog.ui:25
 msgid "Viewnior Preferences"
 msgstr "Viewnior 选项"
 
-#: ../data/vnr-preferences-dialog.ui.h:2
+#: data/vnr-preferences-dialog.ui:50
 msgid "Open new image in: "
 msgstr "打开新图像时采用： "
 
-#: ../data/vnr-preferences-dialog.ui.h:3
+#: data/vnr-preferences-dialog.ui:73
 msgid "Desktop: "
-msgstr ""
+msgstr "桌面环境："
 
-#: ../data/vnr-preferences-dialog.ui.h:4
+#: data/vnr-preferences-dialog.ui:92
 msgid "Smooth images when zoomed"
 msgstr "缩放图像时平滑处理"
 
-#: ../data/vnr-preferences-dialog.ui.h:5
+#: data/vnr-preferences-dialog.ui:105
 msgid "Confirm image deletion"
 msgstr "删除图像时需确认"
 
-#: ../data/vnr-preferences-dialog.ui.h:6
+#: data/vnr-preferences-dialog.ui:118
 msgid "Show hidden images"
 msgstr "显示隐藏图像"
 
-#: ../data/vnr-preferences-dialog.ui.h:7
+#: data/vnr-preferences-dialog.ui:132
+msgid "Dark window background"
+msgstr "深色窗口背景"
+
+#: data/vnr-preferences-dialog.ui:149
 msgid "General"
 msgstr "常规"
 
-#: ../data/vnr-preferences-dialog.ui.h:8
+#: data/vnr-preferences-dialog.ui:168
 msgid "Show next image after (in seconds): "
 msgstr "在几秒后显示下一张图像： "
 
-#: ../data/vnr-preferences-dialog.ui.h:9
+#: data/vnr-preferences-dialog.ui:195
 msgid "Always expand images to fit screen"
 msgstr "放大图像时总是适应屏幕大小"
 
-#: ../data/vnr-preferences-dialog.ui.h:10
+#: data/vnr-preferences-dialog.ui:215
 msgid "Fullscreen"
 msgstr "全屏"
 
-#: ../data/vnr-preferences-dialog.ui.h:11
+#: data/vnr-preferences-dialog.ui:232
 msgid "On mouse wheel: "
 msgstr "鼠标滚轮滚动： "
 
-#: ../data/vnr-preferences-dialog.ui.h:12
+#: data/vnr-preferences-dialog.ui:243
 msgid "On double click: "
 msgstr "鼠标双击时： "
 
-#: ../data/vnr-preferences-dialog.ui.h:13
+#: data/vnr-preferences-dialog.ui:254
 msgid "On image modification: "
 msgstr "图像被修改时： "
 
-#: ../data/vnr-preferences-dialog.ui.h:14
+#: data/vnr-preferences-dialog.ui:266
 msgid ""
 "<small>  (!) Navigating images with double click :\n"
 "  Clicking on the left half of the window shows the\n"
@@ -88,60 +97,60 @@ msgstr ""
 "  双击窗口的左半部分来浏览前一张图像，\n"
 "  双击窗口的右半部分来浏览后一张图像。</small> "
 
-#: ../data/vnr-preferences-dialog.ui.h:17
+#: data/vnr-preferences-dialog.ui:294
 msgid "Behavior"
 msgstr "行为"
 
-#: ../data/vnr-preferences-dialog.ui.h:18
+#: data/vnr-preferences-dialog.ui:309
 msgid "Reload image on save"
 msgstr "保存图像后重新加载"
 
-#: ../data/vnr-preferences-dialog.ui.h:19
+#: data/vnr-preferences-dialog.ui:324
 msgid "JPEG quality:"
 msgstr "JPEG 质量："
 
-#: ../data/vnr-preferences-dialog.ui.h:20
+#: data/vnr-preferences-dialog.ui:349
 msgid "PNG compression:"
 msgstr "PNG 压缩："
 
-#: ../data/vnr-preferences-dialog.ui.h:21
+#: data/vnr-preferences-dialog.ui:378
 msgid "Saving"
 msgstr "保存"
 
-#: ../data/vnr-crop-dialog.ui.h:1
+#: data/vnr-preferences-dialog.ui:399 src/vnr-properties-dialog.c:181
+#: src/vnr-window.c:2005
+msgid "_Close"
+msgstr "关闭(_C)"
+
+#: data/vnr-crop-dialog.ui:6
 msgid "Crop Image"
 msgstr "裁剪图像"
 
-#: ../data/vnr-crop-dialog.ui.h:2
+#: data/vnr-crop-dialog.ui:66
 msgid "X: "
 msgstr "X： "
 
-#: ../data/vnr-crop-dialog.ui.h:3
+#: data/vnr-crop-dialog.ui:76
 msgid "Y: "
 msgstr "Y： "
 
-#: ../data/vnr-crop-dialog.ui.h:4
+#: data/vnr-crop-dialog.ui:86
 msgid "Width: "
 msgstr "宽度： "
 
-#: ../data/vnr-crop-dialog.ui.h:5
+#: data/vnr-crop-dialog.ui:96
 msgid "Height: "
 msgstr "高度： "
 
-#: ../data/vnr-crop-dialog.ui.h:6 ../src/vnr-window.c:1816
+#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2096
 msgid "Crop"
 msgstr "剪裁"
 
-#: ../src/main.c:117 ../src/vnr-window.c:1620 ../src/vnr-window.c:1975
-#: ../src/vnr-window.c:2414
-msgid "The given locations contain no images."
-msgstr "指定的位置没有图像。"
-
-#: ../src/uni-scroll-win.c:223
+#: src/uni-scroll-win.c:204
 msgid "Open the navigator window"
 msgstr "打开浏览器窗口"
 
-#: ../src/vnr-file.c:223
+#: src/vnr-file.c:245
 #, c-format
 msgid ""
 "Couldn't recognise the image file\n"
@@ -150,115 +159,124 @@ msgstr ""
 "无法识别图像文件的格式：\n"
 "'%s'"
 
-#: ../src/vnr-prefs.c:260
+#: src/vnr-prefs.c:205
 msgid "Smart Mode"
 msgstr "智能模式"
 
-#: ../src/vnr-prefs.c:261
+#: src/vnr-prefs.c:205
 msgid "1:1 Mode"
 msgstr "原始尺寸"
 
-#: ../src/vnr-prefs.c:262
+#: src/vnr-prefs.c:205
 msgid "Fit To Window Mode"
 msgstr "适应窗口大小"
 
-#: ../src/vnr-prefs.c:263
+#: src/vnr-prefs.c:205
 msgid "Last Used Mode"
-msgstr ""
+msgstr "上次使用的模式"
 
-#: ../src/vnr-prefs.c:292 ../src/vnr-prefs.c:304
+#: src/vnr-prefs.c:209
+msgid "Autodetect"
+msgstr "自动检测"
+
+#: src/vnr-prefs.c:212 src/vnr-prefs.c:215
 msgid "Navigate images"
 msgstr "浏览图像"
 
-#: ../src/vnr-prefs.c:293
+#: src/vnr-prefs.c:212
 msgid "Zoom image"
 msgstr "缩放图像"
 
-#: ../src/vnr-prefs.c:294
+#: src/vnr-prefs.c:212
 msgid "Scroll image up/down"
 msgstr "上下滚动图像"
 
-#: ../src/vnr-prefs.c:302
+#: src/vnr-prefs.c:215
 msgid "Switch zoom modes"
 msgstr "切换缩放模式"
 
-#: ../src/vnr-prefs.c:303
+#: src/vnr-prefs.c:215
 msgid "Enter fullscreen mode"
 msgstr "全屏"
 
-#: ../src/vnr-prefs.c:312
+#: src/vnr-prefs.c:218
 msgid "Ask every time"
 msgstr "每次更改时询问"
 
-#: ../src/vnr-prefs.c:313
+#: src/vnr-prefs.c:218
 msgid "Autosave"
 msgstr "自动保存"
 
-#: ../src/vnr-prefs.c:314
+#: src/vnr-prefs.c:218
 msgid "Ignore changes"
 msgstr "忽略更改"
 
-#: ../src/vnr-properties-dialog.c:112
+#: src/vnr-properties-dialog.c:125
 msgid "_Next"
 msgstr "下一张(_N)"
 
-#: ../src/vnr-properties-dialog.c:113
+#: src/vnr-properties-dialog.c:126
 msgid "_Previous"
 msgstr "上一张(_P)"
 
-#: ../src/vnr-properties-dialog.c:128
+#: src/vnr-properties-dialog.c:139
 msgid "Image Properties"
 msgstr "图像属性"
 
-#: ../src/vnr-properties-dialog.c:136
+#: src/vnr-properties-dialog.c:146
 msgid "<b>Location:</b>"
 msgstr "<b>位置：</b>"
 
-#: ../src/vnr-properties-dialog.c:185
+#: src/vnr-properties-dialog.c:189
 msgid "<b>Name:</b>"
 msgstr "<b>文件名:</b>"
 
-#: ../src/vnr-properties-dialog.c:189
+#: src/vnr-properties-dialog.c:190
 msgid "<b>Type:</b>"
 msgstr "<b>类型：</b>"
 
-#: ../src/vnr-properties-dialog.c:193
+#: src/vnr-properties-dialog.c:191
 msgid "<b>Size:</b>"
 msgstr "<b>文件大小：</b>"
 
-#: ../src/vnr-properties-dialog.c:197
+#: src/vnr-properties-dialog.c:192
 msgid "<b>Width:</b>"
 msgstr "<b>宽度：</b>"
 
-#: ../src/vnr-properties-dialog.c:201
+#: src/vnr-properties-dialog.c:193
 msgid "<b>Height:</b>"
 msgstr "<b>高度：</b>"
 
-#: ../src/vnr-properties-dialog.c:373 ../src/vnr-properties-dialog.c:374
-#: ../src/vnr-properties-dialog.c:375 ../src/vnr-properties-dialog.c:376
-#: ../src/vnr-properties-dialog.c:377 ../src/vnr-properties-dialog.c:378
+#: src/vnr-properties-dialog.c:194
+msgid "<b>Modified:</b>"
+msgstr "<b>修改时间：</b>"
+
+#: src/vnr-properties-dialog.c:338 src/vnr-properties-dialog.c:339
+#: src/vnr-properties-dialog.c:340 src/vnr-properties-dialog.c:341
+#: src/vnr-properties-dialog.c:342 src/vnr-properties-dialog.c:343
+#: src/vnr-properties-dialog.c:344
 msgid "None"
 msgstr "无"
 
-#: ../src/vnr-window.c:297
+#: src/vnr-window.c:351
 #, c-format
 msgid "Use \"%s\" to open the selected image"
 msgstr "使用“%s”打开选中图像"
 
-#: ../src/vnr-window.c:467
+#: src/vnr-window.c:583
 msgid "Show next image after: "
 msgstr "在几秒后显示下一张图像："
 
-#: ../src/vnr-window.c:485 ../src/vnr-window.c:902
+#: src/vnr-window.c:601 src/vnr-window.c:1010
 msgid " second"
 msgid_plural " seconds"
 msgstr[0] " 秒"
 
-#: ../src/vnr-window.c:727 ../src/vnr-window.c:790
+#: src/vnr-window.c:850
 msgid "Not enough virtual memory."
 msgstr "虚拟内存空间不足。"
 
-#: ../src/vnr-window.c:761 ../src/vnr-window.c:819 ../src/vnr-window.c:1706
+#: src/vnr-window.c:885
 msgid ""
 "Image modifications cannot be saved.\n"
 "Writing in this format is not supported."
@@ -266,7 +284,7 @@ msgstr ""
 "无法保存对图像的更改。\n"
 "不支持此类型的图像。"
 
-#: ../src/vnr-window.c:768 ../src/vnr-window.c:826 ../src/vnr-window.c:1713
+#: src/vnr-window.c:892
 msgid ""
 "Save modifications?\n"
 "This will overwrite the image and may reduce its quality!"
@@ -274,349 +292,401 @@ msgstr ""
 "确认保存更改？\n"
 "这降极低图像的质量！"
 
-#: ../src/vnr-window.c:1271
-msgid "Open Image"
-msgstr "打开图像"
+#: src/vnr-window.c:893 src/vnr-window.c:2017
+msgid "_Save"
+msgstr "保存(_S)"
 
-#: ../src/vnr-window.c:1282
-msgid "All Images"
-msgstr "全部图像"
-
-#: ../src/vnr-window.c:1288
-msgid "All Files"
-msgstr "全部文件"
-
-#: ../src/vnr-window.c:1318
+#: src/vnr-window.c:1410
 msgid "Open Folder"
 msgstr "打开文件夹"
 
-#: ../src/vnr-window.c:1378
+#: src/vnr-window.c:1410
+msgid "Open Image"
+msgstr "打开图像"
+
+#: src/vnr-window.c:1431
+msgid "All Images"
+msgstr "全部图像"
+
+#: src/vnr-window.c:1437
+msgid "All Files"
+msgstr "全部文件"
+
+#: src/vnr-window.c:1509
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Xu Zhen https://launchpad.net/~xuzhen666"
 
-#: ../src/vnr-window.c:1558
+#: src/vnr-window.c:1720
+msgid "Image copied to clipboard."
+msgstr "图像已复制到剪贴板。"
+
+#: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
 msgstr "如果选择删除，此图像将无法恢复。"
 
 #. I18N: The '%s' is replaced with the name of the file to be deleted.
-#: ../src/vnr-window.c:1561
+#: src/vnr-window.c:1859
 #, c-format
 msgid ""
 "Are you sure you want to\n"
 "permanently delete \"%s\"?"
 msgstr "确定要永久删除 “%s”？"
 
-#: ../src/vnr-window.c:1721
-msgid "_File"
-msgstr "文件(_F)"
-
-#: ../src/vnr-window.c:1722
-msgid "_Edit"
-msgstr "编辑(_E)"
-
-#: ../src/vnr-window.c:1723
-msgid "_View"
-msgstr "查看(_V)"
-
-#: ../src/vnr-window.c:1724
-msgid "_Image"
-msgstr "图像(_I)"
-
-#: ../src/vnr-window.c:1725
-msgid "_Go"
-msgstr "转到(_G)"
-
-#: ../src/vnr-window.c:1726
-msgid "_Help"
-msgstr "帮助(_H)"
-
-#: ../src/vnr-window.c:1728
-msgid "Open _Image..."
-msgstr "打开图像...(_I)"
-
-#: ../src/vnr-window.c:1729
-msgid "Open an Image"
-msgstr "打开一个图像文件"
-
-#: ../src/vnr-window.c:1731
-msgid "Open _Folder..."
-msgstr "打开文件夹...(_F)"
-
-#: ../src/vnr-window.c:1732
-msgid "Open a Folder"
-msgstr "打开一个文件夹"
-
-#: ../src/vnr-window.c:1734
-msgid "_Close"
-msgstr "关闭(_C)"
-
-#: ../src/vnr-window.c:1735
-msgid "Close window"
-msgstr "关闭窗口"
-
-#: ../src/vnr-window.c:1737
-msgid "_About"
-msgstr "关于(_A)"
-
-#: ../src/vnr-window.c:1738
-msgid "About this application"
-msgstr "关于本程序"
-
-#: ../src/vnr-window.c:1740
-msgid "_Preferences..."
-msgstr "首选项(_P)"
-
-#: ../src/vnr-window.c:1741
-msgid "User preferences for Viewnior"
-msgstr "用户对Viewnior的设置"
-
-#: ../src/vnr-window.c:1746
-msgid "_Save"
-msgstr "保存(_S)"
-
-#: ../src/vnr-window.c:1747
-msgid "Save changes"
-msgstr "保存更改"
-
-#: ../src/vnr-window.c:1752
-msgid "Properties"
-msgstr "属性"
-
-#: ../src/vnr-window.c:1758
-msgid "Set as _Wallpaper"
-msgstr "设为桌面壁纸(_W)"
-
-#: ../src/vnr-window.c:1759
-msgid "Set the selected image as the desktop background"
-msgstr "把选中的图像设定为桌面背景"
-
-#: ../src/vnr-window.c:1764
-msgid "Open _With"
-msgstr "打开方式(_W)"
-
-#: ../src/vnr-window.c:1765
-msgid "Open the selected image with a different application"
-msgstr "用其他应用程序打开选中的图像"
-
-#: ../src/vnr-window.c:1767 ../src/vnr-window.c:1776
+#: src/vnr-window.c:1877 src/vnr-window.c:2044 src/vnr-window.c:2053
 msgid "_Delete"
 msgstr "删除(_D)"
 
-#: ../src/vnr-window.c:1768 ../src/vnr-window.c:1777
+#: src/vnr-window.c:1915 src/vnr-window.c:2286 src/vnr-window.c:2683
+msgid "The given locations contain no images."
+msgstr "指定的位置没有图像。"
+
+#: src/vnr-window.c:1992
+msgid "_File"
+msgstr "文件(_F)"
+
+#: src/vnr-window.c:1993
+msgid "_Edit"
+msgstr "编辑(_E)"
+
+#: src/vnr-window.c:1994
+msgid "_View"
+msgstr "查看(_V)"
+
+#: src/vnr-window.c:1995
+msgid "_Image"
+msgstr "图像(_I)"
+
+#: src/vnr-window.c:1996
+msgid "_Go"
+msgstr "转到(_G)"
+
+#: src/vnr-window.c:1997
+msgid "_Help"
+msgstr "帮助(_H)"
+
+#: src/vnr-window.c:1999
+msgid "Open _Image..."
+msgstr "打开图像...(_I)"
+
+#: src/vnr-window.c:2000
+msgid "Open an Image"
+msgstr "打开一个图像文件"
+
+#: src/vnr-window.c:2002
+msgid "Open _Folder..."
+msgstr "打开文件夹...(_F)"
+
+#: src/vnr-window.c:2003
+msgid "Open a Folder"
+msgstr "打开一个文件夹"
+
+#: src/vnr-window.c:2006
+msgid "Close window"
+msgstr "关闭窗口"
+
+#: src/vnr-window.c:2008
+msgid "_About"
+msgstr "关于(_A)"
+
+#: src/vnr-window.c:2009
+msgid "About this application"
+msgstr "关于本程序"
+
+#: src/vnr-window.c:2011
+msgid "_Preferences..."
+msgstr "首选项(_P)"
+
+#: src/vnr-window.c:2012
+msgid "User preferences for Viewnior"
+msgstr "用户对Viewnior的设置"
+
+#: src/vnr-window.c:2018
+msgid "Save changes"
+msgstr "保存更改"
+
+#: src/vnr-window.c:2023
+msgid "_Properties"
+msgstr "属性(_P)"
+
+#: src/vnr-window.c:2024
+msgid "Properties"
+msgstr "属性"
+
+#: src/vnr-window.c:2029
+msgid "Set as _Wallpaper"
+msgstr "设为桌面壁纸(_W)"
+
+#: src/vnr-window.c:2030
+msgid "Set the selected image as the desktop background"
+msgstr "把选中的图像设定为桌面背景"
+
+#: src/vnr-window.c:2035
+msgid "Copy image to clipboard"
+msgstr "复制图像到剪贴板"
+
+#: src/vnr-window.c:2036
+msgid "Copy the image to the clipboard"
+msgstr "将图像复制到剪贴板"
+
+#: src/vnr-window.c:2041
+msgid "Open _With"
+msgstr "打开方式(_W)"
+
+#: src/vnr-window.c:2042
+msgid "Open the selected image with a different application"
+msgstr "用其他应用程序打开选中的图像"
+
+#: src/vnr-window.c:2045 src/vnr-window.c:2054
 msgid "Delete the current file"
 msgstr "删除当前的文件"
 
-#: ../src/vnr-window.c:1770
+#: src/vnr-window.c:2047
 msgid "_Properties..."
 msgstr "属性...(_P)"
 
-#: ../src/vnr-window.c:1771
+#: src/vnr-window.c:2048
 msgid "Show information about the current file"
 msgstr "显示当前文件的信息"
 
-#: ../src/vnr-window.c:1773
+#: src/vnr-window.c:2050
 msgid "_Reload"
 msgstr "重新加载(_R)"
 
-#: ../src/vnr-window.c:1774
+#: src/vnr-window.c:2051
 msgid "Reload the current file"
 msgstr "重新加载当前文件"
 
-#: ../src/vnr-window.c:1779 ../src/vnr-window.c:1791 ../src/vnr-window.c:1794
+#: src/vnr-window.c:2056 src/vnr-window.c:2071 src/vnr-window.c:2074
 msgid "_Zoom In"
 msgstr "放大(_Z)"
 
-#: ../src/vnr-window.c:1780
+#: src/vnr-window.c:2057
 msgid "Enlarge the image"
 msgstr "放大显示图像"
 
-#: ../src/vnr-window.c:1782 ../src/vnr-window.c:1797
+#: src/vnr-window.c:2059 src/vnr-window.c:2077
 msgid "Zoom _Out"
 msgstr "缩小(_O)"
 
-#: ../src/vnr-window.c:1783 ../src/vnr-window.c:1792 ../src/vnr-window.c:1795
-#: ../src/vnr-window.c:1798
+#: src/vnr-window.c:2060 src/vnr-window.c:2072 src/vnr-window.c:2075
+#: src/vnr-window.c:2078
 msgid "Shrink the image"
 msgstr "缩小显示图像"
 
-#: ../src/vnr-window.c:1785
+#: src/vnr-window.c:2062
 msgid "_Normal Size"
 msgstr "正常尺寸(_N)"
 
-#: ../src/vnr-window.c:1786
+#: src/vnr-window.c:2063
 msgid "Show the image at its normal size"
 msgstr "以正常尺寸显示图像"
 
-#: ../src/vnr-window.c:1788
+#: src/vnr-window.c:2065
 msgid "Best _Fit"
 msgstr "最佳尺寸(_F)"
 
-#: ../src/vnr-window.c:1789
+#: src/vnr-window.c:2066
 msgid "Fit the image to the window"
 msgstr "调整图像以适应窗口大小"
 
-#: ../src/vnr-window.c:1803
+#: src/vnr-window.c:2068
+msgid "Zoom _50%"
+msgstr "缩放 _50%"
+
+#: src/vnr-window.c:2069
+msgid "Show the image at half its normal size"
+msgstr "以正常尺寸的一半显示图像"
+
+#: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"
 msgstr "顺时针旋转"
 
-#: ../src/vnr-window.c:1804
+#: src/vnr-window.c:2084
 msgid "Rotate image clockwise"
 msgstr "顺时针旋转图像"
 
-#: ../src/vnr-window.c:1806
+#: src/vnr-window.c:2086
 msgid "Rotate _Anti-clockwise"
 msgstr "逆时针旋转(_A)"
 
-#: ../src/vnr-window.c:1807
+#: src/vnr-window.c:2087
 msgid "Rotate image anti-clockwise"
 msgstr "逆时针旋转图像"
 
-#: ../src/vnr-window.c:1809
+#: src/vnr-window.c:2089
 msgid "Flip _Vertical"
 msgstr "垂直翻转(_V)"
 
-#: ../src/vnr-window.c:1810
+#: src/vnr-window.c:2090
 msgid "Flip image vertically"
 msgstr "垂直翻转图像"
 
-#: ../src/vnr-window.c:1812
+#: src/vnr-window.c:2092
 msgid "Flip _Horizontal"
 msgstr "水平翻转(_H)"
 
-#: ../src/vnr-window.c:1813
+#: src/vnr-window.c:2093
 msgid "Flip image horizontally"
 msgstr "水平翻转图像"
 
-#: ../src/vnr-window.c:1815
+#: src/vnr-window.c:2095
 msgid "Crop..."
 msgstr "裁剪图像..."
 
-#: ../src/vnr-window.c:1821
+#: src/vnr-window.c:2101
 msgid "Full _Screen"
 msgstr "全屏(_S)"
 
-#: ../src/vnr-window.c:1822
+#: src/vnr-window.c:2102
 msgid "Show in fullscreen mode"
 msgstr "全屏显示"
 
-#: ../src/vnr-window.c:1824
+#: src/vnr-window.c:2104
 msgid "_Adjust window size"
 msgstr "调整窗口大小(_A)"
 
-#: ../src/vnr-window.c:1825
+#: src/vnr-window.c:2105
 msgid "Adjust window size to fit the image"
 msgstr "调整窗口以适应图像尺寸"
 
-#: ../src/vnr-window.c:1830
+#: src/vnr-window.c:2110
 msgid "Menu Bar"
 msgstr "菜单"
 
-#: ../src/vnr-window.c:1831
+#: src/vnr-window.c:2111
 msgid "Show Menu Bar"
 msgstr "显示菜单"
 
-#: ../src/vnr-window.c:1833
+#: src/vnr-window.c:2113
 msgid "Toolbar"
 msgstr "工具栏"
 
-#: ../src/vnr-window.c:1834
+#: src/vnr-window.c:2114
 msgid "Show Toolbar"
 msgstr "显示工具栏"
 
-#: ../src/vnr-window.c:1839
+#: src/vnr-window.c:2116
+msgid "Scrollbar"
+msgstr "滚动条"
+
+#: src/vnr-window.c:2117
+msgid "Show Scrollbar"
+msgstr "显示滚动条"
+
+#: src/vnr-window.c:2119
+msgid "Statusbar"
+msgstr "状态栏"
+
+#: src/vnr-window.c:2120
+msgid "Show Statusbar"
+msgstr "显示状态栏"
+
+#: src/vnr-window.c:2125
 msgid "Sli_deshow"
 msgstr "幻灯片模式(_D)"
 
-#: ../src/vnr-window.c:1840
+#: src/vnr-window.c:2126
 msgid "Show in slideshow mode"
 msgstr "以幻灯片模式显示"
 
-#: ../src/vnr-window.c:1845
+#: src/vnr-window.c:2131
 msgid "_Previous Image"
 msgstr "上一张图像(_P)"
 
-#: ../src/vnr-window.c:1846
+#: src/vnr-window.c:2132
 msgid "Go to the previous image of the collection"
 msgstr "转到上一张图像"
 
-#: ../src/vnr-window.c:1848
+#: src/vnr-window.c:2134
 msgid "_Next Image"
 msgstr "下一个图像(_N)"
 
-#: ../src/vnr-window.c:1849
+#: src/vnr-window.c:2135
 msgid "Go to the next image of the collection"
 msgstr "转到下一张图像"
 
-#: ../src/vnr-window.c:1851
+#: src/vnr-window.c:2137
 msgid "_First Image"
 msgstr "第一张图像(_F)"
 
-#: ../src/vnr-window.c:1852
+#: src/vnr-window.c:2138
 msgid "Go to the first image of the collection"
 msgstr "转到第一张图像"
 
-#: ../src/vnr-window.c:1854
+#: src/vnr-window.c:2140
 msgid "_Last Image"
 msgstr "最后一张图像((_L)"
 
-#: ../src/vnr-window.c:1855
+#: src/vnr-window.c:2141
 msgid "Go to the last image of the collection"
 msgstr "转到最后一张图像"
 
-#: ../src/uni-exiv2.hpp:49
+#: src/uni-exiv2.cpp:58
 msgid "Camera make"
 msgstr "相机牌子"
 
-#: ../src/uni-exiv2.hpp:50
+#: src/uni-exiv2.cpp:59
 msgid "Camera model"
 msgstr "相机型号"
 
-#: ../src/uni-exiv2.hpp:51
+#: src/uni-exiv2.cpp:60
 msgid "Date Taken"
 msgstr "拍摄日期"
 
-#: ../src/uni-exiv2.hpp:52
+#: src/uni-exiv2.cpp:61
 msgid "Exposure time"
 msgstr "曝光时间"
 
-#: ../src/uni-exiv2.hpp:53
+#: src/uni-exiv2.cpp:62
 msgid "Exposure mode"
 msgstr "曝光方式"
 
-#: ../src/uni-exiv2.hpp:54
+#: src/uni-exiv2.cpp:63
 msgid "Aperture Value"
 msgstr "光圈大小"
 
-#: ../src/uni-exiv2.hpp:55
+#: src/uni-exiv2.cpp:64
 msgid "ISO speed"
 msgstr "ISO感光度"
 
-#: ../src/uni-exiv2.hpp:56
+#: src/uni-exiv2.cpp:65
 msgid "Flash"
 msgstr "闪光灯"
 
-#: ../src/uni-exiv2.hpp:57
+#: src/uni-exiv2.cpp:66
 msgid "Metering mode"
 msgstr "测光方式"
 
-#: ../src/uni-exiv2.hpp:58
+#: src/uni-exiv2.cpp:67
 msgid "Focal length"
 msgstr "焦距"
 
-#: ../src/uni-exiv2.hpp:59
+#: src/uni-exiv2.cpp:68
 msgid "Software"
 msgstr "软件"
 
-#: ../src/uni-exiv2.hpp:63
+#: src/uni-exiv2.cpp:69
+msgid "Image description"
+msgstr "图像描述"
+
+#: src/uni-exiv2.cpp:70
+msgid "User comment"
+msgstr "用户注释"
+
+#: src/uni-exiv2.cpp:74
 msgid "Description"
 msgstr "描述"
 
-#: ../src/uni-exiv2.hpp:64
+#: src/uni-exiv2.cpp:75
 msgid "Copyright"
 msgstr "版权"
 
-#: ../src/uni-exiv2.hpp:65
+#: src/uni-exiv2.cpp:76
 msgid "Author"
 msgstr "作者"
+
+#: src/uni-exiv2.cpp:127
+msgid "Comment"
+msgstr "注释"

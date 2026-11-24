@@ -6,11 +6,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: viewnior\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-02-07 22:04+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-24 22:40+0200\n"
 "PO-Revision-Date: 2015-01-05 22:51+0000\n"
 "Last-Translator: Michalis Ntovas <michalisntovas@yahoo.gr>\n"
 "Language-Team: Greek <el@li.org>\n"
+"Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,67 +19,75 @@ msgstr ""
 "X-Launchpad-Export-Date: 2018-03-04 17:52+0000\n"
 "X-Generator: Launchpad (build 18566)\n"
 
-#: ../data/viewnior.desktop.in.in.h:1
+#: data/viewnior.desktop.in:2
 msgid "Viewnior"
 msgstr "Viewnior"
 
-#: ../data/viewnior.desktop.in.in.h:2 ../src/vnr-window.c:1372
+#: data/viewnior.desktop.in:3 src/vnr-window.c:1503
 msgid "Elegant Image Viewer"
 msgstr "Καλαίσθητος Προβολέας Εικόνων"
 
-#: ../data/vnr-preferences-dialog.ui.h:1
+#: data/viewnior.desktop.in:12
+msgid "Image;Picture;Slideshow;"
+msgstr ""
+
+#: data/vnr-preferences-dialog.ui:25
 msgid "Viewnior Preferences"
 msgstr "Προτιμήσεις Viewnior"
 
-#: ../data/vnr-preferences-dialog.ui.h:2
+#: data/vnr-preferences-dialog.ui:50
 msgid "Open new image in: "
 msgstr "Άνοιγμα νέας εικόνας σε: "
 
-#: ../data/vnr-preferences-dialog.ui.h:3
+#: data/vnr-preferences-dialog.ui:73
 msgid "Desktop: "
 msgstr "Επιφάνεια εργασίας: "
 
-#: ../data/vnr-preferences-dialog.ui.h:4
+#: data/vnr-preferences-dialog.ui:92
 msgid "Smooth images when zoomed"
 msgstr "Εξομάλυνση μεγενθυμένων εικόνων"
 
-#: ../data/vnr-preferences-dialog.ui.h:5
+#: data/vnr-preferences-dialog.ui:105
 msgid "Confirm image deletion"
 msgstr "Επιβεβαίωση διαγραφής εικόνας"
 
-#: ../data/vnr-preferences-dialog.ui.h:6
+#: data/vnr-preferences-dialog.ui:118
 msgid "Show hidden images"
 msgstr "Προβολή κρυφών εικόνων"
 
-#: ../data/vnr-preferences-dialog.ui.h:7
+#: data/vnr-preferences-dialog.ui:132
+msgid "Dark window background"
+msgstr ""
+
+#: data/vnr-preferences-dialog.ui:149
 msgid "General"
 msgstr "Γενικά"
 
-#: ../data/vnr-preferences-dialog.ui.h:8
+#: data/vnr-preferences-dialog.ui:168
 msgid "Show next image after (in seconds): "
 msgstr "Προβολή επόμενης εικόνας μετά από (σε δεύτερα): "
 
-#: ../data/vnr-preferences-dialog.ui.h:9
+#: data/vnr-preferences-dialog.ui:195
 msgid "Always expand images to fit screen"
 msgstr "Πάντα διαστολή εικόνων για ταίριασμα στην οθόνη"
 
-#: ../data/vnr-preferences-dialog.ui.h:10
+#: data/vnr-preferences-dialog.ui:215
 msgid "Fullscreen"
 msgstr "Πλήρης Οθόνη"
 
-#: ../data/vnr-preferences-dialog.ui.h:11
+#: data/vnr-preferences-dialog.ui:232
 msgid "On mouse wheel: "
 msgstr "Στη ροδέλα του ποντικιού: "
 
-#: ../data/vnr-preferences-dialog.ui.h:12
+#: data/vnr-preferences-dialog.ui:243
 msgid "On double click: "
 msgstr "Στο διπλό κλικ "
 
-#: ../data/vnr-preferences-dialog.ui.h:13
+#: data/vnr-preferences-dialog.ui:254
 msgid "On image modification: "
 msgstr "Κατά την τροποποίηση της εικόνας: "
 
-#: ../data/vnr-preferences-dialog.ui.h:14
+#: data/vnr-preferences-dialog.ui:266
 msgid ""
 "<small>  (!) Navigating images with double click :\n"
 "  Clicking on the left half of the window shows the\n"
@@ -88,60 +97,60 @@ msgstr ""
 "Κάνοντας κλικ στο αριστερό μισό του παραθύρου εμφανίζει\n"
 "την προηγούμενη εικόνα, ενώ στα δεξιά την επόμενη</small> "
 
-#: ../data/vnr-preferences-dialog.ui.h:17
+#: data/vnr-preferences-dialog.ui:294
 msgid "Behavior"
 msgstr "Συμπεριφορά"
 
-#: ../data/vnr-preferences-dialog.ui.h:18
+#: data/vnr-preferences-dialog.ui:309
 msgid "Reload image on save"
 msgstr "Επαναφόρτωση της εικόνας κατά την αποθήκευση"
 
-#: ../data/vnr-preferences-dialog.ui.h:19
+#: data/vnr-preferences-dialog.ui:324
 msgid "JPEG quality:"
 msgstr "Ποιότητα JPEG:"
 
-#: ../data/vnr-preferences-dialog.ui.h:20
+#: data/vnr-preferences-dialog.ui:349
 msgid "PNG compression:"
 msgstr "Συμπίεση PNG:"
 
-#: ../data/vnr-preferences-dialog.ui.h:21
+#: data/vnr-preferences-dialog.ui:378
 msgid "Saving"
 msgstr "Αποθήκευση"
 
-#: ../data/vnr-crop-dialog.ui.h:1
+#: data/vnr-preferences-dialog.ui:399 src/vnr-properties-dialog.c:181
+#: src/vnr-window.c:2005
+msgid "_Close"
+msgstr "_Κλείσιμο"
+
+#: data/vnr-crop-dialog.ui:6
 msgid "Crop Image"
 msgstr "Περικοπή εικόνας"
 
-#: ../data/vnr-crop-dialog.ui.h:2
+#: data/vnr-crop-dialog.ui:66
 msgid "X: "
 msgstr "Χ: "
 
-#: ../data/vnr-crop-dialog.ui.h:3
+#: data/vnr-crop-dialog.ui:76
 msgid "Y: "
 msgstr "Υ: "
 
-#: ../data/vnr-crop-dialog.ui.h:4
+#: data/vnr-crop-dialog.ui:86
 msgid "Width: "
 msgstr "Πλάτος: "
 
-#: ../data/vnr-crop-dialog.ui.h:5
+#: data/vnr-crop-dialog.ui:96
 msgid "Height: "
 msgstr "Ύψος: "
 
-#: ../data/vnr-crop-dialog.ui.h:6 ../src/vnr-window.c:1816
+#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2096
 msgid "Crop"
 msgstr "Περικοπή"
 
-#: ../src/main.c:117 ../src/vnr-window.c:1620 ../src/vnr-window.c:1975
-#: ../src/vnr-window.c:2414
-msgid "The given locations contain no images."
-msgstr "Οι δοθείσες τοποθεσίες δεν περιέχουν εικόνες."
-
-#: ../src/uni-scroll-win.c:223
+#: src/uni-scroll-win.c:204
 msgid "Open the navigator window"
 msgstr "Άνοιγμα του παραθύρου πλοήγησης"
 
-#: ../src/vnr-file.c:223
+#: src/vnr-file.c:245
 #, c-format
 msgid ""
 "Couldn't recognise the image file\n"
@@ -150,116 +159,126 @@ msgstr ""
 "Δεν ήταν δυνατή η αναγνώριση του αρχείου εικόνας\n"
 "τύπος αρχείου '%s'"
 
-#: ../src/vnr-prefs.c:260
+#: src/vnr-prefs.c:205
 msgid "Smart Mode"
 msgstr "Έξυπνη Λειτουργία"
 
-#: ../src/vnr-prefs.c:261
+#: src/vnr-prefs.c:205
 msgid "1:1 Mode"
 msgstr "1:1 Λειτουργία"
 
-#: ../src/vnr-prefs.c:262
+#: src/vnr-prefs.c:205
 msgid "Fit To Window Mode"
 msgstr "Τοποθέτηση σε  Λειτουργία Παραθύρου"
 
-#: ../src/vnr-prefs.c:263
+#: src/vnr-prefs.c:205
 msgid "Last Used Mode"
 msgstr "Προηγούμενη λειτουργία"
 
-#: ../src/vnr-prefs.c:292 ../src/vnr-prefs.c:304
+#: src/vnr-prefs.c:209
+msgid "Autodetect"
+msgstr ""
+
+#: src/vnr-prefs.c:212 src/vnr-prefs.c:215
 msgid "Navigate images"
 msgstr "Πλοήγηση εικόνων"
 
-#: ../src/vnr-prefs.c:293
+#: src/vnr-prefs.c:212
 msgid "Zoom image"
 msgstr "Μεγέθυνση εικόνας"
 
-#: ../src/vnr-prefs.c:294
+#: src/vnr-prefs.c:212
 msgid "Scroll image up/down"
 msgstr "Κύλιση εικόνας πάνω/κάτω"
 
-#: ../src/vnr-prefs.c:302
+#: src/vnr-prefs.c:215
 msgid "Switch zoom modes"
 msgstr "Αλλαγή σε λειτουργία μεγέθυνσης"
 
-#: ../src/vnr-prefs.c:303
+#: src/vnr-prefs.c:215
 msgid "Enter fullscreen mode"
 msgstr "Είσοδος σε λειτουργία πλήρους οθόνης"
 
-#: ../src/vnr-prefs.c:312
+#: src/vnr-prefs.c:218
 msgid "Ask every time"
 msgstr "Ερώτηση κάθε φορά"
 
-#: ../src/vnr-prefs.c:313
+#: src/vnr-prefs.c:218
 msgid "Autosave"
 msgstr "Αυτόματη αποθήκευση"
 
-#: ../src/vnr-prefs.c:314
+#: src/vnr-prefs.c:218
 msgid "Ignore changes"
 msgstr "Αγνόηση αλλαγών"
 
-#: ../src/vnr-properties-dialog.c:112
+#: src/vnr-properties-dialog.c:125
 msgid "_Next"
 msgstr "_Επόμενο"
 
-#: ../src/vnr-properties-dialog.c:113
+#: src/vnr-properties-dialog.c:126
 msgid "_Previous"
 msgstr "_Προηγούμενο"
 
-#: ../src/vnr-properties-dialog.c:128
+#: src/vnr-properties-dialog.c:139
 msgid "Image Properties"
 msgstr "Ιδιότητες εικόνας"
 
-#: ../src/vnr-properties-dialog.c:136
+#: src/vnr-properties-dialog.c:146
 msgid "<b>Location:</b>"
 msgstr "<b>Τοποθεσία:</b>"
 
-#: ../src/vnr-properties-dialog.c:185
+#: src/vnr-properties-dialog.c:189
 msgid "<b>Name:</b>"
 msgstr "<b>Ονομασία:</b>"
 
-#: ../src/vnr-properties-dialog.c:189
+#: src/vnr-properties-dialog.c:190
 msgid "<b>Type:</b>"
 msgstr "<b>Τύπος:</b>"
 
-#: ../src/vnr-properties-dialog.c:193
+#: src/vnr-properties-dialog.c:191
 msgid "<b>Size:</b>"
 msgstr "<b>Μέγεθος:</b>"
 
-#: ../src/vnr-properties-dialog.c:197
+#: src/vnr-properties-dialog.c:192
 msgid "<b>Width:</b>"
 msgstr "<b>Πλάτος:</b>"
 
-#: ../src/vnr-properties-dialog.c:201
+#: src/vnr-properties-dialog.c:193
 msgid "<b>Height:</b>"
 msgstr "<b>Ύψος:</b>"
 
-#: ../src/vnr-properties-dialog.c:373 ../src/vnr-properties-dialog.c:374
-#: ../src/vnr-properties-dialog.c:375 ../src/vnr-properties-dialog.c:376
-#: ../src/vnr-properties-dialog.c:377 ../src/vnr-properties-dialog.c:378
+#: src/vnr-properties-dialog.c:194
+#, fuzzy
+msgid "<b>Modified:</b>"
+msgstr "<b>Μέγεθος:</b>"
+
+#: src/vnr-properties-dialog.c:338 src/vnr-properties-dialog.c:339
+#: src/vnr-properties-dialog.c:340 src/vnr-properties-dialog.c:341
+#: src/vnr-properties-dialog.c:342 src/vnr-properties-dialog.c:343
+#: src/vnr-properties-dialog.c:344
 msgid "None"
 msgstr "Καμμία"
 
-#: ../src/vnr-window.c:297
+#: src/vnr-window.c:351
 #, c-format
 msgid "Use \"%s\" to open the selected image"
 msgstr "Χρήση \"%s\" για άνοιγμα της επιλεγμένης εικόνας"
 
-#: ../src/vnr-window.c:467
+#: src/vnr-window.c:583
 msgid "Show next image after: "
 msgstr "Προβολή επόμενης εικόνας μετά από: "
 
-#: ../src/vnr-window.c:485 ../src/vnr-window.c:902
+#: src/vnr-window.c:601 src/vnr-window.c:1010
 msgid " second"
 msgid_plural " seconds"
 msgstr[0] " δευτερόλεπτο"
 msgstr[1] " δευτερόλεπτα"
 
-#: ../src/vnr-window.c:727 ../src/vnr-window.c:790
+#: src/vnr-window.c:850
 msgid "Not enough virtual memory."
 msgstr "Όχι αρκετή εικονική μνήμη"
 
-#: ../src/vnr-window.c:761 ../src/vnr-window.c:819 ../src/vnr-window.c:1706
+#: src/vnr-window.c:885
 msgid ""
 "Image modifications cannot be saved.\n"
 "Writing in this format is not supported."
@@ -267,7 +286,7 @@ msgstr ""
 "Οι τροποποιήσεις στην εικόνα δεν είναι δυνατό να αποθηκευτούν.\n"
 "Δεν υποστηρίζεται εγγραφή σε αυτόν τον τύπο."
 
-#: ../src/vnr-window.c:768 ../src/vnr-window.c:826 ../src/vnr-window.c:1713
+#: src/vnr-window.c:892
 msgid ""
 "Save modifications?\n"
 "This will overwrite the image and may reduce its quality!"
@@ -275,35 +294,43 @@ msgstr ""
 "Αποθήκευση των αλλαγών;\n"
 "Αυτό θα αντικαταστήσει την εικόνα και μπορεί να μειώσει την ποιότητα της!"
 
-#: ../src/vnr-window.c:1271
-msgid "Open Image"
-msgstr "Άνοιγμα εικόνας"
+#: src/vnr-window.c:893 src/vnr-window.c:2017
+msgid "_Save"
+msgstr "_Αποθήκευση"
 
-#: ../src/vnr-window.c:1282
-msgid "All Images"
-msgstr "Όλες οι Εικόνες"
-
-#: ../src/vnr-window.c:1288
-msgid "All Files"
-msgstr "Όλα τα Αρχεία"
-
-#: ../src/vnr-window.c:1318
+#: src/vnr-window.c:1410
 msgid "Open Folder"
 msgstr "Άνοιγμα Φακέλου"
 
-#: ../src/vnr-window.c:1378
+#: src/vnr-window.c:1410
+msgid "Open Image"
+msgstr "Άνοιγμα εικόνας"
+
+#: src/vnr-window.c:1431
+msgid "All Images"
+msgstr "Όλες οι Εικόνες"
+
+#: src/vnr-window.c:1437
+msgid "All Files"
+msgstr "Όλα τα Αρχεία"
+
+#: src/vnr-window.c:1509
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Michalis Ntovas https://launchpad.net/~michalisntovas\n"
 "  Γεώργιος Γεωργάς https://launchpad.net/~apopas"
 
-#: ../src/vnr-window.c:1558
+#: src/vnr-window.c:1720
+msgid "Image copied to clipboard."
+msgstr "Η εικόνα αντιγράφηκε στο πρόχειρο."
+
+#: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
 msgstr "Αν διαγράψετε ένα αντικείμενο, θα χαθεί οριστικά."
 
 #. I18N: The '%s' is replaced with the name of the file to be deleted.
-#: ../src/vnr-window.c:1561
+#: src/vnr-window.c:1859
 #, c-format
 msgid ""
 "Are you sure you want to\n"
@@ -312,319 +339,363 @@ msgstr ""
 "Είστε σίγουρος ότι θέλετε\n"
 "να διαγράψετε μόνιμα το \"%s\";"
 
-#: ../src/vnr-window.c:1721
-msgid "_File"
-msgstr "_Αρχείο"
-
-#: ../src/vnr-window.c:1722
-msgid "_Edit"
-msgstr "_Επεξεργασία"
-
-#: ../src/vnr-window.c:1723
-msgid "_View"
-msgstr "_Προβολή"
-
-#: ../src/vnr-window.c:1724
-msgid "_Image"
-msgstr "_Εικόνα"
-
-#: ../src/vnr-window.c:1725
-msgid "_Go"
-msgstr "_Μετάβαση"
-
-#: ../src/vnr-window.c:1726
-msgid "_Help"
-msgstr "_Βοήθεια"
-
-#: ../src/vnr-window.c:1728
-msgid "Open _Image..."
-msgstr "Άνοιγμα _Εικόνας..."
-
-#: ../src/vnr-window.c:1729
-msgid "Open an Image"
-msgstr "Ανοίξτε μία Εικόνα"
-
-#: ../src/vnr-window.c:1731
-msgid "Open _Folder..."
-msgstr "Άνοιγμα _Φακέλου..."
-
-#: ../src/vnr-window.c:1732
-msgid "Open a Folder"
-msgstr "Ανοίξτε ένα Φάκελο"
-
-#: ../src/vnr-window.c:1734
-msgid "_Close"
-msgstr "_Κλείσιμο"
-
-#: ../src/vnr-window.c:1735
-msgid "Close window"
-msgstr "Κλείσιμο Παραθύρου"
-
-#: ../src/vnr-window.c:1737
-msgid "_About"
-msgstr "_Περί"
-
-#: ../src/vnr-window.c:1738
-msgid "About this application"
-msgstr "Πληροφορίες Εφαρμογής"
-
-#: ../src/vnr-window.c:1740
-msgid "_Preferences..."
-msgstr "_Προτιμήσεις..."
-
-#: ../src/vnr-window.c:1741
-msgid "User preferences for Viewnior"
-msgstr "Προτιμήσεις χρήστη για Viewnior"
-
-#: ../src/vnr-window.c:1746
-msgid "_Save"
-msgstr "_Αποθήκευση"
-
-#: ../src/vnr-window.c:1747
-msgid "Save changes"
-msgstr "Αποθήκευση αλλαγών"
-
-#: ../src/vnr-window.c:1752
-msgid "_Properties"
-msgstr "_Ιδιότητες"
-
-#: ../src/vnr-window.c:1753
-msgid "Properties"
-msgstr "Ιδιότητες"
-
-#: ../src/vnr-window.c:1758
-msgid "Set as _Wallpaper"
-msgstr "Τοποθέτηση ως _Παρασκήνιο Επιφάνειας Εργασίας"
-
-#: ../src/vnr-window.c:1759
-msgid "Set the selected image as the desktop background"
-msgstr "Τοποθέτηση της επιλεγμένης εικόνας ως Παρασκήνιο Επιφάνειας Εργασίας"
-
-#: ../src/vnr-window.c:1764
-msgid "Open _With"
-msgstr "Άνοιγμα _Με"
-
-#: ../src/vnr-window.c:1765
-msgid "Open the selected image with a different application"
-msgstr "Άνοιγμα της επιλεγμένης εικόνας με διαφορετική εφαρμογή"
-
-#: ../src/vnr-window.c:1767 ../src/vnr-window.c:1776
+#: src/vnr-window.c:1877 src/vnr-window.c:2044 src/vnr-window.c:2053
 msgid "_Delete"
 msgstr "_Διαγραφή"
 
-#: ../src/vnr-window.c:1768 ../src/vnr-window.c:1777
+#: src/vnr-window.c:1915 src/vnr-window.c:2286 src/vnr-window.c:2683
+msgid "The given locations contain no images."
+msgstr "Οι δοθείσες τοποθεσίες δεν περιέχουν εικόνες."
+
+#: src/vnr-window.c:1992
+msgid "_File"
+msgstr "_Αρχείο"
+
+#: src/vnr-window.c:1993
+msgid "_Edit"
+msgstr "_Επεξεργασία"
+
+#: src/vnr-window.c:1994
+msgid "_View"
+msgstr "_Προβολή"
+
+#: src/vnr-window.c:1995
+msgid "_Image"
+msgstr "_Εικόνα"
+
+#: src/vnr-window.c:1996
+msgid "_Go"
+msgstr "_Μετάβαση"
+
+#: src/vnr-window.c:1997
+msgid "_Help"
+msgstr "_Βοήθεια"
+
+#: src/vnr-window.c:1999
+msgid "Open _Image..."
+msgstr "Άνοιγμα _Εικόνας..."
+
+#: src/vnr-window.c:2000
+msgid "Open an Image"
+msgstr "Ανοίξτε μία Εικόνα"
+
+#: src/vnr-window.c:2002
+msgid "Open _Folder..."
+msgstr "Άνοιγμα _Φακέλου..."
+
+#: src/vnr-window.c:2003
+msgid "Open a Folder"
+msgstr "Ανοίξτε ένα Φάκελο"
+
+#: src/vnr-window.c:2006
+msgid "Close window"
+msgstr "Κλείσιμο Παραθύρου"
+
+#: src/vnr-window.c:2008
+msgid "_About"
+msgstr "_Περί"
+
+#: src/vnr-window.c:2009
+msgid "About this application"
+msgstr "Πληροφορίες Εφαρμογής"
+
+#: src/vnr-window.c:2011
+msgid "_Preferences..."
+msgstr "_Προτιμήσεις..."
+
+#: src/vnr-window.c:2012
+msgid "User preferences for Viewnior"
+msgstr "Προτιμήσεις χρήστη για Viewnior"
+
+#: src/vnr-window.c:2018
+msgid "Save changes"
+msgstr "Αποθήκευση αλλαγών"
+
+#: src/vnr-window.c:2023
+msgid "_Properties"
+msgstr "_Ιδιότητες"
+
+#: src/vnr-window.c:2024
+msgid "Properties"
+msgstr "Ιδιότητες"
+
+#: src/vnr-window.c:2029
+msgid "Set as _Wallpaper"
+msgstr "Τοποθέτηση ως _Παρασκήνιο Επιφάνειας Εργασίας"
+
+#: src/vnr-window.c:2030
+msgid "Set the selected image as the desktop background"
+msgstr "Τοποθέτηση της επιλεγμένης εικόνας ως Παρασκήνιο Επιφάνειας Εργασίας"
+
+#: src/vnr-window.c:2035
+msgid "Copy image to clipboard"
+msgstr "Αντιγραφή εικόνας στο πρόχειρο"
+
+#: src/vnr-window.c:2036
+msgid "Copy the image to the clipboard"
+msgstr "Αντιγραφή της εικόνας στο πρόχειρο"
+
+#: src/vnr-window.c:2041
+msgid "Open _With"
+msgstr "Άνοιγμα _Με"
+
+#: src/vnr-window.c:2042
+msgid "Open the selected image with a different application"
+msgstr "Άνοιγμα της επιλεγμένης εικόνας με διαφορετική εφαρμογή"
+
+#: src/vnr-window.c:2045 src/vnr-window.c:2054
 msgid "Delete the current file"
 msgstr "Διαγραφή παρόντος αρχείου"
 
-#: ../src/vnr-window.c:1770
+#: src/vnr-window.c:2047
 msgid "_Properties..."
 msgstr "_Ιδιότητες..."
 
-#: ../src/vnr-window.c:1771
+#: src/vnr-window.c:2048
 msgid "Show information about the current file"
 msgstr "Εμφάνιση πληροφοριών για το τρέχον αρχείο"
 
-#: ../src/vnr-window.c:1773
+#: src/vnr-window.c:2050
 msgid "_Reload"
 msgstr "_Επαναφόρτωση"
 
-#: ../src/vnr-window.c:1774
+#: src/vnr-window.c:2051
 msgid "Reload the current file"
 msgstr "Επαναφόρτωσε το παρόν αρχείο"
 
-#: ../src/vnr-window.c:1779 ../src/vnr-window.c:1791 ../src/vnr-window.c:1794
+#: src/vnr-window.c:2056 src/vnr-window.c:2071 src/vnr-window.c:2074
 msgid "_Zoom In"
 msgstr "_Μεγέθυνση"
 
-#: ../src/vnr-window.c:1780
+#: src/vnr-window.c:2057
 msgid "Enlarge the image"
 msgstr "Μεγέθυνση Εικόνας"
 
-#: ../src/vnr-window.c:1782 ../src/vnr-window.c:1797
+#: src/vnr-window.c:2059 src/vnr-window.c:2077
 msgid "Zoom _Out"
 msgstr "Σμίκρ_υνση"
 
-#: ../src/vnr-window.c:1783 ../src/vnr-window.c:1792 ../src/vnr-window.c:1795
-#: ../src/vnr-window.c:1798
+#: src/vnr-window.c:2060 src/vnr-window.c:2072 src/vnr-window.c:2075
+#: src/vnr-window.c:2078
 msgid "Shrink the image"
 msgstr "Συρρίκνωση Εικόνας"
 
-#: ../src/vnr-window.c:1785
+#: src/vnr-window.c:2062
 msgid "_Normal Size"
 msgstr "_Κανονικό Μέγεθος"
 
-#: ../src/vnr-window.c:1786
+#: src/vnr-window.c:2063
 msgid "Show the image at its normal size"
 msgstr "Προβολή κανονικού μεγέθους εικόνας"
 
-#: ../src/vnr-window.c:1788
+#: src/vnr-window.c:2065
 msgid "Best _Fit"
 msgstr "Καλύτερο _Ταίριασμα"
 
-#: ../src/vnr-window.c:1789
+#: src/vnr-window.c:2066
 msgid "Fit the image to the window"
 msgstr "Ταίριασμα στο Παράθυρο"
 
-#: ../src/vnr-window.c:1803
+#: src/vnr-window.c:2068
+msgid "Zoom _50%"
+msgstr "Εστίαση _50%"
+
+#: src/vnr-window.c:2069
+msgid "Show the image at half its normal size"
+msgstr "Προβολή της εικόνας στο μισό του κανονικού μεγέθους"
+
+#: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"
 msgstr "_Δεξιόστροφη Περιστροφή"
 
-#: ../src/vnr-window.c:1804
+#: src/vnr-window.c:2084
 msgid "Rotate image clockwise"
 msgstr "Δεξιόστροφη περιστροφή της εικόνας"
 
-#: ../src/vnr-window.c:1806
+#: src/vnr-window.c:2086
 msgid "Rotate _Anti-clockwise"
 msgstr "_Αριστερόστροφη Περιστροφή"
 
-#: ../src/vnr-window.c:1807
+#: src/vnr-window.c:2087
 msgid "Rotate image anti-clockwise"
 msgstr "Αριστερόστροφη περιστροφή της εικόνας"
 
-#: ../src/vnr-window.c:1809
+#: src/vnr-window.c:2089
 msgid "Flip _Vertical"
 msgstr "_Κάθετη Αναστροφή"
 
-#: ../src/vnr-window.c:1810
+#: src/vnr-window.c:2090
 msgid "Flip image vertically"
 msgstr "Κάθετη αναστροφή της εικόνας"
 
-#: ../src/vnr-window.c:1812
+#: src/vnr-window.c:2092
 msgid "Flip _Horizontal"
 msgstr "_Οριζόντια Αναστροφή"
 
-#: ../src/vnr-window.c:1813
+#: src/vnr-window.c:2093
 msgid "Flip image horizontally"
 msgstr "Οριζόντια αναστροφή της εικόνας"
 
-#: ../src/vnr-window.c:1815
+#: src/vnr-window.c:2095
 msgid "Crop..."
 msgstr "Περικοπή..."
 
-#: ../src/vnr-window.c:1821
+#: src/vnr-window.c:2101
 msgid "Full _Screen"
 msgstr "Πλήρης _Οθόνη"
 
-#: ../src/vnr-window.c:1822
+#: src/vnr-window.c:2102
 msgid "Show in fullscreen mode"
 msgstr "Προβολή σε κατάσταση πλήρους οθόνης"
 
-#: ../src/vnr-window.c:1824
+#: src/vnr-window.c:2104
 msgid "_Adjust window size"
 msgstr "_Ρύθμιση μεγέθους παραθύρου"
 
-#: ../src/vnr-window.c:1825
+#: src/vnr-window.c:2105
 msgid "Adjust window size to fit the image"
 msgstr "Ρύθμιση μεγέθους παραθύρου για ταίριασμα στην εικόνα"
 
-#: ../src/vnr-window.c:1830
+#: src/vnr-window.c:2110
 msgid "Menu Bar"
 msgstr "Γραμμή Μενού"
 
-#: ../src/vnr-window.c:1831
+#: src/vnr-window.c:2111
 msgid "Show Menu Bar"
 msgstr "Εμφάνιση γραμμής μενού"
 
-#: ../src/vnr-window.c:1833
+#: src/vnr-window.c:2113
 msgid "Toolbar"
 msgstr "Γραμμή εργαλείων"
 
-#: ../src/vnr-window.c:1834
+#: src/vnr-window.c:2114
 msgid "Show Toolbar"
 msgstr "Εμφάνιση γραμμής εργαλείων"
 
-#: ../src/vnr-window.c:1839
+#: src/vnr-window.c:2116
+#, fuzzy
+msgid "Scrollbar"
+msgstr "Γραμμή εργαλείων"
+
+#: src/vnr-window.c:2117
+#, fuzzy
+msgid "Show Scrollbar"
+msgstr "Εμφάνιση γραμμής εργαλείων"
+
+#: src/vnr-window.c:2119
+msgid "Statusbar"
+msgstr ""
+
+#: src/vnr-window.c:2120
+#, fuzzy
+msgid "Show Statusbar"
+msgstr "Εμφάνιση γραμμής εργαλείων"
+
+#: src/vnr-window.c:2125
 msgid "Sli_deshow"
 msgstr "Προβολή Δια_φανειών"
 
-#: ../src/vnr-window.c:1840
+#: src/vnr-window.c:2126
 msgid "Show in slideshow mode"
 msgstr "Εμφάνιση σε προβολή διαφανειών"
 
-#: ../src/vnr-window.c:1845
+#: src/vnr-window.c:2131
 msgid "_Previous Image"
 msgstr "_Προηγούμενη Εικόνα"
 
-#: ../src/vnr-window.c:1846
+#: src/vnr-window.c:2132
 msgid "Go to the previous image of the collection"
 msgstr "Μεταφορά στην προηγούμενη εικόνα της συλλογής"
 
-#: ../src/vnr-window.c:1848
+#: src/vnr-window.c:2134
 msgid "_Next Image"
 msgstr "_Επόμενη Εικόνα"
 
-#: ../src/vnr-window.c:1849
+#: src/vnr-window.c:2135
 msgid "Go to the next image of the collection"
 msgstr "Μεταφορά στην επόμενη εικόνα της συλλογής"
 
-#: ../src/vnr-window.c:1851
+#: src/vnr-window.c:2137
 msgid "_First Image"
 msgstr "_Αρχική Εικόνα"
 
-#: ../src/vnr-window.c:1852
+#: src/vnr-window.c:2138
 msgid "Go to the first image of the collection"
 msgstr "Μεταφορά στην αρχική εικόνα της συλλογής"
 
-#: ../src/vnr-window.c:1854
+#: src/vnr-window.c:2140
 msgid "_Last Image"
 msgstr "_Τελευταία Εικόνα"
 
-#: ../src/vnr-window.c:1855
+#: src/vnr-window.c:2141
 msgid "Go to the last image of the collection"
 msgstr "Μεταφορά στην τελευταία εικόνα της συλλογής"
 
-#: ../src/uni-exiv2.hpp:49
+#: src/uni-exiv2.cpp:58
 msgid "Camera make"
 msgstr "Μάρκα κάμερας"
 
-#: ../src/uni-exiv2.hpp:50
+#: src/uni-exiv2.cpp:59
 msgid "Camera model"
 msgstr "Μοντέλο κάμερας"
 
-#: ../src/uni-exiv2.hpp:51
+#: src/uni-exiv2.cpp:60
 msgid "Date Taken"
 msgstr "Ημερομηνία Λήψης"
 
-#: ../src/uni-exiv2.hpp:52
+#: src/uni-exiv2.cpp:61
 msgid "Exposure time"
 msgstr "Χρόνος έκθεσης"
 
-#: ../src/uni-exiv2.hpp:53
+#: src/uni-exiv2.cpp:62
 msgid "Exposure mode"
 msgstr "Τύπος έκθεσης"
 
-#: ../src/uni-exiv2.hpp:54
+#: src/uni-exiv2.cpp:63
 msgid "Aperture Value"
 msgstr "Τιμή Διαφράγματος"
 
-#: ../src/uni-exiv2.hpp:55
+#: src/uni-exiv2.cpp:64
 msgid "ISO speed"
 msgstr "Ταχύτητα ISO"
 
-#: ../src/uni-exiv2.hpp:56
+#: src/uni-exiv2.cpp:65
 msgid "Flash"
 msgstr "Φλας"
 
-#: ../src/uni-exiv2.hpp:57
+#: src/uni-exiv2.cpp:66
 msgid "Metering mode"
 msgstr "Λειτουργία μέτρησης"
 
-#: ../src/uni-exiv2.hpp:58
+#: src/uni-exiv2.cpp:67
 msgid "Focal length"
 msgstr "Εστιακή απόσταση"
 
-#: ../src/uni-exiv2.hpp:59
+#: src/uni-exiv2.cpp:68
 msgid "Software"
 msgstr "Λογισμικό"
 
-#: ../src/uni-exiv2.hpp:63
+#: src/uni-exiv2.cpp:69
+#, fuzzy
+msgid "Image description"
+msgstr "Περιγραφή"
+
+#: src/uni-exiv2.cpp:70
+msgid "User comment"
+msgstr ""
+
+#: src/uni-exiv2.cpp:74
 msgid "Description"
 msgstr "Περιγραφή"
 
-#: ../src/uni-exiv2.hpp:64
+#: src/uni-exiv2.cpp:75
 msgid "Copyright"
 msgstr "Πνευματικά δικαιώματα"
 
-#: ../src/uni-exiv2.hpp:65
+#: src/uni-exiv2.cpp:76
 msgid "Author"
 msgstr "Δημιουργός"
+
+#: src/uni-exiv2.cpp:127
+msgid "Comment"
+msgstr ""

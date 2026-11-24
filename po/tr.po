@@ -6,11 +6,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: viewnior\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-02-07 22:04+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-24 22:40+0200\n"
 "PO-Revision-Date: 2010-06-13 17:07+0000\n"
 "Last-Translator: nordstern <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
+"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,67 +19,75 @@ msgstr ""
 "X-Launchpad-Export-Date: 2018-03-04 17:52+0000\n"
 "X-Generator: Launchpad (build 18566)\n"
 
-#: ../data/viewnior.desktop.in.in.h:1
+#: data/viewnior.desktop.in:2
 msgid "Viewnior"
 msgstr "Viewnior"
 
-#: ../data/viewnior.desktop.in.in.h:2 ../src/vnr-window.c:1372
+#: data/viewnior.desktop.in:3 src/vnr-window.c:1503
 msgid "Elegant Image Viewer"
 msgstr "Zarif Resim Gösterici"
 
-#: ../data/vnr-preferences-dialog.ui.h:1
+#: data/viewnior.desktop.in:12
+msgid "Image;Picture;Slideshow;"
+msgstr ""
+
+#: data/vnr-preferences-dialog.ui:25
 msgid "Viewnior Preferences"
 msgstr "Viewnior Seçenekleri"
 
-#: ../data/vnr-preferences-dialog.ui.h:2
+#: data/vnr-preferences-dialog.ui:50
 msgid "Open new image in: "
 msgstr "Yeni resmi aç: "
 
-#: ../data/vnr-preferences-dialog.ui.h:3
+#: data/vnr-preferences-dialog.ui:73
 msgid "Desktop: "
 msgstr ""
 
-#: ../data/vnr-preferences-dialog.ui.h:4
+#: data/vnr-preferences-dialog.ui:92
 msgid "Smooth images when zoomed"
 msgstr "_"
 
-#: ../data/vnr-preferences-dialog.ui.h:5
+#: data/vnr-preferences-dialog.ui:105
 msgid "Confirm image deletion"
 msgstr "Resim silmeyi onayla"
 
-#: ../data/vnr-preferences-dialog.ui.h:6
+#: data/vnr-preferences-dialog.ui:118
 msgid "Show hidden images"
 msgstr "Gizli resimleri göster"
 
-#: ../data/vnr-preferences-dialog.ui.h:7
+#: data/vnr-preferences-dialog.ui:132
+msgid "Dark window background"
+msgstr ""
+
+#: data/vnr-preferences-dialog.ui:149
 msgid "General"
 msgstr "Genel"
 
-#: ../data/vnr-preferences-dialog.ui.h:8
+#: data/vnr-preferences-dialog.ui:168
 msgid "Show next image after (in seconds): "
 msgstr "Sonraki resme geçiş süresi: "
 
-#: ../data/vnr-preferences-dialog.ui.h:9
+#: data/vnr-preferences-dialog.ui:195
 msgid "Always expand images to fit screen"
 msgstr "Her zaman resmi ekran boyutuna genişlet"
 
-#: ../data/vnr-preferences-dialog.ui.h:10
+#: data/vnr-preferences-dialog.ui:215
 msgid "Fullscreen"
 msgstr "Tam ekran"
 
-#: ../data/vnr-preferences-dialog.ui.h:11
+#: data/vnr-preferences-dialog.ui:232
 msgid "On mouse wheel: "
 msgstr "Fare orta tuşuna basıldığında: "
 
-#: ../data/vnr-preferences-dialog.ui.h:12
+#: data/vnr-preferences-dialog.ui:243
 msgid "On double click: "
 msgstr "Çift tıklama: "
 
-#: ../data/vnr-preferences-dialog.ui.h:13
+#: data/vnr-preferences-dialog.ui:254
 msgid "On image modification: "
 msgstr "Resim Değiştirildiğinde: "
 
-#: ../data/vnr-preferences-dialog.ui.h:14
+#: data/vnr-preferences-dialog.ui:266
 msgid ""
 "<small>  (!) Navigating images with double click :\n"
 "  Clicking on the left half of the window shows the\n"
@@ -88,175 +97,185 @@ msgstr ""
 "  Pencerenin sol kısmına tıklarsanız önceki resme,\n"
 "  Sağ kısmına tıklarsanız sonraki resme geçecektir.</small> "
 
-#: ../data/vnr-preferences-dialog.ui.h:17
+#: data/vnr-preferences-dialog.ui:294
 msgid "Behavior"
 msgstr "Davranış"
 
-#: ../data/vnr-preferences-dialog.ui.h:18
+#: data/vnr-preferences-dialog.ui:309
 msgid "Reload image on save"
 msgstr "Resmi kayıt ettikten sonra yeniden yükle"
 
-#: ../data/vnr-preferences-dialog.ui.h:19
+#: data/vnr-preferences-dialog.ui:324
 msgid "JPEG quality:"
 msgstr "JPEG kalitesi:"
 
-#: ../data/vnr-preferences-dialog.ui.h:20
+#: data/vnr-preferences-dialog.ui:349
 msgid "PNG compression:"
 msgstr "PNG sıkıştırması:"
 
-#: ../data/vnr-preferences-dialog.ui.h:21
+#: data/vnr-preferences-dialog.ui:378
 msgid "Saving"
 msgstr "Kaydediliyor"
 
-#: ../data/vnr-crop-dialog.ui.h:1
+#: data/vnr-preferences-dialog.ui:399 src/vnr-properties-dialog.c:181
+#: src/vnr-window.c:2005
+msgid "_Close"
+msgstr "_Kapat"
+
+#: data/vnr-crop-dialog.ui:6
 msgid "Crop Image"
 msgstr "Resmi Kırp"
 
-#: ../data/vnr-crop-dialog.ui.h:2
+#: data/vnr-crop-dialog.ui:66
 msgid "X: "
 msgstr "X: "
 
-#: ../data/vnr-crop-dialog.ui.h:3
+#: data/vnr-crop-dialog.ui:76
 msgid "Y: "
 msgstr "Y: "
 
-#: ../data/vnr-crop-dialog.ui.h:4
+#: data/vnr-crop-dialog.ui:86
 msgid "Width: "
 msgstr "Genişlik: "
 
-#: ../data/vnr-crop-dialog.ui.h:5
+#: data/vnr-crop-dialog.ui:96
 msgid "Height: "
 msgstr "Yükseklik: "
 
-#: ../data/vnr-crop-dialog.ui.h:6 ../src/vnr-window.c:1816
+#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2096
 msgid "Crop"
 msgstr "Kırp"
 
-#: ../src/main.c:117 ../src/vnr-window.c:1620 ../src/vnr-window.c:1975
-#: ../src/vnr-window.c:2414
-msgid "The given locations contain no images."
-msgstr "Verilen yerler hiçbir görüntü içermiyor."
-
-#: ../src/uni-scroll-win.c:223
+#: src/uni-scroll-win.c:204
 msgid "Open the navigator window"
 msgstr "Dosya tarayıcısını aç"
 
-#: ../src/vnr-file.c:223
+#: src/vnr-file.c:245
 #, c-format
 msgid ""
 "Couldn't recognise the image file\n"
 "format for file '%s'"
 msgstr "'%s'  dosya biçimi tanınmıyor."
 
-#: ../src/vnr-prefs.c:260
+#: src/vnr-prefs.c:205
 msgid "Smart Mode"
 msgstr "Akıllı Kip"
 
-#: ../src/vnr-prefs.c:261
+#: src/vnr-prefs.c:205
 msgid "1:1 Mode"
 msgstr "1:1 Oran"
 
-#: ../src/vnr-prefs.c:262
+#: src/vnr-prefs.c:205
 msgid "Fit To Window Mode"
 msgstr "Pencereye Sığdır"
 
-#: ../src/vnr-prefs.c:263
+#: src/vnr-prefs.c:205
 msgid "Last Used Mode"
 msgstr ""
 
-#: ../src/vnr-prefs.c:292 ../src/vnr-prefs.c:304
+#: src/vnr-prefs.c:209
+msgid "Autodetect"
+msgstr ""
+
+#: src/vnr-prefs.c:212 src/vnr-prefs.c:215
 msgid "Navigate images"
 msgstr "Resimleri Arasında Gezin"
 
-#: ../src/vnr-prefs.c:293
+#: src/vnr-prefs.c:212
 msgid "Zoom image"
 msgstr "Resmi büyüt"
 
-#: ../src/vnr-prefs.c:294
+#: src/vnr-prefs.c:212
 msgid "Scroll image up/down"
 msgstr "Resmi aşağı/yukarı kaydır"
 
-#: ../src/vnr-prefs.c:302
+#: src/vnr-prefs.c:215
 msgid "Switch zoom modes"
 msgstr "Yakınlaştırma türünü değiştir"
 
-#: ../src/vnr-prefs.c:303
+#: src/vnr-prefs.c:215
 msgid "Enter fullscreen mode"
 msgstr "Tam ekran kipine gir"
 
-#: ../src/vnr-prefs.c:312
+#: src/vnr-prefs.c:218
 msgid "Ask every time"
 msgstr "Her zaman sor"
 
-#: ../src/vnr-prefs.c:313
+#: src/vnr-prefs.c:218
 msgid "Autosave"
 msgstr "Otomatik kaydet"
 
-#: ../src/vnr-prefs.c:314
+#: src/vnr-prefs.c:218
 msgid "Ignore changes"
 msgstr "Değişiklikleri yoksay"
 
-#: ../src/vnr-properties-dialog.c:112
+#: src/vnr-properties-dialog.c:125
 msgid "_Next"
 msgstr "_Sonraki"
 
-#: ../src/vnr-properties-dialog.c:113
+#: src/vnr-properties-dialog.c:126
 msgid "_Previous"
 msgstr "_Önceki"
 
-#: ../src/vnr-properties-dialog.c:128
+#: src/vnr-properties-dialog.c:139
 msgid "Image Properties"
 msgstr "Resim Özellikleri"
 
-#: ../src/vnr-properties-dialog.c:136
+#: src/vnr-properties-dialog.c:146
 msgid "<b>Location:</b>"
 msgstr "<b>Konum:</b>"
 
-#: ../src/vnr-properties-dialog.c:185
+#: src/vnr-properties-dialog.c:189
 msgid "<b>Name:</b>"
 msgstr "<b>İsim:</b>"
 
-#: ../src/vnr-properties-dialog.c:189
+#: src/vnr-properties-dialog.c:190
 msgid "<b>Type:</b>"
 msgstr "<b>Tür:</b>"
 
-#: ../src/vnr-properties-dialog.c:193
+#: src/vnr-properties-dialog.c:191
 msgid "<b>Size:</b>"
 msgstr "<b>Boyut:</b>"
 
-#: ../src/vnr-properties-dialog.c:197
+#: src/vnr-properties-dialog.c:192
 msgid "<b>Width:</b>"
 msgstr "<b>Genişlik:</b>"
 
-#: ../src/vnr-properties-dialog.c:201
+#: src/vnr-properties-dialog.c:193
 msgid "<b>Height:</b>"
 msgstr "<b>Yükseklik:</b>"
 
-#: ../src/vnr-properties-dialog.c:373 ../src/vnr-properties-dialog.c:374
-#: ../src/vnr-properties-dialog.c:375 ../src/vnr-properties-dialog.c:376
-#: ../src/vnr-properties-dialog.c:377 ../src/vnr-properties-dialog.c:378
+#: src/vnr-properties-dialog.c:194
+#, fuzzy
+msgid "<b>Modified:</b>"
+msgstr "<b>Boyut:</b>"
+
+#: src/vnr-properties-dialog.c:338 src/vnr-properties-dialog.c:339
+#: src/vnr-properties-dialog.c:340 src/vnr-properties-dialog.c:341
+#: src/vnr-properties-dialog.c:342 src/vnr-properties-dialog.c:343
+#: src/vnr-properties-dialog.c:344
 msgid "None"
 msgstr "Hiçbiri"
 
-#: ../src/vnr-window.c:297
+#: src/vnr-window.c:351
 #, c-format
 msgid "Use \"%s\" to open the selected image"
 msgstr "Seçilen resmi açmak için \"%s\" kullan"
 
-#: ../src/vnr-window.c:467
+#: src/vnr-window.c:583
 msgid "Show next image after: "
 msgstr "Ardından resmi göster: "
 
-#: ../src/vnr-window.c:485 ../src/vnr-window.c:902
+#: src/vnr-window.c:601 src/vnr-window.c:1010
 msgid " second"
 msgid_plural " seconds"
 msgstr[0] " saniye"
 
-#: ../src/vnr-window.c:727 ../src/vnr-window.c:790
+#: src/vnr-window.c:850
 msgid "Not enough virtual memory."
 msgstr "Yetersiz sanal bellek"
 
-#: ../src/vnr-window.c:761 ../src/vnr-window.c:819 ../src/vnr-window.c:1706
+#: src/vnr-window.c:885
 msgid ""
 "Image modifications cannot be saved.\n"
 "Writing in this format is not supported."
@@ -264,40 +283,48 @@ msgstr ""
 "Resim üzerinde yapılan değişiklikler uygulanamadı.\n"
 "Bu dosya türünde kayıt yapılamıyor."
 
-#: ../src/vnr-window.c:768 ../src/vnr-window.c:826 ../src/vnr-window.c:1713
+#: src/vnr-window.c:892
 msgid ""
 "Save modifications?\n"
 "This will overwrite the image and may reduce its quality!"
 msgstr ""
 
-#: ../src/vnr-window.c:1271
-msgid "Open Image"
-msgstr "Resim Aç"
+#: src/vnr-window.c:893 src/vnr-window.c:2017
+msgid "_Save"
+msgstr "_Kaydet"
 
-#: ../src/vnr-window.c:1282
-msgid "All Images"
-msgstr ""
-
-#: ../src/vnr-window.c:1288
-msgid "All Files"
-msgstr ""
-
-#: ../src/vnr-window.c:1318
+#: src/vnr-window.c:1410
 msgid "Open Folder"
 msgstr "Dizin Aç"
 
-#: ../src/vnr-window.c:1378
+#: src/vnr-window.c:1410
+msgid "Open Image"
+msgstr "Resim Aç"
+
+#: src/vnr-window.c:1431
+msgid "All Images"
+msgstr ""
+
+#: src/vnr-window.c:1437
+msgid "All Files"
+msgstr ""
+
+#: src/vnr-window.c:1509
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  nordstern https://launchpad.net/~deran-delice"
 
-#: ../src/vnr-window.c:1558
+#: src/vnr-window.c:1720
+msgid "Image copied to clipboard."
+msgstr "Görüntü panoya kopyalandı."
+
+#: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
 msgstr "Eğer bir öğeyi silerseniz, kalıcı olarak kaybolacak."
 
 #. I18N: The '%s' is replaced with the name of the file to be deleted.
-#: ../src/vnr-window.c:1561
+#: src/vnr-window.c:1859
 #, c-format
 msgid ""
 "Are you sure you want to\n"
@@ -306,319 +333,363 @@ msgstr ""
 "\"%s\" dosyasını kalıcı olarak silmek\n"
 " isstediğinize emin misiniz ?"
 
-#: ../src/vnr-window.c:1721
-msgid "_File"
-msgstr "_Dosya"
-
-#: ../src/vnr-window.c:1722
-msgid "_Edit"
-msgstr "_Düzenle"
-
-#: ../src/vnr-window.c:1723
-msgid "_View"
-msgstr "_Görünüm"
-
-#: ../src/vnr-window.c:1724
-msgid "_Image"
-msgstr "_Resim"
-
-#: ../src/vnr-window.c:1725
-msgid "_Go"
-msgstr "_Git"
-
-#: ../src/vnr-window.c:1726
-msgid "_Help"
-msgstr "_Yardım"
-
-#: ../src/vnr-window.c:1728
-msgid "Open _Image..."
-msgstr "_Resim Aç"
-
-#: ../src/vnr-window.c:1729
-msgid "Open an Image"
-msgstr "Bir resim dosyası aç"
-
-#: ../src/vnr-window.c:1731
-msgid "Open _Folder..."
-msgstr "_Klasör Aç..."
-
-#: ../src/vnr-window.c:1732
-msgid "Open a Folder"
-msgstr "Bir dizin aç"
-
-#: ../src/vnr-window.c:1734
-msgid "_Close"
-msgstr "_Kapat"
-
-#: ../src/vnr-window.c:1735
-msgid "Close window"
-msgstr "Pencereyi kapat"
-
-#: ../src/vnr-window.c:1737
-msgid "_About"
-msgstr "_Hakkında"
-
-#: ../src/vnr-window.c:1738
-msgid "About this application"
-msgstr "Bu uygulama hakkında"
-
-#: ../src/vnr-window.c:1740
-msgid "_Preferences..."
-msgstr "_Tercihler"
-
-#: ../src/vnr-window.c:1741
-msgid "User preferences for Viewnior"
-msgstr "Viewnior için kullanıcı ayarları"
-
-#: ../src/vnr-window.c:1746
-msgid "_Save"
-msgstr "_Kaydet"
-
-#: ../src/vnr-window.c:1747
-msgid "Save changes"
-msgstr "Değişiklikleri kaydet"
-
-#: ../src/vnr-window.c:1752
-msgid "_Properties"
-msgstr ""
-
-#: ../src/vnr-window.c:1753
-msgid "Properties"
-msgstr ""
-
-#: ../src/vnr-window.c:1758
-msgid "Set as _Wallpaper"
-msgstr "_Arkaplan olarak ayarla"
-
-#: ../src/vnr-window.c:1759
-msgid "Set the selected image as the desktop background"
-msgstr "Seçilmiş görüntüyü masaüstü artalanı olarak ayarla"
-
-#: ../src/vnr-window.c:1764
-msgid "Open _With"
-msgstr "İl_e Aç"
-
-#: ../src/vnr-window.c:1765
-msgid "Open the selected image with a different application"
-msgstr "Seçilen resmi başka bir uygulama ile birlikte aç"
-
-#: ../src/vnr-window.c:1767 ../src/vnr-window.c:1776
+#: src/vnr-window.c:1877 src/vnr-window.c:2044 src/vnr-window.c:2053
 msgid "_Delete"
 msgstr "_Sil"
 
-#: ../src/vnr-window.c:1768 ../src/vnr-window.c:1777
+#: src/vnr-window.c:1915 src/vnr-window.c:2286 src/vnr-window.c:2683
+msgid "The given locations contain no images."
+msgstr "Verilen yerler hiçbir görüntü içermiyor."
+
+#: src/vnr-window.c:1992
+msgid "_File"
+msgstr "_Dosya"
+
+#: src/vnr-window.c:1993
+msgid "_Edit"
+msgstr "_Düzenle"
+
+#: src/vnr-window.c:1994
+msgid "_View"
+msgstr "_Görünüm"
+
+#: src/vnr-window.c:1995
+msgid "_Image"
+msgstr "_Resim"
+
+#: src/vnr-window.c:1996
+msgid "_Go"
+msgstr "_Git"
+
+#: src/vnr-window.c:1997
+msgid "_Help"
+msgstr "_Yardım"
+
+#: src/vnr-window.c:1999
+msgid "Open _Image..."
+msgstr "_Resim Aç"
+
+#: src/vnr-window.c:2000
+msgid "Open an Image"
+msgstr "Bir resim dosyası aç"
+
+#: src/vnr-window.c:2002
+msgid "Open _Folder..."
+msgstr "_Klasör Aç..."
+
+#: src/vnr-window.c:2003
+msgid "Open a Folder"
+msgstr "Bir dizin aç"
+
+#: src/vnr-window.c:2006
+msgid "Close window"
+msgstr "Pencereyi kapat"
+
+#: src/vnr-window.c:2008
+msgid "_About"
+msgstr "_Hakkında"
+
+#: src/vnr-window.c:2009
+msgid "About this application"
+msgstr "Bu uygulama hakkında"
+
+#: src/vnr-window.c:2011
+msgid "_Preferences..."
+msgstr "_Tercihler"
+
+#: src/vnr-window.c:2012
+msgid "User preferences for Viewnior"
+msgstr "Viewnior için kullanıcı ayarları"
+
+#: src/vnr-window.c:2018
+msgid "Save changes"
+msgstr "Değişiklikleri kaydet"
+
+#: src/vnr-window.c:2023
+msgid "_Properties"
+msgstr ""
+
+#: src/vnr-window.c:2024
+msgid "Properties"
+msgstr ""
+
+#: src/vnr-window.c:2029
+msgid "Set as _Wallpaper"
+msgstr "_Arkaplan olarak ayarla"
+
+#: src/vnr-window.c:2030
+msgid "Set the selected image as the desktop background"
+msgstr "Seçilmiş görüntüyü masaüstü artalanı olarak ayarla"
+
+#: src/vnr-window.c:2035
+msgid "Copy image to clipboard"
+msgstr "Görüntüyü panoya kopyala"
+
+#: src/vnr-window.c:2036
+msgid "Copy the image to the clipboard"
+msgstr "Görüntüyü panoya kopyala"
+
+#: src/vnr-window.c:2041
+msgid "Open _With"
+msgstr "İl_e Aç"
+
+#: src/vnr-window.c:2042
+msgid "Open the selected image with a different application"
+msgstr "Seçilen resmi başka bir uygulama ile birlikte aç"
+
+#: src/vnr-window.c:2045 src/vnr-window.c:2054
 msgid "Delete the current file"
 msgstr "Bu dosyayı sil"
 
-#: ../src/vnr-window.c:1770
+#: src/vnr-window.c:2047
 msgid "_Properties..."
 msgstr "_Özellikler..."
 
-#: ../src/vnr-window.c:1771
+#: src/vnr-window.c:2048
 msgid "Show information about the current file"
 msgstr "Güncel dosya bilgisini göster"
 
-#: ../src/vnr-window.c:1773
+#: src/vnr-window.c:2050
 msgid "_Reload"
 msgstr "_Yenile"
 
-#: ../src/vnr-window.c:1774
+#: src/vnr-window.c:2051
 msgid "Reload the current file"
 msgstr "Dosyayı yeniden yükle"
 
-#: ../src/vnr-window.c:1779 ../src/vnr-window.c:1791 ../src/vnr-window.c:1794
+#: src/vnr-window.c:2056 src/vnr-window.c:2071 src/vnr-window.c:2074
 msgid "_Zoom In"
 msgstr "_Yakınlaştır"
 
-#: ../src/vnr-window.c:1780
+#: src/vnr-window.c:2057
 msgid "Enlarge the image"
 msgstr "Resmi genişlet"
 
-#: ../src/vnr-window.c:1782 ../src/vnr-window.c:1797
+#: src/vnr-window.c:2059 src/vnr-window.c:2077
 msgid "Zoom _Out"
 msgstr "_Uzaklaştır"
 
-#: ../src/vnr-window.c:1783 ../src/vnr-window.c:1792 ../src/vnr-window.c:1795
-#: ../src/vnr-window.c:1798
+#: src/vnr-window.c:2060 src/vnr-window.c:2072 src/vnr-window.c:2075
+#: src/vnr-window.c:2078
 msgid "Shrink the image"
 msgstr "Resmi daralt"
 
-#: ../src/vnr-window.c:1785
+#: src/vnr-window.c:2062
 msgid "_Normal Size"
 msgstr "_Normal Boyut"
 
-#: ../src/vnr-window.c:1786
+#: src/vnr-window.c:2063
 msgid "Show the image at its normal size"
 msgstr "Resmi normal boyutunda göster"
 
-#: ../src/vnr-window.c:1788
+#: src/vnr-window.c:2065
 msgid "Best _Fit"
 msgstr "Tam _Sığdır"
 
-#: ../src/vnr-window.c:1789
+#: src/vnr-window.c:2066
 msgid "Fit the image to the window"
 msgstr "Resmi pencereye uydur"
 
-#: ../src/vnr-window.c:1803
+#: src/vnr-window.c:2068
+msgid "Zoom _50%"
+msgstr "%_50 Yakınlaştır"
+
+#: src/vnr-window.c:2069
+msgid "Show the image at half its normal size"
+msgstr "Resmi normal boyutunun yarısında göster"
+
+#: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"
 msgstr "_Saat Yönünde Döndür"
 
-#: ../src/vnr-window.c:1804
+#: src/vnr-window.c:2084
 msgid "Rotate image clockwise"
 msgstr "Resmi saat yönünde döndür"
 
-#: ../src/vnr-window.c:1806
+#: src/vnr-window.c:2086
 msgid "Rotate _Anti-clockwise"
 msgstr "_Saat Yönünün Tersine Döndür"
 
-#: ../src/vnr-window.c:1807
+#: src/vnr-window.c:2087
 msgid "Rotate image anti-clockwise"
 msgstr "Resmi saat yönünün tersine döndür"
 
-#: ../src/vnr-window.c:1809
+#: src/vnr-window.c:2089
 msgid "Flip _Vertical"
 msgstr "Dikey Çe_vir"
 
-#: ../src/vnr-window.c:1810
+#: src/vnr-window.c:2090
 msgid "Flip image vertically"
 msgstr "Görüntüyü dikey olarak çevir"
 
-#: ../src/vnr-window.c:1812
+#: src/vnr-window.c:2092
 msgid "Flip _Horizontal"
 msgstr "Yatay Ç_evir"
 
-#: ../src/vnr-window.c:1813
+#: src/vnr-window.c:2093
 msgid "Flip image horizontally"
 msgstr "Görüntüyü yatay olarak çevir"
 
-#: ../src/vnr-window.c:1815
+#: src/vnr-window.c:2095
 msgid "Crop..."
 msgstr "Kırp..."
 
-#: ../src/vnr-window.c:1821
+#: src/vnr-window.c:2101
 msgid "Full _Screen"
 msgstr "Tam _Ekran"
 
-#: ../src/vnr-window.c:1822
+#: src/vnr-window.c:2102
 msgid "Show in fullscreen mode"
 msgstr "Tam ekran kipinde görüntüle"
 
-#: ../src/vnr-window.c:1824
+#: src/vnr-window.c:2104
 msgid "_Adjust window size"
 msgstr "_Pencere boyutunu ayarla"
 
-#: ../src/vnr-window.c:1825
+#: src/vnr-window.c:2105
 msgid "Adjust window size to fit the image"
 msgstr "Pencere boyutunu resim boyutuna uydur"
 
-#: ../src/vnr-window.c:1830
+#: src/vnr-window.c:2110
 msgid "Menu Bar"
 msgstr ""
 
-#: ../src/vnr-window.c:1831
+#: src/vnr-window.c:2111
 msgid "Show Menu Bar"
 msgstr ""
 
-#: ../src/vnr-window.c:1833
+#: src/vnr-window.c:2113
 msgid "Toolbar"
 msgstr "Araç çubuğu"
 
-#: ../src/vnr-window.c:1834
+#: src/vnr-window.c:2114
 msgid "Show Toolbar"
 msgstr "Araç Çubuğunu Göster"
 
-#: ../src/vnr-window.c:1839
+#: src/vnr-window.c:2116
+#, fuzzy
+msgid "Scrollbar"
+msgstr "Araç çubuğu"
+
+#: src/vnr-window.c:2117
+#, fuzzy
+msgid "Show Scrollbar"
+msgstr "Araç Çubuğunu Göster"
+
+#: src/vnr-window.c:2119
+msgid "Statusbar"
+msgstr ""
+
+#: src/vnr-window.c:2120
+#, fuzzy
+msgid "Show Statusbar"
+msgstr "Araç Çubuğunu Göster"
+
+#: src/vnr-window.c:2125
 msgid "Sli_deshow"
 msgstr "_Slayt Gösterisi"
 
-#: ../src/vnr-window.c:1840
+#: src/vnr-window.c:2126
 msgid "Show in slideshow mode"
 msgstr "Slayt gösterisi olarak görüntüle"
 
-#: ../src/vnr-window.c:1845
+#: src/vnr-window.c:2131
 msgid "_Previous Image"
 msgstr "_Önceki Resim"
 
-#: ../src/vnr-window.c:1846
+#: src/vnr-window.c:2132
 msgid "Go to the previous image of the collection"
 msgstr "Kolleksiyondaki bir önceki resme git"
 
-#: ../src/vnr-window.c:1848
+#: src/vnr-window.c:2134
 msgid "_Next Image"
 msgstr "_Sonraki Resim"
 
-#: ../src/vnr-window.c:1849
+#: src/vnr-window.c:2135
 msgid "Go to the next image of the collection"
 msgstr "Kolleksiyondaki bir sonraki resme git"
 
-#: ../src/vnr-window.c:1851
+#: src/vnr-window.c:2137
 msgid "_First Image"
 msgstr "_İlk Resim"
 
-#: ../src/vnr-window.c:1852
+#: src/vnr-window.c:2138
 msgid "Go to the first image of the collection"
 msgstr "Koleksiyondaki ilk resme git"
 
-#: ../src/vnr-window.c:1854
+#: src/vnr-window.c:2140
 msgid "_Last Image"
 msgstr "_Son Resim"
 
-#: ../src/vnr-window.c:1855
+#: src/vnr-window.c:2141
 msgid "Go to the last image of the collection"
 msgstr "Koleksiyondaki son resme git"
 
-#: ../src/uni-exiv2.hpp:49
+#: src/uni-exiv2.cpp:58
 msgid "Camera make"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:50
+#: src/uni-exiv2.cpp:59
 msgid "Camera model"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:51
+#: src/uni-exiv2.cpp:60
 msgid "Date Taken"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:52
+#: src/uni-exiv2.cpp:61
 msgid "Exposure time"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:53
+#: src/uni-exiv2.cpp:62
 msgid "Exposure mode"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:54
+#: src/uni-exiv2.cpp:63
 msgid "Aperture Value"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:55
+#: src/uni-exiv2.cpp:64
 msgid "ISO speed"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:56
+#: src/uni-exiv2.cpp:65
 msgid "Flash"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:57
+#: src/uni-exiv2.cpp:66
 msgid "Metering mode"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:58
+#: src/uni-exiv2.cpp:67
 msgid "Focal length"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:59
+#: src/uni-exiv2.cpp:68
 msgid "Software"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:63
+#: src/uni-exiv2.cpp:69
+#, fuzzy
+msgid "Image description"
+msgstr "Resim Özellikleri"
+
+#: src/uni-exiv2.cpp:70
+msgid "User comment"
+msgstr ""
+
+#: src/uni-exiv2.cpp:74
 msgid "Description"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:64
+#: src/uni-exiv2.cpp:75
 msgid "Copyright"
 msgstr ""
 
-#: ../src/uni-exiv2.hpp:65
+#: src/uni-exiv2.cpp:76
 msgid "Author"
+msgstr ""
+
+#: src/uni-exiv2.cpp:127
+msgid "Comment"
 msgstr ""

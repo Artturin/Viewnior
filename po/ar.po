@@ -6,11 +6,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: viewnior\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-02-07 22:04+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-24 22:40+0200\n"
 "PO-Revision-Date: 2014-12-11 16:09+0000\n"
 "Last-Translator: Faissal Chamekh <Unknown>\n"
 "Language-Team: Arabic <ar@li.org>\n"
+"Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,67 +20,75 @@ msgstr ""
 "X-Launchpad-Export-Date: 2018-03-04 17:52+0000\n"
 "X-Generator: Launchpad (build 18566)\n"
 
-#: ../data/viewnior.desktop.in.in.h:1
+#: data/viewnior.desktop.in:2
 msgid "Viewnior"
 msgstr "فيونيور"
 
-#: ../data/viewnior.desktop.in.in.h:2 ../src/vnr-window.c:1372
+#: data/viewnior.desktop.in:3 src/vnr-window.c:1503
 msgid "Elegant Image Viewer"
 msgstr "عارض صور خفيف ."
 
-#: ../data/vnr-preferences-dialog.ui.h:1
+#: data/viewnior.desktop.in:12
+msgid "Image;Picture;Slideshow;"
+msgstr ""
+
+#: data/vnr-preferences-dialog.ui:25
 msgid "Viewnior Preferences"
 msgstr "تفضيلات فيونيور"
 
-#: ../data/vnr-preferences-dialog.ui.h:2
+#: data/vnr-preferences-dialog.ui:50
 msgid "Open new image in: "
 msgstr "فتح الصورة الجديدة في : "
 
-#: ../data/vnr-preferences-dialog.ui.h:3
+#: data/vnr-preferences-dialog.ui:73
 msgid "Desktop: "
 msgstr "سطح المكتب "
 
-#: ../data/vnr-preferences-dialog.ui.h:4
+#: data/vnr-preferences-dialog.ui:92
 msgid "Smooth images when zoomed"
 msgstr "تنعيم الصورة عندما تُكبّر"
 
-#: ../data/vnr-preferences-dialog.ui.h:5
+#: data/vnr-preferences-dialog.ui:105
 msgid "Confirm image deletion"
 msgstr "تأكيد حذف الصورة"
 
-#: ../data/vnr-preferences-dialog.ui.h:6
+#: data/vnr-preferences-dialog.ui:118
 msgid "Show hidden images"
 msgstr "عرض الصور المخفية"
 
-#: ../data/vnr-preferences-dialog.ui.h:7
+#: data/vnr-preferences-dialog.ui:132
+msgid "Dark window background"
+msgstr ""
+
+#: data/vnr-preferences-dialog.ui:149
 msgid "General"
 msgstr "عام"
 
-#: ../data/vnr-preferences-dialog.ui.h:8
+#: data/vnr-preferences-dialog.ui:168
 msgid "Show next image after (in seconds): "
 msgstr "عرض الصورة التالية بعد (بالثواني) : "
 
-#: ../data/vnr-preferences-dialog.ui.h:9
+#: data/vnr-preferences-dialog.ui:195
 msgid "Always expand images to fit screen"
 msgstr "دائمًا مدد الصور لتناسب الشاشة"
 
-#: ../data/vnr-preferences-dialog.ui.h:10
+#: data/vnr-preferences-dialog.ui:215
 msgid "Fullscreen"
 msgstr "ملء الشاشة"
 
-#: ../data/vnr-preferences-dialog.ui.h:11
+#: data/vnr-preferences-dialog.ui:232
 msgid "On mouse wheel: "
 msgstr "عند لف الفأرة : "
 
-#: ../data/vnr-preferences-dialog.ui.h:12
+#: data/vnr-preferences-dialog.ui:243
 msgid "On double click: "
 msgstr "عند الضغط المزدوج : "
 
-#: ../data/vnr-preferences-dialog.ui.h:13
+#: data/vnr-preferences-dialog.ui:254
 msgid "On image modification: "
 msgstr "عند تعديل الصورة : "
 
-#: ../data/vnr-preferences-dialog.ui.h:14
+#: data/vnr-preferences-dialog.ui:266
 msgid ""
 "<small>  (!) Navigating images with double click :\n"
 "  Clicking on the left half of the window shows the\n"
@@ -89,60 +98,60 @@ msgstr ""
 "  الضغط على النصف الأيسر من النافذة لعرض\n"
 "  الصورة السابقة والجزء الأيمن للصورة التالية</small> "
 
-#: ../data/vnr-preferences-dialog.ui.h:17
+#: data/vnr-preferences-dialog.ui:294
 msgid "Behavior"
 msgstr "سلوك"
 
-#: ../data/vnr-preferences-dialog.ui.h:18
+#: data/vnr-preferences-dialog.ui:309
 msgid "Reload image on save"
 msgstr "أعد تحميل الصورة عند الحفظ"
 
-#: ../data/vnr-preferences-dialog.ui.h:19
+#: data/vnr-preferences-dialog.ui:324
 msgid "JPEG quality:"
 msgstr "جودة JPEG :"
 
-#: ../data/vnr-preferences-dialog.ui.h:20
+#: data/vnr-preferences-dialog.ui:349
 msgid "PNG compression:"
 msgstr "ضغط PNG :"
 
-#: ../data/vnr-preferences-dialog.ui.h:21
+#: data/vnr-preferences-dialog.ui:378
 msgid "Saving"
 msgstr "جاري الحفظ"
 
-#: ../data/vnr-crop-dialog.ui.h:1
+#: data/vnr-preferences-dialog.ui:399 src/vnr-properties-dialog.c:181
+#: src/vnr-window.c:2005
+msgid "_Close"
+msgstr "إ_غلاق"
+
+#: data/vnr-crop-dialog.ui:6
 msgid "Crop Image"
 msgstr "إقتصاص الصورة"
 
-#: ../data/vnr-crop-dialog.ui.h:2
+#: data/vnr-crop-dialog.ui:66
 msgid "X: "
 msgstr "س : "
 
-#: ../data/vnr-crop-dialog.ui.h:3
+#: data/vnr-crop-dialog.ui:76
 msgid "Y: "
 msgstr "ص : "
 
-#: ../data/vnr-crop-dialog.ui.h:4
+#: data/vnr-crop-dialog.ui:86
 msgid "Width: "
 msgstr "العرض : "
 
-#: ../data/vnr-crop-dialog.ui.h:5
+#: data/vnr-crop-dialog.ui:96
 msgid "Height: "
 msgstr "الارتفاع: "
 
-#: ../data/vnr-crop-dialog.ui.h:6 ../src/vnr-window.c:1816
+#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2096
 msgid "Crop"
 msgstr "إقتصاص"
 
-#: ../src/main.c:117 ../src/vnr-window.c:1620 ../src/vnr-window.c:1975
-#: ../src/vnr-window.c:2414
-msgid "The given locations contain no images."
-msgstr "الأمكنة المعطاة لا تحتوي على أية صور."
-
-#: ../src/uni-scroll-win.c:223
+#: src/uni-scroll-win.c:204
 msgid "Open the navigator window"
 msgstr "فتح نافذة المتصفح"
 
-#: ../src/vnr-file.c:223
+#: src/vnr-file.c:245
 #, c-format
 msgid ""
 "Couldn't recognise the image file\n"
@@ -151,106 +160,116 @@ msgstr ""
 "لا يمكن التعرف على نوع صورة\n"
 "الملف  '%s'"
 
-#: ../src/vnr-prefs.c:260
+#: src/vnr-prefs.c:205
 msgid "Smart Mode"
 msgstr "الوضع الأنيق"
 
-#: ../src/vnr-prefs.c:261
+#: src/vnr-prefs.c:205
 msgid "1:1 Mode"
 msgstr "وضع 1:1"
 
-#: ../src/vnr-prefs.c:262
+#: src/vnr-prefs.c:205
 msgid "Fit To Window Mode"
 msgstr "تناسب لوضع النافذة"
 
-#: ../src/vnr-prefs.c:263
+#: src/vnr-prefs.c:205
 msgid "Last Used Mode"
 msgstr "أخر وضع مستعمل"
 
-#: ../src/vnr-prefs.c:292 ../src/vnr-prefs.c:304
+#: src/vnr-prefs.c:209
+msgid "Autodetect"
+msgstr ""
+
+#: src/vnr-prefs.c:212 src/vnr-prefs.c:215
 msgid "Navigate images"
 msgstr "التنقل بين الصور"
 
-#: ../src/vnr-prefs.c:293
+#: src/vnr-prefs.c:212
 msgid "Zoom image"
 msgstr "تكبير الصورة"
 
-#: ../src/vnr-prefs.c:294
+#: src/vnr-prefs.c:212
 msgid "Scroll image up/down"
 msgstr "إزاحة الصورة أعلى وأسفل"
 
-#: ../src/vnr-prefs.c:302
+#: src/vnr-prefs.c:215
 msgid "Switch zoom modes"
 msgstr "تبديل وضع التكبير"
 
-#: ../src/vnr-prefs.c:303
+#: src/vnr-prefs.c:215
 msgid "Enter fullscreen mode"
 msgstr "ادخل لوضع ملء الشاشة"
 
-#: ../src/vnr-prefs.c:312
+#: src/vnr-prefs.c:218
 msgid "Ask every time"
 msgstr "اسأل كل مرة"
 
-#: ../src/vnr-prefs.c:313
+#: src/vnr-prefs.c:218
 msgid "Autosave"
 msgstr "حفظ تلقائى"
 
-#: ../src/vnr-prefs.c:314
+#: src/vnr-prefs.c:218
 msgid "Ignore changes"
 msgstr "تجاهل التغييرات"
 
-#: ../src/vnr-properties-dialog.c:112
+#: src/vnr-properties-dialog.c:125
 msgid "_Next"
 msgstr "ال_تالي"
 
-#: ../src/vnr-properties-dialog.c:113
+#: src/vnr-properties-dialog.c:126
 msgid "_Previous"
 msgstr "ال_سابق"
 
-#: ../src/vnr-properties-dialog.c:128
+#: src/vnr-properties-dialog.c:139
 msgid "Image Properties"
 msgstr "خصائص الصورة"
 
-#: ../src/vnr-properties-dialog.c:136
+#: src/vnr-properties-dialog.c:146
 msgid "<b>Location:</b>"
 msgstr "<b>الموقع:</b>"
 
-#: ../src/vnr-properties-dialog.c:185
+#: src/vnr-properties-dialog.c:189
 msgid "<b>Name:</b>"
 msgstr "<b>الاسم:</b>"
 
-#: ../src/vnr-properties-dialog.c:189
+#: src/vnr-properties-dialog.c:190
 msgid "<b>Type:</b>"
 msgstr "<b>النوع:</b>"
 
-#: ../src/vnr-properties-dialog.c:193
+#: src/vnr-properties-dialog.c:191
 msgid "<b>Size:</b>"
 msgstr "<b>الحجم:</b>"
 
-#: ../src/vnr-properties-dialog.c:197
+#: src/vnr-properties-dialog.c:192
 msgid "<b>Width:</b>"
 msgstr "<b>العرض:</b>"
 
-#: ../src/vnr-properties-dialog.c:201
+#: src/vnr-properties-dialog.c:193
 msgid "<b>Height:</b>"
 msgstr "<b>الارتفاع:</b>"
 
-#: ../src/vnr-properties-dialog.c:373 ../src/vnr-properties-dialog.c:374
-#: ../src/vnr-properties-dialog.c:375 ../src/vnr-properties-dialog.c:376
-#: ../src/vnr-properties-dialog.c:377 ../src/vnr-properties-dialog.c:378
+#: src/vnr-properties-dialog.c:194
+#, fuzzy
+msgid "<b>Modified:</b>"
+msgstr "<b>الحجم:</b>"
+
+#: src/vnr-properties-dialog.c:338 src/vnr-properties-dialog.c:339
+#: src/vnr-properties-dialog.c:340 src/vnr-properties-dialog.c:341
+#: src/vnr-properties-dialog.c:342 src/vnr-properties-dialog.c:343
+#: src/vnr-properties-dialog.c:344
 msgid "None"
 msgstr "بدون"
 
-#: ../src/vnr-window.c:297
+#: src/vnr-window.c:351
 #, c-format
 msgid "Use \"%s\" to open the selected image"
 msgstr "استعمل \"%s\" لفتح الصورة المحددة"
 
-#: ../src/vnr-window.c:467
+#: src/vnr-window.c:583
 msgid "Show next image after: "
 msgstr "عرض الصورة التالية بعد: "
 
-#: ../src/vnr-window.c:485 ../src/vnr-window.c:902
+#: src/vnr-window.c:601 src/vnr-window.c:1010
 msgid " second"
 msgid_plural " seconds"
 msgstr[0] " ثانية"
@@ -260,11 +279,11 @@ msgstr[3] " ثواني"
 msgstr[4] " ثانية"
 msgstr[5] " ثانية"
 
-#: ../src/vnr-window.c:727 ../src/vnr-window.c:790
+#: src/vnr-window.c:850
 msgid "Not enough virtual memory."
 msgstr "لا يوجد ذاكرة وهمية كافية."
 
-#: ../src/vnr-window.c:761 ../src/vnr-window.c:819 ../src/vnr-window.c:1706
+#: src/vnr-window.c:885
 msgid ""
 "Image modifications cannot be saved.\n"
 "Writing in this format is not supported."
@@ -272,41 +291,49 @@ msgstr ""
 "لايمكن حفظ التعديلات على الصورة .\n"
 "الكتابة على هذه الصيغة غير مدعومة ."
 
-#: ../src/vnr-window.c:768 ../src/vnr-window.c:826 ../src/vnr-window.c:1713
+#: src/vnr-window.c:892
 msgid ""
 "Save modifications?\n"
 "This will overwrite the image and may reduce its quality!"
 msgstr "حفظ التعديلات"
 
-#: ../src/vnr-window.c:1271
-msgid "Open Image"
-msgstr "فتح صورة"
+#: src/vnr-window.c:893 src/vnr-window.c:2017
+msgid "_Save"
+msgstr "ا_حفظ"
 
-#: ../src/vnr-window.c:1282
-msgid "All Images"
-msgstr "كلّ الصّور"
-
-#: ../src/vnr-window.c:1288
-msgid "All Files"
-msgstr "كل الملفات"
-
-#: ../src/vnr-window.c:1318
+#: src/vnr-window.c:1410
 msgid "Open Folder"
 msgstr "فتح مجلّد"
 
-#: ../src/vnr-window.c:1378
+#: src/vnr-window.c:1410
+msgid "Open Image"
+msgstr "فتح صورة"
+
+#: src/vnr-window.c:1431
+msgid "All Images"
+msgstr "كلّ الصّور"
+
+#: src/vnr-window.c:1437
+msgid "All Files"
+msgstr "كل الملفات"
+
+#: src/vnr-window.c:1509
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Faissal Chamekh https://launchpad.net/~chamfay\n"
 "  Mohamed Mohsen https://launchpad.net/~linuxer9"
 
-#: ../src/vnr-window.c:1558
+#: src/vnr-window.c:1720
+msgid "Image copied to clipboard."
+msgstr "نُسخت الصورة إلى الحافظة."
+
+#: src/vnr-window.c:1856
 msgid "If you delete an item, it will be permanently lost."
 msgstr "إذا حذفت عنصر، سيُفقد للأبد."
 
 #. I18N: The '%s' is replaced with the name of the file to be deleted.
-#: ../src/vnr-window.c:1561
+#: src/vnr-window.c:1859
 #, c-format
 msgid ""
 "Are you sure you want to\n"
@@ -315,319 +342,363 @@ msgstr ""
 "هل أنت متأكد من حذف \n"
 "الملف \"%s\" نهائيا ؟"
 
-#: ../src/vnr-window.c:1721
-msgid "_File"
-msgstr "_ملف"
-
-#: ../src/vnr-window.c:1722
-msgid "_Edit"
-msgstr "ت_حرير"
-
-#: ../src/vnr-window.c:1723
-msgid "_View"
-msgstr "_عرض"
-
-#: ../src/vnr-window.c:1724
-msgid "_Image"
-msgstr "_صورة"
-
-#: ../src/vnr-window.c:1725
-msgid "_Go"
-msgstr "ا_ذهب"
-
-#: ../src/vnr-window.c:1726
-msgid "_Help"
-msgstr "م_ساعدة"
-
-#: ../src/vnr-window.c:1728
-msgid "Open _Image..."
-msgstr "فتح ص_ورة ..."
-
-#: ../src/vnr-window.c:1729
-msgid "Open an Image"
-msgstr "فتح صورة"
-
-#: ../src/vnr-window.c:1731
-msgid "Open _Folder..."
-msgstr "فتح _مجلد..."
-
-#: ../src/vnr-window.c:1732
-msgid "Open a Folder"
-msgstr "فتح مجلد"
-
-#: ../src/vnr-window.c:1734
-msgid "_Close"
-msgstr "إ_غلاق"
-
-#: ../src/vnr-window.c:1735
-msgid "Close window"
-msgstr "إغلاق النافذة"
-
-#: ../src/vnr-window.c:1737
-msgid "_About"
-msgstr "عن البرنامج"
-
-#: ../src/vnr-window.c:1738
-msgid "About this application"
-msgstr "عنْ هذا البرنامج"
-
-#: ../src/vnr-window.c:1740
-msgid "_Preferences..."
-msgstr "_تفضيلات..."
-
-#: ../src/vnr-window.c:1741
-msgid "User preferences for Viewnior"
-msgstr "تفضيلات المستخدم لفيونيور"
-
-#: ../src/vnr-window.c:1746
-msgid "_Save"
-msgstr "ا_حفظ"
-
-#: ../src/vnr-window.c:1747
-msgid "Save changes"
-msgstr "حفظ التغييرات"
-
-#: ../src/vnr-window.c:1752
-msgid "_Properties"
-msgstr "_خصائص"
-
-#: ../src/vnr-window.c:1753
-msgid "Properties"
-msgstr "الخصائص"
-
-#: ../src/vnr-window.c:1758
-msgid "Set as _Wallpaper"
-msgstr "تعيين ك_خلفية"
-
-#: ../src/vnr-window.c:1759
-msgid "Set the selected image as the desktop background"
-msgstr "ضبط الصورة المحددة كخلفية سطح المكتب"
-
-#: ../src/vnr-window.c:1764
-msgid "Open _With"
-msgstr "_فتح باستخدام"
-
-#: ../src/vnr-window.c:1765
-msgid "Open the selected image with a different application"
-msgstr "افتح الصورة المحددة بتطبيق آخر"
-
-#: ../src/vnr-window.c:1767 ../src/vnr-window.c:1776
+#: src/vnr-window.c:1877 src/vnr-window.c:2044 src/vnr-window.c:2053
 msgid "_Delete"
 msgstr "_حذف"
 
-#: ../src/vnr-window.c:1768 ../src/vnr-window.c:1777
+#: src/vnr-window.c:1915 src/vnr-window.c:2286 src/vnr-window.c:2683
+msgid "The given locations contain no images."
+msgstr "الأمكنة المعطاة لا تحتوي على أية صور."
+
+#: src/vnr-window.c:1992
+msgid "_File"
+msgstr "_ملف"
+
+#: src/vnr-window.c:1993
+msgid "_Edit"
+msgstr "ت_حرير"
+
+#: src/vnr-window.c:1994
+msgid "_View"
+msgstr "_عرض"
+
+#: src/vnr-window.c:1995
+msgid "_Image"
+msgstr "_صورة"
+
+#: src/vnr-window.c:1996
+msgid "_Go"
+msgstr "ا_ذهب"
+
+#: src/vnr-window.c:1997
+msgid "_Help"
+msgstr "م_ساعدة"
+
+#: src/vnr-window.c:1999
+msgid "Open _Image..."
+msgstr "فتح ص_ورة ..."
+
+#: src/vnr-window.c:2000
+msgid "Open an Image"
+msgstr "فتح صورة"
+
+#: src/vnr-window.c:2002
+msgid "Open _Folder..."
+msgstr "فتح _مجلد..."
+
+#: src/vnr-window.c:2003
+msgid "Open a Folder"
+msgstr "فتح مجلد"
+
+#: src/vnr-window.c:2006
+msgid "Close window"
+msgstr "إغلاق النافذة"
+
+#: src/vnr-window.c:2008
+msgid "_About"
+msgstr "عن البرنامج"
+
+#: src/vnr-window.c:2009
+msgid "About this application"
+msgstr "عنْ هذا البرنامج"
+
+#: src/vnr-window.c:2011
+msgid "_Preferences..."
+msgstr "_تفضيلات..."
+
+#: src/vnr-window.c:2012
+msgid "User preferences for Viewnior"
+msgstr "تفضيلات المستخدم لفيونيور"
+
+#: src/vnr-window.c:2018
+msgid "Save changes"
+msgstr "حفظ التغييرات"
+
+#: src/vnr-window.c:2023
+msgid "_Properties"
+msgstr "_خصائص"
+
+#: src/vnr-window.c:2024
+msgid "Properties"
+msgstr "الخصائص"
+
+#: src/vnr-window.c:2029
+msgid "Set as _Wallpaper"
+msgstr "تعيين ك_خلفية"
+
+#: src/vnr-window.c:2030
+msgid "Set the selected image as the desktop background"
+msgstr "ضبط الصورة المحددة كخلفية سطح المكتب"
+
+#: src/vnr-window.c:2035
+msgid "Copy image to clipboard"
+msgstr "نسخ الصورة إلى الحافظة"
+
+#: src/vnr-window.c:2036
+msgid "Copy the image to the clipboard"
+msgstr "نسخ الصورة إلى الحافظة"
+
+#: src/vnr-window.c:2041
+msgid "Open _With"
+msgstr "_فتح باستخدام"
+
+#: src/vnr-window.c:2042
+msgid "Open the selected image with a different application"
+msgstr "افتح الصورة المحددة بتطبيق آخر"
+
+#: src/vnr-window.c:2045 src/vnr-window.c:2054
 msgid "Delete the current file"
 msgstr "حذف الملف الحالي"
 
-#: ../src/vnr-window.c:1770
+#: src/vnr-window.c:2047
 msgid "_Properties..."
 msgstr "_خصائص..."
 
-#: ../src/vnr-window.c:1771
+#: src/vnr-window.c:2048
 msgid "Show information about the current file"
 msgstr "عرض معلومات عن الملف الحالي"
 
-#: ../src/vnr-window.c:1773
+#: src/vnr-window.c:2050
 msgid "_Reload"
 msgstr "_إعادة التحميل"
 
-#: ../src/vnr-window.c:1774
+#: src/vnr-window.c:2051
 msgid "Reload the current file"
 msgstr "إعادة تحميل الملف الحالي"
 
-#: ../src/vnr-window.c:1779 ../src/vnr-window.c:1791 ../src/vnr-window.c:1794
+#: src/vnr-window.c:2056 src/vnr-window.c:2071 src/vnr-window.c:2074
 msgid "_Zoom In"
 msgstr "ت_كبير"
 
-#: ../src/vnr-window.c:1780
+#: src/vnr-window.c:2057
 msgid "Enlarge the image"
 msgstr "كبّر الصورة"
 
-#: ../src/vnr-window.c:1782 ../src/vnr-window.c:1797
+#: src/vnr-window.c:2059 src/vnr-window.c:2077
 msgid "Zoom _Out"
 msgstr "ت_صغير"
 
-#: ../src/vnr-window.c:1783 ../src/vnr-window.c:1792 ../src/vnr-window.c:1795
-#: ../src/vnr-window.c:1798
+#: src/vnr-window.c:2060 src/vnr-window.c:2072 src/vnr-window.c:2075
+#: src/vnr-window.c:2078
 msgid "Shrink the image"
 msgstr "تقليص الصورة"
 
-#: ../src/vnr-window.c:1785
+#: src/vnr-window.c:2062
 msgid "_Normal Size"
 msgstr "ال_حجم العادي"
 
-#: ../src/vnr-window.c:1786
+#: src/vnr-window.c:2063
 msgid "Show the image at its normal size"
 msgstr "عرض الصورة في حجمها العادي"
 
-#: ../src/vnr-window.c:1788
+#: src/vnr-window.c:2065
 msgid "Best _Fit"
 msgstr "أفضل ملا_ئمة"
 
-#: ../src/vnr-window.c:1789
+#: src/vnr-window.c:2066
 msgid "Fit the image to the window"
 msgstr "ملائمة الصورة مع النافذة"
 
-#: ../src/vnr-window.c:1803
+#: src/vnr-window.c:2068
+msgid "Zoom _50%"
+msgstr "تحجيم _50%"
+
+#: src/vnr-window.c:2069
+msgid "Show the image at half its normal size"
+msgstr "عرض الصورة بنصف حجمها العادي"
+
+#: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"
 msgstr "دوران باتجاه _عقارب الساعة"
 
-#: ../src/vnr-window.c:1804
+#: src/vnr-window.c:2084
 msgid "Rotate image clockwise"
 msgstr "تدوير الصورة باتجاه عقارب الساعة"
 
-#: ../src/vnr-window.c:1806
+#: src/vnr-window.c:2086
 msgid "Rotate _Anti-clockwise"
 msgstr "دوران باتجاه ع_كس عقارب الساعة"
 
-#: ../src/vnr-window.c:1807
+#: src/vnr-window.c:2087
 msgid "Rotate image anti-clockwise"
 msgstr "تدوير الصورة باتجاه عكس عقارب الساعة"
 
-#: ../src/vnr-window.c:1809
+#: src/vnr-window.c:2089
 msgid "Flip _Vertical"
 msgstr "قلب _عمودي"
 
-#: ../src/vnr-window.c:1810
+#: src/vnr-window.c:2090
 msgid "Flip image vertically"
 msgstr "اقلب الصورة عاموديا"
 
-#: ../src/vnr-window.c:1812
+#: src/vnr-window.c:2092
 msgid "Flip _Horizontal"
 msgstr "قلب أ_فقي"
 
-#: ../src/vnr-window.c:1813
+#: src/vnr-window.c:2093
 msgid "Flip image horizontally"
 msgstr "اقلب الصورة افقيا"
 
-#: ../src/vnr-window.c:1815
+#: src/vnr-window.c:2095
 msgid "Crop..."
 msgstr "اقتصاص"
 
-#: ../src/vnr-window.c:1821
+#: src/vnr-window.c:2101
 msgid "Full _Screen"
 msgstr "ملء الش_اشة"
 
-#: ../src/vnr-window.c:1822
+#: src/vnr-window.c:2102
 msgid "Show in fullscreen mode"
 msgstr "عرض بوضع ملء الشاشة"
 
-#: ../src/vnr-window.c:1824
+#: src/vnr-window.c:2104
 msgid "_Adjust window size"
 msgstr "ضبط حجم النافذة"
 
-#: ../src/vnr-window.c:1825
+#: src/vnr-window.c:2105
 msgid "Adjust window size to fit the image"
 msgstr "ضبط حجم النافذة لتناسب الصورة"
 
-#: ../src/vnr-window.c:1830
+#: src/vnr-window.c:2110
 msgid "Menu Bar"
 msgstr "شريط القوائم"
 
-#: ../src/vnr-window.c:1831
+#: src/vnr-window.c:2111
 msgid "Show Menu Bar"
 msgstr "أظهر شريط القوائم"
 
-#: ../src/vnr-window.c:1833
+#: src/vnr-window.c:2113
 msgid "Toolbar"
 msgstr "شريط الأدوات"
 
-#: ../src/vnr-window.c:1834
+#: src/vnr-window.c:2114
 msgid "Show Toolbar"
 msgstr "إظهار شريط الأدوات"
 
-#: ../src/vnr-window.c:1839
+#: src/vnr-window.c:2116
+#, fuzzy
+msgid "Scrollbar"
+msgstr "شريط الأدوات"
+
+#: src/vnr-window.c:2117
+#, fuzzy
+msgid "Show Scrollbar"
+msgstr "إظهار شريط الأدوات"
+
+#: src/vnr-window.c:2119
+msgid "Statusbar"
+msgstr ""
+
+#: src/vnr-window.c:2120
+#, fuzzy
+msgid "Show Statusbar"
+msgstr "إظهار شريط الأدوات"
+
+#: src/vnr-window.c:2125
 msgid "Sli_deshow"
 msgstr "عرض المصغرات"
 
-#: ../src/vnr-window.c:1840
+#: src/vnr-window.c:2126
 msgid "Show in slideshow mode"
 msgstr "عرض بوضع المصغرات"
 
-#: ../src/vnr-window.c:1845
+#: src/vnr-window.c:2131
 msgid "_Previous Image"
 msgstr "الصّ_ورة السّابقة"
 
-#: ../src/vnr-window.c:1846
+#: src/vnr-window.c:2132
 msgid "Go to the previous image of the collection"
 msgstr "اذهب للصّورة السّابقة في المجموعة"
 
-#: ../src/vnr-window.c:1848
+#: src/vnr-window.c:2134
 msgid "_Next Image"
 msgstr "الصّورة ال_تّالية"
 
-#: ../src/vnr-window.c:1849
+#: src/vnr-window.c:2135
 msgid "Go to the next image of the collection"
 msgstr "اذهب للصورة التالية في المجموعة"
 
-#: ../src/vnr-window.c:1851
+#: src/vnr-window.c:2137
 msgid "_First Image"
 msgstr "الصّورة ال_أولى"
 
-#: ../src/vnr-window.c:1852
+#: src/vnr-window.c:2138
 msgid "Go to the first image of the collection"
 msgstr "اذهب للصورة الأولى في المجموعة"
 
-#: ../src/vnr-window.c:1854
+#: src/vnr-window.c:2140
 msgid "_Last Image"
 msgstr "الصّورة الأ_خيرة"
 
-#: ../src/vnr-window.c:1855
+#: src/vnr-window.c:2141
 msgid "Go to the last image of the collection"
 msgstr "اذهب للصورة الأخيرة في المجموعة"
 
-#: ../src/uni-exiv2.hpp:49
+#: src/uni-exiv2.cpp:58
 msgid "Camera make"
 msgstr "مصنّع الكاميرا"
 
-#: ../src/uni-exiv2.hpp:50
+#: src/uni-exiv2.cpp:59
 msgid "Camera model"
 msgstr "طراز الكاميرا"
 
-#: ../src/uni-exiv2.hpp:51
+#: src/uni-exiv2.cpp:60
 msgid "Date Taken"
 msgstr "تاريخ أخذ الصورة"
 
-#: ../src/uni-exiv2.hpp:52
+#: src/uni-exiv2.cpp:61
 msgid "Exposure time"
 msgstr "زمن التعرض"
 
-#: ../src/uni-exiv2.hpp:53
+#: src/uni-exiv2.cpp:62
 msgid "Exposure mode"
 msgstr "نمط التعرض"
 
-#: ../src/uni-exiv2.hpp:54
+#: src/uni-exiv2.cpp:63
 msgid "Aperture Value"
 msgstr "قيمة الفتحة"
 
-#: ../src/uni-exiv2.hpp:55
+#: src/uni-exiv2.cpp:64
 msgid "ISO speed"
 msgstr "السرعة القياسية"
 
-#: ../src/uni-exiv2.hpp:56
+#: src/uni-exiv2.cpp:65
 msgid "Flash"
 msgstr "الوميض"
 
-#: ../src/uni-exiv2.hpp:57
+#: src/uni-exiv2.cpp:66
 msgid "Metering mode"
 msgstr "نمط القياس"
 
-#: ../src/uni-exiv2.hpp:58
+#: src/uni-exiv2.cpp:67
 msgid "Focal length"
 msgstr "الطول ا لبؤرى"
 
-#: ../src/uni-exiv2.hpp:59
+#: src/uni-exiv2.cpp:68
 msgid "Software"
 msgstr "البرنامج"
 
-#: ../src/uni-exiv2.hpp:63
+#: src/uni-exiv2.cpp:69
+#, fuzzy
+msgid "Image description"
+msgstr "الوصف"
+
+#: src/uni-exiv2.cpp:70
+msgid "User comment"
+msgstr ""
+
+#: src/uni-exiv2.cpp:74
 msgid "Description"
 msgstr "الوصف"
 
-#: ../src/uni-exiv2.hpp:64
+#: src/uni-exiv2.cpp:75
 msgid "Copyright"
 msgstr "حقوق النسخ"
 
-#: ../src/uni-exiv2.hpp:65
+#: src/uni-exiv2.cpp:76
 msgid "Author"
 msgstr "المؤلف"
+
+#: src/uni-exiv2.cpp:127
+msgid "Comment"
+msgstr ""
