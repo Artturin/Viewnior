@@ -870,7 +870,8 @@ vnr_window_show_edited(VnrWindow *window, GdkPixbuf *result)
 static void
 vnr_window_image_modified(VnrWindow *window)
 {
-    gtk_action_group_set_sensitive(window->action_save, window->modifications);
+    gtk_action_group_set_sensitive(window->action_save,
+                                   window->modifications && window->writable_format_name != NULL);
 
     /* The edits cancelled each other out */
     if(window->modifications == 0)
@@ -1028,6 +1029,17 @@ static void
 save_image_cb (GtkWidget *widget, VnrWindow *window)
 {
     GError *error = NULL;
+    gboolean saved;
+
+    if(window->writable_format_name == NULL)
+    {
+        vnr_message_area_show(VNR_MESSAGE_AREA(window->msg_area),
+                              TRUE,
+                              _("Image modifications cannot be saved.\nWriting in this format is not supported."),
+                              FALSE);
+        return;
+    }
+
     vnr_window_set_busy(window, TRUE);
 
     if(window->prefs->behavior_modify == VNR_PREFS_MODIFY_ASK)
@@ -1041,7 +1053,7 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
         gchar *quality;
         quality = g_strdup_printf ("%i", window->prefs->jpeg_quality);
 
-        gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
+        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
                          VNR_FILE(window->file_list->data)->path, "jpeg",
                          &error, "quality", quality, NULL);
         g_free(quality);
@@ -1051,18 +1063,23 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
         gchar *compression;
         compression = g_strdup_printf ("%i", window->prefs->png_compression);
 
-        gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
+        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
                          VNR_FILE(window->file_list->data)->path, "png",
                          &error, "compression", compression, NULL);
         g_free(compression);
     }
     else
     {
-        gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
+        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
                          VNR_FILE(window->file_list->data)->path,
                          window->writable_format_name, &error, NULL);
     }
-    uni_write_exiv2_from_cache(VNR_FILE(window->file_list->data)->path);
+    /* Only onto the new pixels: the old ones still need the original
+     * metadata. The pixels have the orientation applied already, if
+     * gdk-pixbuf found one: don't let the copied tag rotate them again. */
+    if(saved)
+        uni_write_exiv2_from_cache(VNR_FILE(window->file_list->data)->path,
+                                   window->orientation_applied);
 
     vnr_window_set_busy(window, FALSE);
 
@@ -2583,8 +2600,14 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
                               TRUE, error->message, TRUE);
 
         /* file_list already points at the failed file while the view still
-         * shows the previous image; copying would mix the two up. */
+         * shows the previous image; copying would mix the two up, and saving
+         * an edit would write the previous image over the failed file. */
         gtk_action_group_set_sensitive(window->action_copy, FALSE);
+        gtk_action_group_set_sensitive(window->actions_static_image, FALSE);
+        gtk_action_group_set_sensitive(window->action_save, FALSE);
+        window->modifications = 0;
+        window->orientation_applied = FALSE;
+        g_clear_pointer(&window->writable_format_name, g_free);
 
         if(gtk_widget_get_visible(window->props_dlg))
             vnr_properties_dialog_clear(VNR_PROPERTIES_DIALOG(window->props_dlg));
@@ -2608,7 +2631,11 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
     else
         window->writable_format_name = NULL;
 
-    vnr_tools_apply_embedded_orientation (&pixbuf);
+    /* libtiff turns a TIFF as its orientation says while decoding it, all
+     * the way for some orientations and partly for others, and gdk-pixbuf
+     * reports only what is left to do. Either way a TIFF ends up upright. */
+    window->orientation_applied = vnr_tools_apply_embedded_orientation (&pixbuf)
+                                  || g_strcmp0 (window->writable_format_name, "tiff") == 0;
     window->current_image_width = gdk_pixbuf_animation_get_width (pixbuf);
     window->current_image_height = gdk_pixbuf_animation_get_height (pixbuf);
     window->modifications = 0;

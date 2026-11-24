@@ -33,6 +33,11 @@ gchar   *test_write_png     (const gchar *dir, const gchar *name, int width, int
 gchar   *test_write_jpeg    (const gchar *dir, const gchar *name, int width, int height);
 gchar   *test_write_text    (const gchar *dir, const gchar *name, const gchar *contents);
 
+/* The EXIF orientation of the image at @path, or -1 if it has none */
+gint     test_get_orientation (const gchar *path);
+/* Set the EXIF orientation of the image at @path */
+void     test_set_orientation (const gchar *path, gint orientation);
+
 /* Run the default main context until @cond returns TRUE. Return FALSE if
  * that takes longer than @timeout_ms. */
 gboolean test_wait_until    (gboolean (*cond) (gpointer data), gpointer data, guint timeout_ms);

@@ -1,6 +1,7 @@
 test_helpers = static_library(
   'test-helpers',
   'test-helpers.c',
+  'test-exif-helpers.cpp',
   dependencies: viewnior_deps
 )
 

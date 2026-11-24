@@ -145,6 +145,18 @@ message_text (VnrWindow *window)
     return gtk_label_get_text (GTK_LABEL (VNR_MESSAGE_AREA (window->msg_area)->message));
 }
 
+/* Opens @path in the window of an empty fixture and waits until it shows */
+static void
+open_and_show (Fixture *fixture, const gchar *path)
+{
+    GSList *paths = g_slist_append (NULL, g_strdup (path));
+
+    g_assert_true (vnr_window_set_list_from_paths (fixture->window, paths));
+    g_slist_free_full (paths, g_free);
+    gtk_widget_show (GTK_WIDGET (fixture->window));
+    g_assert_true (test_wait_until (image_shown, fixture, TIMEOUT_MS));
+}
+
 /*************************************************************/
 /***** Fixtures **********************************************/
 /*************************************************************/
@@ -432,6 +444,190 @@ test_rotate (Fixture *fixture, gconstpointer user_data)
     g_assert_cmpint (gdk_pixbuf_get_height (fixture->view->pixbuf), ==, SMALL_W);
 }
 
+/* A photo whose EXIF orientation turns it: Viewnior shows it turned, so
+ * after rotating and saving, it must still look the way it was saved */
+static void
+test_save_oriented (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = test_write_jpeg (dir, "photo.jpg", SMALL_W, SMALL_H);
+    GdkPixbuf *saved;
+    GdkPixbuf *shown;
+    GError *error = NULL;
+
+    /* A quarter turn */
+    test_set_orientation (path, 6);
+
+    open_and_show (fixture, path);
+    g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, SMALL_H);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, SMALL_W);
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_assert_cmpint (test_get_orientation (path), ==, 1);
+
+    /* Opened again, as Viewnior and other viewers do */
+    saved = gdk_pixbuf_new_from_file (path, &error);
+    g_assert_no_error (error);
+    shown = gdk_pixbuf_apply_embedded_orientation (saved);
+    g_assert_cmpint (gdk_pixbuf_get_width (shown), ==, SMALL_W);
+    g_assert_cmpint (gdk_pixbuf_get_height (shown), ==, SMALL_H);
+
+    g_object_unref (shown);
+    g_object_unref (saved);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+static gboolean
+is_red (GdkPixbuf *pixbuf, int x, int y)
+{
+    const guchar *pixel = gdk_pixbuf_get_pixels (pixbuf)
+                          + y * gdk_pixbuf_get_rowstride (pixbuf)
+                          + x * gdk_pixbuf_get_n_channels (pixbuf);
+
+    return pixel[0] > 128 && pixel[2] < 128;
+}
+
+/* libtiff turns a TIFF as its orientation says while decoding it, without
+ * gdk-pixbuf reporting an orientation. Saving it must still leave it
+ * looking as it did. */
+static void
+test_save_oriented_tiff (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = g_build_filename (dir, "scan.tiff", NULL);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, SMALL_W, SMALL_H);
+    GdkPixbuf *left = gdk_pixbuf_new_subpixbuf (pixbuf, 0, 0, SMALL_W / 2, SMALL_H);
+    GdkPixbuf *saved;
+    GdkPixbuf *shown;
+    GError *error = NULL;
+
+    /* Red on the left, blue on the right */
+    gdk_pixbuf_fill (pixbuf, 0x0000ffff);
+    gdk_pixbuf_fill (left, 0xff0000ff);
+    gdk_pixbuf_save (pixbuf, path, "tiff", &error, NULL);
+    g_assert_no_error (error);
+    g_object_unref (left);
+    g_object_unref (pixbuf);
+    /* Upside down */
+    test_set_orientation (path, 3);
+
+    open_and_show (fixture, path);
+    g_assert_false (is_red (fixture->view->pixbuf, 0, 0));
+
+    gtk_action_activate (find_action (fixture->window, "ImageFlipHorizontal"));
+    g_assert_true (is_red (fixture->view->pixbuf, 0, 0));
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    saved = gdk_pixbuf_new_from_file (path, &error);
+    g_assert_no_error (error);
+    shown = gdk_pixbuf_apply_embedded_orientation (saved);
+    g_assert_true (is_red (shown, 0, 0));
+
+    g_object_unref (shown);
+    g_object_unref (saved);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* After an image fails to open, the previous one is still shown, but
+ * editing or saving it must not write it over the failed file */
+static void
+test_save_after_failed_open (Fixture *fixture, gconstpointer user_data)
+{
+    /* A PNG signature, so it is listed as an image, then garbage */
+    static const gchar broken[] = "\x89PNG\r\n\x1a\nnot really a PNG";
+    gchar *dir = test_make_tmp_dir ();
+    gchar *good = test_write_png (dir, "a.png", SMALL_W, SMALL_H);
+    gchar *bad = g_build_filename (dir, "b.png", NULL);
+    gchar *contents;
+    gsize length;
+    GError *error = NULL;
+
+    g_file_set_contents (bad, broken, sizeof broken - 1, &error);
+    g_assert_no_error (error);
+    open_and_show (fixture, good);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    g_assert_true (gtk_action_is_sensitive (find_action (fixture->window, "FileSave")));
+
+    vnr_window_next (fixture->window, TRUE);
+    assert_current (fixture->window, "b.png");
+
+    g_assert_false (gtk_action_is_sensitive (find_action (fixture->window, "FileSave")));
+    g_assert_false (gtk_action_is_sensitive (find_action (fixture->window, "ImageRotateCW")));
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_file_get_contents (bad, &contents, &length, &error);
+    g_assert_no_error (error);
+    g_assert_cmpmem (contents, length, broken, sizeof broken - 1);
+
+    g_free (contents);
+    g_free (bad);
+    g_free (good);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* gdk-pixbuf reads GIF but can't write it: an edited GIF can't be saved */
+static void
+test_save_disabled_unwritable (Fixture *fixture, gconstpointer user_data)
+{
+    /* A 1x1 GIF */
+    static const guchar gif[] = {
+        'G', 'I', 'F', '8', '9', 'a', 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00,
+        0xff, 0xff, 0xff, 0x00, 0x00, 0x00, ',', 0x00, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x44, 0x01, 0x00, ';'
+    };
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = g_build_filename (dir, "image.gif", NULL);
+    GError *error = NULL;
+
+    g_file_set_contents (path, (const gchar *) gif, sizeof gif, &error);
+    g_assert_no_error (error);
+    open_and_show (fixture, path);
+    g_assert_null (fixture->window->writable_format_name);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+
+    g_assert_false (gtk_action_is_sensitive (find_action (fixture->window, "FileSave")));
+    g_assert_cmpstr (message_text (fixture->window), ==,
+                     "Image modifications cannot be saved.\nWriting in this format is not supported.");
+
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* An image Viewnior can't write is left alone, metadata too: its pixels
+ * on disk are still the unturned ones */
+static void
+test_save_unwritable (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = test_write_jpeg (dir, "photo.jpg", SMALL_W, SMALL_H);
+
+    test_set_orientation (path, 6);
+    open_and_show (fixture, path);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    /* As if gdk-pixbuf could read the format but not write it */
+    g_clear_pointer (&fixture->window->writable_format_name, g_free);
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_assert_cmpint (test_get_orientation (path), ==, 6);
+    g_assert_cmpstr (message_text (fixture->window), ==,
+                     "Image modifications cannot be saved.\nWriting in this format is not supported.");
+
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 /*************************************************************/
 /***** Main **************************************************/
 /*************************************************************/
@@ -515,6 +711,11 @@ main (int argc, char *argv[])
     ADD ("/window/zoom/smart-fit-small", "a.png", test_smart_fit_small);
 
     ADD ("/window/edit/rotate", "a.png", test_rotate);
+    ADD_EMPTY ("/window/edit/save-oriented", test_save_oriented);
+    ADD_EMPTY ("/window/edit/save-oriented-tiff", test_save_oriented_tiff);
+    ADD_EMPTY ("/window/edit/save-after-failed-open", test_save_after_failed_open);
+    ADD_EMPTY ("/window/edit/save-disabled-unwritable", test_save_disabled_unwritable);
+    ADD_EMPTY ("/window/edit/save-unwritable", test_save_unwritable);
 
     result = g_test_run ();
 

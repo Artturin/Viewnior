@@ -31,8 +31,14 @@ void    uni_read_exiv2_map          (const char *uri,
                                      void (*callback)(const char*, const char*, void*),
                                      void *user_data);
 
+/* Copy the metadata of an image to a new file of it, for saving an edited
+ * image. uni_read_exiv2_to_cache() reads it from the original, and
+ * uni_write_exiv2_from_cache() writes it to the new file. If the pixels
+ * that were saved already have the EXIF orientation applied, pass TRUE
+ * for @reset_orientation_tag so viewers don't apply it a second time. */
 int     uni_read_exiv2_to_cache     (const char *uri);
-int     uni_write_exiv2_from_cache  (const char *uri);
+int     uni_write_exiv2_from_cache  (const char *uri,
+                                     int reset_orientation_tag);
 
 #ifdef __cplusplus
 }
