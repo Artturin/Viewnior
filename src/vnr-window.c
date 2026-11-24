@@ -2631,7 +2631,11 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
     else
         window->writable_format_name = NULL;
 
-    window->orientation_applied = vnr_tools_apply_embedded_orientation (&pixbuf);
+    /* libtiff turns a TIFF as its orientation says while decoding it, all
+     * the way for some orientations and partly for others, and gdk-pixbuf
+     * reports only what is left to do. Either way a TIFF ends up upright. */
+    window->orientation_applied = vnr_tools_apply_embedded_orientation (&pixbuf)
+                                  || g_strcmp0 (window->writable_format_name, "tiff") == 0;
     window->current_image_width = gdk_pixbuf_animation_get_width (pixbuf);
     window->current_image_height = gdk_pixbuf_animation_get_height (pixbuf);
     window->modifications = 0;

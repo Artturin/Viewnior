@@ -481,6 +481,59 @@ test_save_oriented (Fixture *fixture, gconstpointer user_data)
     g_free (dir);
 }
 
+static gboolean
+is_red (GdkPixbuf *pixbuf, int x, int y)
+{
+    const guchar *pixel = gdk_pixbuf_get_pixels (pixbuf)
+                          + y * gdk_pixbuf_get_rowstride (pixbuf)
+                          + x * gdk_pixbuf_get_n_channels (pixbuf);
+
+    return pixel[0] > 128 && pixel[2] < 128;
+}
+
+/* libtiff turns a TIFF as its orientation says while decoding it, without
+ * gdk-pixbuf reporting an orientation. Saving it must still leave it
+ * looking as it did. */
+static void
+test_save_oriented_tiff (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = g_build_filename (dir, "scan.tiff", NULL);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, SMALL_W, SMALL_H);
+    GdkPixbuf *left = gdk_pixbuf_new_subpixbuf (pixbuf, 0, 0, SMALL_W / 2, SMALL_H);
+    GdkPixbuf *saved;
+    GdkPixbuf *shown;
+    GError *error = NULL;
+
+    /* Red on the left, blue on the right */
+    gdk_pixbuf_fill (pixbuf, 0x0000ffff);
+    gdk_pixbuf_fill (left, 0xff0000ff);
+    gdk_pixbuf_save (pixbuf, path, "tiff", &error, NULL);
+    g_assert_no_error (error);
+    g_object_unref (left);
+    g_object_unref (pixbuf);
+    /* Upside down */
+    test_set_orientation (path, 3);
+
+    open_and_show (fixture, path);
+    g_assert_false (is_red (fixture->view->pixbuf, 0, 0));
+
+    gtk_action_activate (find_action (fixture->window, "ImageFlipHorizontal"));
+    g_assert_true (is_red (fixture->view->pixbuf, 0, 0));
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    saved = gdk_pixbuf_new_from_file (path, &error);
+    g_assert_no_error (error);
+    shown = gdk_pixbuf_apply_embedded_orientation (saved);
+    g_assert_true (is_red (shown, 0, 0));
+
+    g_object_unref (shown);
+    g_object_unref (saved);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 /* After an image fails to open, the previous one is still shown, but
  * editing or saving it must not write it over the failed file */
 static void
@@ -659,6 +712,7 @@ main (int argc, char *argv[])
 
     ADD ("/window/edit/rotate", "a.png", test_rotate);
     ADD_EMPTY ("/window/edit/save-oriented", test_save_oriented);
+    ADD_EMPTY ("/window/edit/save-oriented-tiff", test_save_oriented_tiff);
     ADD_EMPTY ("/window/edit/save-after-failed-open", test_save_after_failed_open);
     ADD_EMPTY ("/window/edit/save-disabled-unwritable", test_save_disabled_unwritable);
     ADD_EMPTY ("/window/edit/save-unwritable", test_save_unwritable);
