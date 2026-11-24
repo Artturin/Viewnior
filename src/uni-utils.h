@@ -53,4 +53,6 @@ void    uni_rectangle_get_rects_around  (GdkRectangle * outer,
 
 VnrPrefsDesktop uni_detect_desktop_environment ();
 
+GdkPixbufAnimation *uni_pixbuf_animation_new_static (GdkPixbuf *pixbuf);
+
 #endif /* __UNI_UTILS_H__ */

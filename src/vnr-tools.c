@@ -23,39 +23,18 @@
 #include <stdio.h>
 #include <string.h>
 #include "vnr-tools.h"
+#include "uni-utils.h"
 
 void
 vnr_tools_fit_to_size (gint * width, gint * height, gint max_width, gint max_height)
 {
-    gfloat ratio, max_ratio;
+    gdouble w = *width;
+    gdouble h = *height;
 
-    /* if size fits well, then exit */
-    if (*width < max_width && *height < max_height)
-        return;
-    /* check if dividing by 0 */
-    if (*width == 0 || max_height == 0)
-        return;
+    vnr_tools_fit_to_size_double (&w, &h, max_width, max_height);
 
-    ratio = 1. * (*height) / (*width);
-    max_ratio = 1. * max_height / max_width;
-
-    if (max_ratio > ratio)
-    {
-        *width = max_width;
-        *height = ratio * (*width);
-    }
-    else if (ratio > max_ratio)
-    {
-        *height = max_height;
-        *width = (*height) / ratio;
-    }
-    else
-    {
-        *width = max_width;
-        *height = max_height;
-    }
-
-    return;
+    *width = w;
+    *height = h;
 }
 
 void
@@ -194,15 +173,20 @@ vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim)
         return;
     }
 
-    GdkPixbufSimpleAnim *s_anim;
-
-    s_anim = gdk_pixbuf_simple_anim_new (gdk_pixbuf_get_width(pixbuf),
-                                         gdk_pixbuf_get_height(pixbuf),
-                                         -1);
-    gdk_pixbuf_simple_anim_add_frame(s_anim, pixbuf);
-
-    g_object_unref(pixbuf);
     g_object_unref(*anim);
+    *anim = uni_pixbuf_animation_new_static (pixbuf);
+    g_object_unref(pixbuf);
+}
 
-    *anim = GDK_PIXBUF_ANIMATION(s_anim);
+/* "key-press-event" handler that hides the window on Escape */
+gboolean
+vnr_tools_hide_on_escape_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+{
+    if(event->keyval == GDK_KEY_Escape)
+    {
+        gtk_widget_hide(widget);
+        return TRUE;
+    }
+    else
+        return FALSE;
 }

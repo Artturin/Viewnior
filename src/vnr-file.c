@@ -120,6 +120,32 @@ vnr_file_set_display_name(VnrFile *vnr_file, char *display_name)
 }
 
 
+/* Whether @info is of an image that should be listed */
+static gboolean
+vnr_file_info_is_wanted(GFileInfo *info, gboolean include_hidden)
+{
+    const char *mimetype = g_file_info_get_content_type(info);
+    if (mimetype == NULL) {
+        mimetype = g_file_info_get_attribute_string(info, G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
+    }
+
+    return vnr_file_is_supported_mime_type(mimetype)
+           && (include_hidden || !g_file_info_get_is_hidden (info));
+}
+
+/* Takes ownership of @path */
+static VnrFile *
+vnr_file_new_from_info(GFileInfo *info, gchar *path)
+{
+    VnrFile *vnr_file = vnr_file_new();
+
+    vnr_file_set_display_name(vnr_file, (char*)g_file_info_get_display_name (info));
+    vnr_file->mtime = g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+    vnr_file->path = path;
+
+    return vnr_file;
+}
+
 static gint
 vnr_file_list_compare(gconstpointer a, gconstpointer b, gpointer user_data){
     return g_strcmp0(VNR_FILE(a)->display_name_collate,
@@ -148,25 +174,15 @@ vnr_file_dir_content_to_list(gchar *path, gboolean sort, gboolean include_hidden
 
 
     while(file_info != NULL){
-        VnrFile *vnr_file = vnr_file_new();
-
-        const char *mimetype =g_file_info_get_content_type(file_info);
-        if (mimetype == NULL) {
-            mimetype = g_file_info_get_attribute_string(file_info, G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
-        }
-
-        if(vnr_file_is_supported_mime_type(mimetype) && (include_hidden || !g_file_info_get_is_hidden (file_info)) ){
-            vnr_file_set_display_name(vnr_file, (char*)g_file_info_get_display_name (file_info));
-
-            vnr_file->mtime = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-
+        if(vnr_file_info_is_wanted(file_info, include_hidden)){
             /* Use the on-disk name, not the display name: the latter is
              * UTF-8 and differs for names in another encoding. */
-            vnr_file->path = g_build_filename(path,
-                                              g_file_info_get_name (file_info),
-                                              NULL);
+            gchar *file_path = g_build_filename(path,
+                                                g_file_info_get_name (file_info),
+                                                NULL);
 
-            file_list = g_list_prepend(file_list, vnr_file);
+            file_list = g_list_prepend(file_list,
+                                       vnr_file_new_from_info(file_info, file_path));
         }
 
         g_object_unref(file_info);
@@ -268,28 +284,10 @@ vnr_file_load_uri_list (GSList *uri_list, GList **file_list, gboolean include_hi
         {
             *file_list = g_list_concat (*file_list, vnr_file_dir_content_to_list(p_path, FALSE, include_hidden));
         }
-        else
+        else if (vnr_file_info_is_wanted(fileinfo, include_hidden))
         {
-            VnrFile *new_vnrfile;
-            const char *mimetype;
-
-            new_vnrfile = vnr_file_new();
-
-            mimetype = g_file_info_get_content_type(fileinfo);
-            if (mimetype == NULL) {
-                mimetype = g_file_info_get_attribute_string(fileinfo, G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
-            }
-
-            if(vnr_file_is_supported_mime_type(mimetype) && (include_hidden || !g_file_info_get_is_hidden (fileinfo)) )
-            {
-                vnr_file_set_display_name(new_vnrfile, (char*)g_file_info_get_display_name (fileinfo));
-
-                new_vnrfile->mtime = g_file_info_get_attribute_uint64 (fileinfo, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-
-                new_vnrfile->path = g_strdup(p_path);
-
-                *file_list = g_list_prepend(*file_list, new_vnrfile);
-            }
+            *file_list = g_list_prepend(*file_list,
+                                        vnr_file_new_from_info(fileinfo, g_strdup(p_path)));
         }
         g_object_unref (file);
         g_object_unref (fileinfo);

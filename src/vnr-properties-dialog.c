@@ -33,18 +33,6 @@ G_DEFINE_TYPE (VnrPropertiesDialog, vnr_properties_dialog, GTK_TYPE_DIALOG);
 
 static void vnr_properties_dialog_update_metadata(VnrPropertiesDialog *dialog);
 
-static gboolean
-key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
-{
-    if(event->keyval == GDK_KEY_Escape)
-    {
-        gtk_widget_hide(widget);
-        return TRUE;
-    }
-    else
-        return FALSE;
-}
-
 static void
 get_file_info(gchar *filename, goffset *size, const gchar **type)
 {
@@ -94,6 +82,30 @@ set_new_pixbuf(VnrPropertiesDialog *dialog, GdkPixbuf* original)
                                                  GDK_INTERP_NEAREST);
 }
 
+/* Add a bold heading such as "Name:" to @box */
+static GtkWidget *
+add_heading_label (GtkWidget *box, const gchar *markup)
+{
+    GtkWidget *label = gtk_label_new(NULL);
+
+    gtk_label_set_markup(GTK_LABEL(label), markup);
+    gtk_label_set_xalign (GTK_LABEL(label), 0); gtk_label_set_yalign (GTK_LABEL(label), 0);
+    gtk_box_pack_start (GTK_BOX (box), label, FALSE,FALSE,0);
+    return label;
+}
+
+/* Add a selectable label for a value to @box */
+static GtkWidget *
+add_value_label (GtkWidget *box)
+{
+    GtkWidget *label = gtk_label_new(NULL);
+
+    gtk_label_set_selectable (GTK_LABEL(label), TRUE);
+    gtk_label_set_xalign (GTK_LABEL(label), 0); gtk_label_set_yalign (GTK_LABEL(label), 0);
+    gtk_box_pack_start (GTK_BOX (box), label, FALSE,FALSE,0);
+    return label;
+}
+
 static void
 vnr_properties_dialog_class_init (VnrPropertiesDialogClass * klass) {}
 
@@ -123,7 +135,6 @@ vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
 {
     GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     GtkWidget *temp_box;
-    GtkWidget *temp_label;
 
     gtk_window_set_title(GTK_WINDOW(dialog), _("Image Properties"));
 
@@ -132,16 +143,10 @@ vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
     gtk_container_set_border_width (GTK_CONTAINER(temp_box), 10);
     gtk_box_pack_start (GTK_BOX(content_area), temp_box, FALSE,FALSE,0);
 
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Location:</b>"));
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
+    add_heading_label (temp_box, _("<b>Location:</b>"));
 
-    dialog->location_label = gtk_label_new(NULL);
-    gtk_label_set_xalign (GTK_LABEL(dialog->location_label), 0); gtk_label_set_yalign (GTK_LABEL(dialog->location_label), 0);
-    gtk_label_set_selectable (GTK_LABEL(dialog->location_label), TRUE);
+    dialog->location_label = add_value_label (temp_box);
     gtk_label_set_ellipsize (GTK_LABEL(dialog->location_label), PANGO_ELLIPSIZE_END);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->location_label, FALSE,FALSE,0);
 
     /* VBox containing the image and meta data */
     dialog->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
@@ -181,59 +186,22 @@ vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
     temp_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start (GTK_BOX (dialog->image_layout), temp_box, FALSE,FALSE,0);
 
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Name:</b>"));
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Type:</b>"));
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Size:</b>"));
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Width:</b>"));
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Height:</b>"));
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(temp_label), _("<b>Modified:</b>"));
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), temp_label, FALSE,FALSE,0);
-
+    add_heading_label (temp_box, _("<b>Name:</b>"));
+    add_heading_label (temp_box, _("<b>Type:</b>"));
+    add_heading_label (temp_box, _("<b>Size:</b>"));
+    add_heading_label (temp_box, _("<b>Width:</b>"));
+    add_heading_label (temp_box, _("<b>Height:</b>"));
+    add_heading_label (temp_box, _("<b>Modified:</b>"));
 
     temp_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start (GTK_BOX (dialog->image_layout), temp_box, FALSE,FALSE,0);
 
-    dialog->name_label = gtk_label_new(NULL);
-    gtk_label_set_selectable (GTK_LABEL(dialog->name_label), TRUE);
-    gtk_label_set_xalign (GTK_LABEL(dialog->name_label), 0); gtk_label_set_yalign (GTK_LABEL(dialog->name_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->name_label, FALSE,FALSE,0);
-    dialog->type_label = gtk_label_new(NULL);
-    gtk_label_set_selectable (GTK_LABEL(dialog->type_label), TRUE);
-    gtk_label_set_xalign (GTK_LABEL(dialog->type_label), 0); gtk_label_set_yalign (GTK_LABEL(dialog->type_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->type_label, FALSE,FALSE,0);
-    dialog->size_label = gtk_label_new(NULL);
-    gtk_label_set_selectable (GTK_LABEL(dialog->size_label), TRUE);
-    gtk_label_set_xalign (GTK_LABEL(dialog->size_label), 0); gtk_label_set_yalign (GTK_LABEL(dialog->size_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->size_label, FALSE,FALSE,0);
-    dialog->width_label = gtk_label_new(NULL);
-    gtk_label_set_selectable (GTK_LABEL(dialog->width_label), TRUE);
-    gtk_label_set_xalign (GTK_LABEL(dialog->width_label), 0); gtk_label_set_yalign (GTK_LABEL(dialog->width_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->width_label, FALSE,FALSE,0);
-    dialog->height_label = gtk_label_new(NULL);
-    gtk_label_set_selectable (GTK_LABEL(dialog->height_label), TRUE);
-    gtk_label_set_xalign (GTK_LABEL(dialog->height_label), 0); gtk_label_set_yalign (GTK_LABEL(dialog->height_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->height_label, FALSE,FALSE,0);
-    dialog->modified_label = gtk_label_new(NULL);
-    gtk_label_set_selectable (GTK_LABEL(dialog->modified_label), TRUE);
-    gtk_label_set_xalign (GTK_LABEL(dialog->modified_label), 0); gtk_label_set_yalign (GTK_LABEL(dialog->modified_label), 0);
-    gtk_box_pack_start (GTK_BOX (temp_box), dialog->modified_label, FALSE,FALSE,0);
+    dialog->name_label = add_value_label (temp_box);
+    dialog->type_label = add_value_label (temp_box);
+    dialog->size_label = add_value_label (temp_box);
+    dialog->width_label = add_value_label (temp_box);
+    dialog->height_label = add_value_label (temp_box);
+    dialog->modified_label = add_value_label (temp_box);
 
     /* Metadata Labels */
 
@@ -253,7 +221,8 @@ vnr_properties_dialog_init (VnrPropertiesDialog * dialog)
     g_signal_connect_swapped(G_OBJECT(dialog->close_button), "clicked",
                              G_CALLBACK(gtk_widget_hide_on_delete), dialog);
 
-    g_signal_connect(G_OBJECT(dialog), "key-press-event", G_CALLBACK(key_press_cb), NULL);
+    g_signal_connect(G_OBJECT(dialog), "key-press-event",
+                     G_CALLBACK(vnr_tools_hide_on_escape_cb), NULL);
 
     gtk_widget_show_all(content_area);
     gtk_widget_show_all(dialog->prev_button);
@@ -302,47 +271,25 @@ vnr_properties_dialog_update(VnrPropertiesDialog *dialog)
 static void
 vnr_properties_dialog_clear_metadata(VnrPropertiesDialog *dialog)
 {
-    GList *children;
-    GList *iter;
-
-    children = gtk_container_get_children(GTK_CONTAINER(dialog->meta_values_box));
-    for(iter = children; iter != NULL; iter = g_list_next(iter)) {
-        gtk_widget_destroy(GTK_WIDGET(iter->data));
-    }
-    g_list_free(children);
-
-    children = gtk_container_get_children(GTK_CONTAINER(dialog->meta_names_box));
-    for(iter = children; iter != NULL; iter = g_list_next(iter)) {
-        gtk_widget_destroy(GTK_WIDGET(iter->data));
-    }
-    g_list_free(children);
+    gtk_container_foreach(GTK_CONTAINER(dialog->meta_values_box),
+                          (GtkCallback) gtk_widget_destroy, NULL);
+    gtk_container_foreach(GTK_CONTAINER(dialog->meta_names_box),
+                          (GtkCallback) gtk_widget_destroy, NULL);
 }
 
 static void
 vnr_cb_add_metadata(const char *label, const char *value, void *user_data) {
     VnrPropertiesDialog *dialog = VNR_PROPERTIES_DIALOG(user_data);
-    GtkWidget *temp_label;
+    GtkWidget *value_label;
     gchar *formatted_label;
 
-    // value
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_text(GTK_LABEL(temp_label), value);
-    gtk_label_set_selectable (GTK_LABEL(temp_label), TRUE);
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX(dialog->meta_values_box), temp_label, FALSE,FALSE,0);
+    value_label = add_value_label (dialog->meta_values_box);
+    gtk_label_set_text(GTK_LABEL(value_label), value);
+    gtk_widget_show(value_label);
 
-    gtk_widget_show(temp_label);
-
-    // label
     formatted_label = g_strdup_printf("<b>%s:</b>", label);
-
-    temp_label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(temp_label), formatted_label);
-    gtk_label_set_xalign (GTK_LABEL(temp_label), 0); gtk_label_set_yalign (GTK_LABEL(temp_label), 0);
-    gtk_box_pack_start (GTK_BOX(dialog->meta_names_box), temp_label, FALSE,FALSE,0);
-
+    gtk_widget_show(add_heading_label (dialog->meta_names_box, formatted_label));
     g_free(formatted_label);
-    gtk_widget_show(temp_label);
 }
 
 static void

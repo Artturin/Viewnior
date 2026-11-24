@@ -119,6 +119,9 @@ GtkWindow*  vnr_window_new      (void);
 
 /* Actions */
 gboolean vnr_window_open     (VnrWindow *win, gboolean fit_to_screen);
+/* Loads the files and folders in uri_list as the file list, showing an
+ * error if that fails. Returns TRUE if there is an image to open. */
+gboolean vnr_window_set_list_from_paths (VnrWindow *window, GSList *uri_list);
 void     vnr_window_open_from_list (VnrWindow *window, GSList *uri_list);
 void     vnr_window_close    (VnrWindow *win);
 

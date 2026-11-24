@@ -125,6 +125,7 @@ void      vnr_prefs_set_show_toolbar      (VnrPrefs *prefs, gboolean show_toolba
 void      vnr_prefs_set_show_scrollbar    (VnrPrefs *prefs, gboolean show_scollbar);
 void      vnr_prefs_set_show_statusbar    (VnrPrefs *prefs, gboolean show_statusbar);
 gboolean  vnr_prefs_save (VnrPrefs *prefs);
+gchar    *vnr_prefs_get_config_path (const gchar *name);
 
 G_END_DECLS
 #endif /* __VNR_PREFS_H__ */
