@@ -286,6 +286,12 @@ vnr_window_update_openwith_menu (VnrWindow *window)
     GtkAction *action;
     GList *apps;
     guint action_id = 0;
+    guint i;
+    static const gchar *const menu_paths[] = {
+        "/MainMenu/File/FileOpenWith/AppEntries",
+        "/MainMenu/FileOpenWith/AppEntries",
+        "/PopupMenu/FileOpenWith/AppEntries",
+    };
 
     file = g_file_new_for_path ((gchar*)VNR_FILE(window->file_list->data)->path);
     file_info = g_file_query_info (file,
@@ -359,27 +365,14 @@ vnr_window_update_openwith_menu (VnrWindow *window)
         gtk_action_group_add_action (window->actions_open_with, action);
         g_object_unref (action);
 
-        gtk_ui_manager_add_ui (window->ui_mngr,
-                        window->open_with_menu_id,
-                        "/MainMenu/File/FileOpenWith/AppEntries",
-                        name,
-                        name,
-                        GTK_UI_MANAGER_MENUITEM,
-                        FALSE);
-        gtk_ui_manager_add_ui (window->ui_mngr,
-                        window->open_with_menu_id,
-                        "/MainMenu/FileOpenWith/AppEntries",
-                        name,
-                        name,
-                        GTK_UI_MANAGER_MENUITEM,
-                        FALSE);
-        gtk_ui_manager_add_ui (window->ui_mngr,
-                        window->open_with_menu_id,
-                        "/PopupMenu/FileOpenWith/AppEntries",
-                        name,
-                        name,
-                        GTK_UI_MANAGER_MENUITEM,
-                        FALSE);
+        for (i = 0; i < G_N_ELEMENTS (menu_paths); i++)
+            gtk_ui_manager_add_ui (window->ui_mngr,
+                            window->open_with_menu_id,
+                            menu_paths[i],
+                            name,
+                            name,
+                            GTK_UI_MANAGER_MENUITEM,
+                            FALSE);
     }
 
     g_list_free (apps);
