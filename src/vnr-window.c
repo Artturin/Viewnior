@@ -289,7 +289,7 @@ vnr_window_update_openwith_menu (VnrWindow *window)
     guint i;
     static const gchar *const menu_paths[] = {
         "/MainMenu/File/FileOpenWith/AppEntries",
-        "/MainMenu/FileOpenWith/AppEntries",
+        "/ButtonMenu/FileOpenWith/AppEntries",
         "/PopupMenu/FileOpenWith/AppEntries",
     };
 
