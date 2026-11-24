@@ -50,6 +50,26 @@ uni_dragger_grab_pointer (UniDragger * tool, GdkEvent * event)
                    tool->grab_cursor, event, NULL, NULL);
 }
 
+/* On Wayland, GDK keeps showing the grab cursor after an ungrab until the
+ * next pointer event, because the window cursor is only looked up again
+ * then. Re-setting the toplevel's cursor makes GDK look it up now, so the
+ * normal cursor comes back as soon as the button is released, even if the
+ * pointer isn't moving. X11 doesn't need this (the server restores it), and
+ * there it does nothing visible. */
+static void
+uni_dragger_refresh_cursor (GdkEvent * event)
+{
+    GdkWindow *toplevel = gdk_window_get_toplevel (event->any.window);
+    GdkCursor *cursor = gdk_window_get_cursor (toplevel);
+
+    /* gdk_window_set_cursor() drops the window's reference before taking
+     * the new one, so hold our own across the call. */
+    if (cursor != NULL)
+        g_object_ref (cursor);
+    gdk_window_set_cursor (toplevel, cursor);
+    g_clear_object (&cursor);
+}
+
 static void
 uni_dragger_get_drag_delta (UniDragger * tool, int *x, int *y)
 {
@@ -80,6 +100,7 @@ uni_dragger_button_release (UniDragger * tool, GdkEventButton * ev)
     if (ev->button != 1)
         return FALSE;
     gdk_seat_ungrab (gdk_event_get_seat ((GdkEvent *) ev));
+    uni_dragger_refresh_cursor ((GdkEvent *) ev);
     tool->pressed = FALSE;
     tool->dragging = FALSE;
     return TRUE;
