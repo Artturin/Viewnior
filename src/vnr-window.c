@@ -2280,6 +2280,14 @@ vnr_window_key_press (GtkWidget *widget, GdkEventKey *event)
                 vnr_window_cmd_crop(NULL, window);
             }
             break;
+        case GDK_KEY_r:
+            // ctrl + r is rotate, the bind is added in action_entries_static_image
+            if (event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK))
+                break;
+            if (toolbar_focus_child != NULL || msg_area_focus_child != NULL)
+                break;
+            result = vnr_window_random(window);
+            break;
     }
 
     if (result == FALSE && GTK_WIDGET_CLASS (vnr_window_parent_class)->key_press_event)
@@ -2955,6 +2963,53 @@ vnr_window_last (VnrWindow *window){
     vnr_window_open(window, FALSE);
     if(!window->cursor_is_hidden)
         vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+    return TRUE;
+}
+
+/* Jump to a random image of the collection, never the one being shown. */
+gboolean
+vnr_window_random (VnrWindow *window)
+{
+    GList *first;
+    guint length;
+    gint current;
+    gint pos;
+
+    first = g_list_first(window->file_list);
+    length = g_list_length(first);
+
+    /* There is nothing else to pick with fewer than two images */
+    if (length < 2)
+        return FALSE;
+
+    /* Pick from the other length - 1 images, skipping over the current one */
+    current = g_list_position(first, window->file_list);
+    pos = g_random_int_range(0, length - 1);
+    if (pos >= current)
+        pos++;
+
+    if(vnr_message_area_is_critical(VNR_MESSAGE_AREA(window->msg_area)))
+    {
+        vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
+    }
+
+    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
+        g_source_remove (window->ss_source_tag);
+
+    window->file_list = g_list_nth(first, pos);
+
+    if(!window->cursor_is_hidden)
+        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
+
+    vnr_window_open(window, FALSE);
+    if(!window->cursor_is_hidden)
+        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+
+    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
+        window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
+                                                       (GSourceFunc)next_image_src,
+                                                       window);
+
     return TRUE;
 }
 
