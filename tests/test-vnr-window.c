@@ -481,6 +481,45 @@ test_save_oriented (Fixture *fixture, gconstpointer user_data)
     g_free (dir);
 }
 
+/* After an image fails to open, the previous one is still shown, but
+ * editing or saving it must not write it over the failed file */
+static void
+test_save_after_failed_open (Fixture *fixture, gconstpointer user_data)
+{
+    /* A PNG signature, so it is listed as an image, then garbage */
+    static const gchar broken[] = "\x89PNG\r\n\x1a\nnot really a PNG";
+    gchar *dir = test_make_tmp_dir ();
+    gchar *good = test_write_png (dir, "a.png", SMALL_W, SMALL_H);
+    gchar *bad = g_build_filename (dir, "b.png", NULL);
+    gchar *contents;
+    gsize length;
+    GError *error = NULL;
+
+    g_file_set_contents (bad, broken, sizeof broken - 1, &error);
+    g_assert_no_error (error);
+    open_and_show (fixture, good);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    g_assert_true (gtk_action_is_sensitive (find_action (fixture->window, "FileSave")));
+
+    vnr_window_next (fixture->window, TRUE);
+    assert_current (fixture->window, "b.png");
+
+    g_assert_false (gtk_action_is_sensitive (find_action (fixture->window, "FileSave")));
+    g_assert_false (gtk_action_is_sensitive (find_action (fixture->window, "ImageRotateCW")));
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_file_get_contents (bad, &contents, &length, &error);
+    g_assert_no_error (error);
+    g_assert_cmpmem (contents, length, broken, sizeof broken - 1);
+
+    g_free (contents);
+    g_free (bad);
+    g_free (good);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 /* gdk-pixbuf reads GIF but can't write it: an edited GIF can't be saved */
 static void
 test_save_disabled_unwritable (Fixture *fixture, gconstpointer user_data)
@@ -620,6 +659,7 @@ main (int argc, char *argv[])
 
     ADD ("/window/edit/rotate", "a.png", test_rotate);
     ADD_EMPTY ("/window/edit/save-oriented", test_save_oriented);
+    ADD_EMPTY ("/window/edit/save-after-failed-open", test_save_after_failed_open);
     ADD_EMPTY ("/window/edit/save-disabled-unwritable", test_save_disabled_unwritable);
     ADD_EMPTY ("/window/edit/save-unwritable", test_save_unwritable);
 

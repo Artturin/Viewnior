@@ -2600,8 +2600,14 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
                               TRUE, error->message, TRUE);
 
         /* file_list already points at the failed file while the view still
-         * shows the previous image; copying would mix the two up. */
+         * shows the previous image; copying would mix the two up, and saving
+         * an edit would write the previous image over the failed file. */
         gtk_action_group_set_sensitive(window->action_copy, FALSE);
+        gtk_action_group_set_sensitive(window->actions_static_image, FALSE);
+        gtk_action_group_set_sensitive(window->action_save, FALSE);
+        window->modifications = 0;
+        window->orientation_applied = FALSE;
+        g_clear_pointer(&window->writable_format_name, g_free);
 
         if(gtk_widget_get_visible(window->props_dlg))
             vnr_properties_dialog_clear(VNR_PROPERTIES_DIALOG(window->props_dlg));
