@@ -27,6 +27,17 @@
 
 #include <exiv2/exiv2.hpp>
 
+/* The easy access finders below search the alternative tags a value can be
+ * stored under. Older exiv2 lacks them, so look up the exact key there. */
+#ifdef EXIV2_TEST_VERSION
+    #if EXIV2_TEST_VERSION(0,27,4)
+        #define UNI_EXIV2_FINDER_0_27_4(finder) Exiv2::finder
+    #endif
+#endif
+#ifndef UNI_EXIV2_FINDER_0_27_4
+    #define UNI_EXIV2_FINDER_0_27_4(finder) NULL
+#endif
+
 extern "C" {
 #include <glib/gi18n.h>
 
@@ -48,12 +59,12 @@ extern "C" {
     ExifDataDictionary exifDataDictionary[] = {
         { "Exif.Image.UniqueCameraModel", _("Camera make"), Exiv2::make },
         { "Exif.Image.LocalizedCameraModel", _("Camera model"), Exiv2::model },
-        { "Exif.Photo.DateTimeOriginal", _("Date Taken"), NULL },
+        { "Exif.Photo.DateTimeOriginal", _("Date Taken"), UNI_EXIV2_FINDER_0_27_4(dateTimeOriginal) },
         { "Exif.Photo.ExposureTime", _("Exposure time"), Exiv2::exposureTime },
         { "Exif.Photo.ExposureMode", _("Exposure mode"), Exiv2::exposureMode },
-        { "Exif.Photo.ApertureValue", _("Aperture Value"), NULL },
+        { "Exif.Photo.ApertureValue", _("Aperture Value"), UNI_EXIV2_FINDER_0_27_4(apertureValue) },
         { "Exif.Photo.ISOSpeedRatings", _("ISO speed"), Exiv2::isoSpeed },
-        { "Exif.Photo.Flash", _("Flash"), NULL },
+        { "Exif.Photo.Flash", _("Flash"), UNI_EXIV2_FINDER_0_27_4(flash) },
         { "Exif.Photo.MeteringMode", _("Metering mode"), Exiv2::meteringMode },
         { "Exif.Image.FocalLength", _("Focal length"), Exiv2::focalLength },
         { "Exif.Image.Software", _("Software"), NULL },
