@@ -31,13 +31,41 @@
 G_DEFINE_TYPE (VnrPrefs, vnr_prefs, G_TYPE_OBJECT);
 
 /**
- * VNR_PREF_LOAD_KEY:
+ * VNR_PREFS_KEYS:
+ *
+ * Every preference that is saved in the config file, in the order they
+ * are saved. Each entry is X(PK, PT, KN, DEF):
  * @PK: Name of the VnrPrefs member.
- * @PT: Type of the VnrPrefs member, a suffix for g_key_file_get_.
+ * @PT: Type of the VnrPrefs member, a suffix for g_key_file_get_ and
+ *      g_key_file_set_.
  * @KN: Name of the key in the key file.
  * @DEF: Default value for the preference.
  */
+#define VNR_PREFS_KEYS(X) \
+    X (zoom,              integer, "zoom-mode",         VNR_PREFS_ZOOM_SMART) \
+    X (fit_on_fullscreen, boolean, "fit-on-fullscreen", TRUE) \
+    X (show_hidden,       boolean, "show-hidden",       FALSE) \
+    X (dark_background,   boolean, "dark-background",   FALSE) \
+    X (smooth_images,     boolean, "smooth-images",     TRUE) \
+    X (confirm_delete,    boolean, "confirm-delete",    TRUE) \
+    X (reload_on_save,    boolean, "reload-on-save",    FALSE) \
+    X (show_menu_bar,     boolean, "show-menu-bar",     FALSE) \
+    X (show_toolbar,      boolean, "show-toolbar",      TRUE) \
+    X (show_scrollbar,    boolean, "show-scrollbar",    TRUE) \
+    X (show_statusbar,    boolean, "show-statusbar",    FALSE) \
+    X (start_maximized,   boolean, "start-maximized",   FALSE) \
+    X (slideshow_timeout, integer, "slideshow-timeout", 5) \
+    X (auto_resize,       boolean, "auto-resize",       FALSE) \
+    X (behavior_wheel,    integer, "behavior-wheel",    VNR_PREFS_WHEEL_ZOOM) \
+    X (behavior_click,    integer, "behavior-click",    VNR_PREFS_CLICK_ZOOM) \
+    X (behavior_modify,   integer, "behavior-modify",   VNR_PREFS_MODIFY_ASK) \
+    X (jpeg_quality,      integer, "jpeg-quality",      90) \
+    X (png_compression,   integer, "png-compression",   9) \
+    X (desktop,           integer, "desktop",           VNR_PREFS_DESKTOP_AUTO)
+
+#define VNR_PREF_SET_DEFAULT(PK, PT, KN, DEF)  prefs-> PK = DEF;
 #define VNR_PREF_LOAD_KEY(PK, PT, KN, DEF)  prefs-> PK = g_key_file_get_ ## PT (conf, "prefs", KN, &read_error); if(read_error != NULL) { prefs-> PK = DEF; g_clear_error(&read_error); }
+#define VNR_PREF_SAVE_KEY(PK, PT, KN, DEF)  g_key_file_set_ ## PT (conf, "prefs", KN, prefs-> PK);
 
 /*************************************************************/
 /***** Private signal handlers *******************************/
@@ -155,28 +183,11 @@ change_spin_value_cb (GtkSpinButton *spinbutton, gpointer user_data)
 static void
 vnr_prefs_set_default(VnrPrefs *prefs)
 {
-    prefs->zoom = VNR_PREFS_ZOOM_SMART;
-    prefs->show_hidden = FALSE;
-    prefs->dark_background = FALSE;
-    prefs->fit_on_fullscreen = TRUE;
-    prefs->smooth_images = TRUE;
-    prefs->confirm_delete = TRUE;
-    prefs->slideshow_timeout = 5;
-    prefs->behavior_wheel = VNR_PREFS_WHEEL_ZOOM;
-    prefs->behavior_click = VNR_PREFS_CLICK_ZOOM;
-    prefs->behavior_modify = VNR_PREFS_MODIFY_ASK;
-    prefs->jpeg_quality = 90;
-    prefs->png_compression = 9;
-    prefs->reload_on_save = FALSE;
-    prefs->show_menu_bar = FALSE;
-    prefs->show_toolbar = TRUE;
-    prefs->show_scrollbar = TRUE;
-    prefs->show_statusbar = FALSE;
-    prefs->start_maximized = FALSE;
+    VNR_PREFS_KEYS (VNR_PREF_SET_DEFAULT)
+
+    /* Set from the command line, not saved */
     prefs->start_slideshow = FALSE;
     prefs->start_fullscreen = FALSE;
-    prefs->auto_resize = FALSE;
-    prefs->desktop = VNR_PREFS_DESKTOP_AUTO;
 }
 
 static GtkWidget *
@@ -358,7 +369,7 @@ vnr_prefs_load (VnrPrefs *prefs, GError **error)
     GError *load_file_error = NULL;
     const gchar *path;
 
-    path = g_build_filename (g_get_user_config_dir(), PACKAGE, "viewnior.conf", NULL);
+    path = vnr_prefs_get_config_path ("viewnior.conf");
     g_key_file_load_from_file (conf, path, G_KEY_FILE_NONE, &load_file_error);
 
     g_free((char*)path);
@@ -370,26 +381,7 @@ vnr_prefs_load (VnrPrefs *prefs, GError **error)
         return FALSE;
     }
 
-    VNR_PREF_LOAD_KEY (zoom, integer, "zoom-mode", VNR_PREFS_ZOOM_SMART);
-    VNR_PREF_LOAD_KEY (fit_on_fullscreen, boolean, "fit-on-fullscreen", TRUE);
-    VNR_PREF_LOAD_KEY (show_hidden, boolean, "show-hidden", FALSE);
-    VNR_PREF_LOAD_KEY (dark_background, boolean, "dark-background", FALSE);
-    VNR_PREF_LOAD_KEY (smooth_images, boolean, "smooth-images", TRUE);
-    VNR_PREF_LOAD_KEY (confirm_delete, boolean, "confirm-delete", TRUE);
-    VNR_PREF_LOAD_KEY (reload_on_save, boolean, "reload-on-save", FALSE);
-    VNR_PREF_LOAD_KEY (show_menu_bar, boolean, "show-menu-bar", FALSE);
-    VNR_PREF_LOAD_KEY (show_toolbar, boolean, "show-toolbar", TRUE);
-    VNR_PREF_LOAD_KEY (show_scrollbar, boolean, "show-scrollbar", TRUE);
-    VNR_PREF_LOAD_KEY (show_statusbar, boolean, "show-statusbar", FALSE);
-    VNR_PREF_LOAD_KEY (start_maximized, boolean, "start-maximized", FALSE);
-    VNR_PREF_LOAD_KEY (slideshow_timeout, integer, "slideshow-timeout", 5);
-    VNR_PREF_LOAD_KEY (auto_resize, boolean, "auto-resize", FALSE);
-    VNR_PREF_LOAD_KEY (behavior_wheel, integer, "behavior-wheel", VNR_PREFS_WHEEL_ZOOM);
-    VNR_PREF_LOAD_KEY (behavior_click, integer, "behavior-click", VNR_PREFS_CLICK_ZOOM);
-    VNR_PREF_LOAD_KEY (behavior_modify, integer, "behavior-modify", VNR_PREFS_MODIFY_ASK);
-    VNR_PREF_LOAD_KEY (jpeg_quality, integer, "jpeg-quality", 90);
-    VNR_PREF_LOAD_KEY (png_compression, integer, "png-compression", 9);
-    VNR_PREF_LOAD_KEY (desktop, integer, "desktop", VNR_PREFS_DESKTOP_AUTO);
+    VNR_PREFS_KEYS (VNR_PREF_LOAD_KEY)
 
     g_key_file_free (conf);
 
@@ -434,6 +426,14 @@ vnr_prefs_init (VnrPrefs * prefs)
 /***** Actions ***********************************************/
 /*************************************************************/
 
+/* The path of the file @name in Viewnior's config directory. Free it with
+ * g_free(). */
+gchar *
+vnr_prefs_get_config_path (const gchar *name)
+{
+    return g_build_filename (g_get_user_config_dir(), PACKAGE, name, NULL);
+}
+
 void
 vnr_prefs_show_dialog(VnrPrefs *prefs)
 {
@@ -454,30 +454,11 @@ vnr_prefs_save (VnrPrefs *prefs)
     const gchar *dir;
     const gchar *path;
 
-    dir = g_build_filename (g_get_user_config_dir(), PACKAGE, NULL);
-    path = g_build_filename (dir, "viewnior.conf", NULL);
+    path = vnr_prefs_get_config_path ("viewnior.conf");
+    dir = g_path_get_dirname (path);
 
     conf = g_key_file_new();
-    g_key_file_set_integer (conf, "prefs", "zoom-mode", prefs->zoom);
-    g_key_file_set_boolean (conf, "prefs", "fit-on-fullscreen", prefs->fit_on_fullscreen);
-    g_key_file_set_boolean (conf, "prefs", "show-hidden", prefs->show_hidden);
-    g_key_file_set_boolean (conf, "prefs", "dark-background", prefs->dark_background);
-    g_key_file_set_boolean (conf, "prefs", "smooth-images", prefs->smooth_images);
-    g_key_file_set_boolean (conf, "prefs", "confirm-delete", prefs->confirm_delete);
-    g_key_file_set_boolean (conf, "prefs", "reload-on-save", prefs->reload_on_save);
-    g_key_file_set_boolean (conf, "prefs", "show-menu-bar", prefs->show_menu_bar);
-    g_key_file_set_boolean (conf, "prefs", "show-toolbar", prefs->show_toolbar);
-    g_key_file_set_boolean (conf, "prefs", "show-scrollbar", prefs->show_scrollbar);
-    g_key_file_set_boolean (conf, "prefs", "show-statusbar", prefs->show_statusbar);
-    g_key_file_set_boolean (conf, "prefs", "start-maximized", prefs->start_maximized);
-    g_key_file_set_integer (conf, "prefs", "slideshow-timeout", prefs->slideshow_timeout);
-    g_key_file_set_boolean (conf, "prefs", "auto-resize", prefs->auto_resize);
-    g_key_file_set_integer (conf, "prefs", "behavior-wheel", prefs->behavior_wheel);
-    g_key_file_set_integer (conf, "prefs", "behavior-click", prefs->behavior_click);
-    g_key_file_set_integer (conf, "prefs", "behavior-modify", prefs->behavior_modify);
-    g_key_file_set_integer (conf, "prefs", "jpeg-quality", prefs->jpeg_quality);
-    g_key_file_set_integer (conf, "prefs", "png-compression", prefs->png_compression);
-    g_key_file_set_integer (conf, "prefs", "desktop", prefs->desktop);
+    VNR_PREFS_KEYS (VNR_PREF_SAVE_KEY)
 
     if(g_mkdir_with_parents (dir, 0700) != 0)
         g_warning("Error creating config file's parent directory (%s)\n", dir);

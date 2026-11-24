@@ -388,8 +388,7 @@ vnr_window_update_openwith_menu (VnrWindow *window)
 static void
 vnr_window_save_accel_map()
 {
-    gchar *accelfile = g_build_filename (g_get_user_config_dir(), PACKAGE,
-                                         "accel_map", NULL);
+    gchar *accelfile = vnr_prefs_get_config_path ("accel_map");
 
     gtk_accel_map_save (accelfile);
     g_free (accelfile);
@@ -398,8 +397,7 @@ vnr_window_save_accel_map()
 static void
 vnr_window_load_accel_map()
 {
-    gchar *accelfile = g_build_filename (g_get_user_config_dir(), PACKAGE,
-                                         "accel_map", NULL);
+    gchar *accelfile = vnr_prefs_get_config_path ("accel_map");
 
     gtk_accel_map_load (accelfile);
     g_free (accelfile);
