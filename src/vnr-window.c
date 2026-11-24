@@ -1080,7 +1080,6 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
 
     if(encoded)
     {
-        GFile *file;
         guchar *with_metadata;
         gsize with_metadata_length;
 
@@ -1097,12 +1096,9 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
             length = with_metadata_length;
         }
 
-        /* Written to a temporary file that then replaces the original, so
-         * a failed write leaves the original as it was */
-        file = g_file_new_for_path(path);
-        g_file_replace_contents(file, buffer, length, NULL, FALSE,
-                                G_FILE_CREATE_NONE, NULL, NULL, &error);
-        g_object_unref(file);
+        /* Usually through a new file renamed over the original, so a
+         * failed write leaves the original as it was */
+        vnr_tools_replace_file(path, buffer, length, &error);
     }
     g_free(buffer);
 
