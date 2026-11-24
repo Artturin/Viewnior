@@ -29,6 +29,8 @@ gboolean vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim);
 gint    compare_quarks (gconstpointer a, gconstpointer b);
 void    get_position_of_element_in_list(GList *list, gint *current, gint *total);
 gboolean vnr_tools_hide_on_escape_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
+gboolean vnr_tools_replace_file (const gchar *path, const gchar *data, gsize length,
+                                 GError **error);
 
 /* A button label translated from GTK's own catalogue, as the stock items were.
  * Use it for labels that match a GTK stock label, so they are translated in

@@ -1029,7 +1029,11 @@ static void
 save_image_cb (GtkWidget *widget, VnrWindow *window)
 {
     GError *error = NULL;
-    gboolean saved;
+    GdkPixbuf *pixbuf;
+    const gchar *path;
+    gchar *buffer = NULL;
+    gsize length = 0;
+    gboolean encoded;
 
     if(window->writable_format_name == NULL)
     {
@@ -1045,17 +1049,18 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
     if(window->prefs->behavior_modify == VNR_PREFS_MODIFY_ASK)
         vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
 
-    /* Store exiv2 metadata to cache, so we can restore it afterwards */
-    uni_read_exiv2_to_cache(VNR_FILE(window->file_list->data)->path);
+    pixbuf = uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view));
+    path = VNR_FILE(window->file_list->data)->path;
 
+    /* Encode in memory: writing straight to the file would leave it
+     * truncated, or deleted, if encoding failed */
     if(g_strcmp0(window->writable_format_name, "jpeg" ) == 0)
     {
         gchar *quality;
         quality = g_strdup_printf ("%i", window->prefs->jpeg_quality);
 
-        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
-                         VNR_FILE(window->file_list->data)->path, "jpeg",
-                         &error, "quality", quality, NULL);
+        encoded = gdk_pixbuf_save_to_buffer (pixbuf, &buffer, &length, "jpeg",
+                                             &error, "quality", quality, NULL);
         g_free(quality);
     }
     else if(g_strcmp0(window->writable_format_name, "png" ) == 0)
@@ -1063,23 +1068,39 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
         gchar *compression;
         compression = g_strdup_printf ("%i", window->prefs->png_compression);
 
-        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
-                         VNR_FILE(window->file_list->data)->path, "png",
-                         &error, "compression", compression, NULL);
+        encoded = gdk_pixbuf_save_to_buffer (pixbuf, &buffer, &length, "png",
+                                             &error, "compression", compression, NULL);
         g_free(compression);
     }
     else
     {
-        saved = gdk_pixbuf_save (uni_image_view_get_pixbuf(UNI_IMAGE_VIEW(window->view)),
-                         VNR_FILE(window->file_list->data)->path,
-                         window->writable_format_name, &error, NULL);
+        encoded = gdk_pixbuf_save_to_buffer (pixbuf, &buffer, &length,
+                                             window->writable_format_name, &error, NULL);
     }
-    /* Only onto the new pixels: the old ones still need the original
-     * metadata. The pixels have the orientation applied already, if
-     * gdk-pixbuf found one: don't let the copied tag rotate them again. */
-    if(saved)
-        uni_write_exiv2_from_cache(VNR_FILE(window->file_list->data)->path,
-                                   window->orientation_applied);
+
+    if(encoded)
+    {
+        guchar *with_metadata;
+        gsize with_metadata_length;
+
+        /* The pixels have the orientation applied already, if gdk-pixbuf
+         * found one: don't let the copied tag rotate them again. Without
+         * metadata if exiv2 can't copy it, as before. */
+        with_metadata = uni_exiv2_copy_metadata(path, (guchar *) buffer, length,
+                                                window->orientation_applied,
+                                                &with_metadata_length);
+        if(with_metadata != NULL)
+        {
+            g_free(buffer);
+            buffer = (gchar *) with_metadata;
+            length = with_metadata_length;
+        }
+
+        /* Usually through a new file renamed over the original, so a
+         * failed write leaves the original as it was */
+        vnr_tools_replace_file(path, buffer, length, &error);
+    }
+    g_free(buffer);
 
     vnr_window_set_busy(window, FALSE);
 
@@ -1087,6 +1108,7 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
     {
         vnr_message_area_show(VNR_MESSAGE_AREA(window->msg_area), TRUE,
                                                error->message, FALSE);
+        g_error_free(error);
         return;
     }
 

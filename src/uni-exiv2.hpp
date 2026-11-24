@@ -23,6 +23,8 @@
 #ifndef __UNI_EXIV2__H_
 #define __UNI_EXIV2__H_
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,14 +33,17 @@ void    uni_read_exiv2_map          (const char *uri,
                                      void (*callback)(const char*, const char*, void*),
                                      void *user_data);
 
-/* Copy the metadata of an image to a new file of it, for saving an edited
- * image. uni_read_exiv2_to_cache() reads it from the original, and
- * uni_write_exiv2_from_cache() writes it to the new file. If the pixels
- * that were saved already have the EXIF orientation applied, pass TRUE
- * for @reset_orientation_tag so viewers don't apply it a second time. */
-int     uni_read_exiv2_to_cache     (const char *uri);
-int     uni_write_exiv2_from_cache  (const char *uri,
-                                     int reset_orientation_tag);
+/* Copies the metadata of the image file at @source_path onto the image
+ * encoded in @data, for saving an edited image. Returns the result as a
+ * new buffer to free with g_free(), and its length in @result_length, or
+ * NULL if exiv2 can't read either image or write the result. exiv2 may
+ * write into @data while it works. If the edited pixels already have the
+ * EXIF orientation applied, pass TRUE for @reset_orientation_tag so
+ * viewers don't apply it a second time. */
+unsigned char *uni_exiv2_copy_metadata (const char *source_path,
+                                        unsigned char *data, size_t length,
+                                        int reset_orientation_tag,
+                                        size_t *result_length);
 
 #ifdef __cplusplus
 }
