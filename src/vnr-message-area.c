@@ -82,6 +82,19 @@ vnr_message_area_init (VnrMessageArea * msg_area)
     msg_area->initialized = FALSE;
 }
 
+/* Disconnect the handler of the user button, if one is connected */
+static void
+vnr_message_area_disconnect_button (VnrMessageArea *msg_area)
+{
+    if(!msg_area->with_button)
+        return;
+
+    g_signal_handlers_disconnect_by_func (msg_area->user_button,
+                                          msg_area->c_handler,
+                                          msg_area->vnr_win);
+    msg_area->with_button = FALSE;
+}
+
 static void
 vnr_message_area_show_basic (VnrMessageArea *msg_area,
                              gboolean critical,
@@ -95,16 +108,9 @@ vnr_message_area_show_basic (VnrMessageArea *msg_area,
 
     msg_area->is_critical = critical;
 
-    if(critical)
-        gtk_image_set_from_icon_name (GTK_IMAGE(msg_area->image),
-                                      "dialog-error",
-                                      GTK_ICON_SIZE_DIALOG);
-    else
-        gtk_image_set_from_icon_name (GTK_IMAGE(msg_area->image),
-                                      "dialog-information",
-                                      GTK_ICON_SIZE_DIALOG);
-
-    msg_area->is_critical = critical;
+    gtk_image_set_from_icon_name (GTK_IMAGE(msg_area->image),
+                                  critical ? "dialog-error" : "dialog-information",
+                                  GTK_ICON_SIZE_DIALOG);
 
     warning = g_markup_printf_escaped ("<span weight=\"bold\">%s</span>",
                                        message);
@@ -122,15 +128,7 @@ vnr_message_area_show (VnrMessageArea *msg_area,
                        const char *message, gboolean close_image)
 {
     vnr_message_area_show_basic(msg_area, critical, message, close_image);
-
-
-    if(msg_area->with_button)
-    {
-        g_signal_handlers_disconnect_by_func (msg_area->user_button,
-                                              msg_area->c_handler,
-                                              msg_area);
-        msg_area->with_button = FALSE;
-    }
+    vnr_message_area_disconnect_button(msg_area);
 
     gtk_widget_show_all(GTK_WIDGET (msg_area));
     gtk_widget_hide(GTK_WIDGET (msg_area->button_box));
@@ -149,13 +147,9 @@ vnr_message_area_show_with_button (VnrMessageArea *msg_area,
     gtk_button_set_use_underline (GTK_BUTTON(msg_area->user_button), TRUE);
     gtk_button_set_label (GTK_BUTTON(msg_area->user_button), button_label);
 
-    if(msg_area->with_button)
-        g_signal_handlers_disconnect_by_func (msg_area->user_button,
-                                              msg_area->c_handler,
-                                              msg_area->vnr_win);
-    else
-        msg_area->with_button = TRUE;
+    vnr_message_area_disconnect_button(msg_area);
 
+    msg_area->with_button = TRUE;
     msg_area->c_handler = c_handler;
     g_signal_connect(msg_area->user_button, "clicked", c_handler, msg_area->vnr_win);
 
@@ -166,13 +160,7 @@ gboolean
 vnr_message_area_hide (VnrMessageArea *msg_area)
 {
     gtk_widget_hide(GTK_WIDGET (msg_area));
-    if(msg_area->with_button)
-    {
-        g_signal_handlers_disconnect_by_func (msg_area->user_button,
-                                              msg_area->c_handler,
-                                              msg_area->vnr_win);
-        msg_area->with_button = FALSE;
-    }
+    vnr_message_area_disconnect_button(msg_area);
 
     // Doc says
     // The function is called repeatedly until it returns G_SOURCE_REMOVE, at which point the timeout is automatically destroyed and the function will not be called again.
