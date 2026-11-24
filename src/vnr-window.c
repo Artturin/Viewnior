@@ -2323,10 +2323,39 @@ vnr_window_new ()
     return (GtkWindow *) g_object_new (VNR_TYPE_WINDOW, NULL);
 }
 
+/* Create an action group with the given actions and toggle actions, and
+ * add it to the UI manager. Groups added later take precedence. */
+static GtkActionGroup *
+vnr_window_add_action_group (VnrWindow *window, const gchar *name,
+                             const GtkActionEntry *entries, guint n_entries,
+                             const GtkToggleActionEntry *toggle_entries,
+                             guint n_toggle_entries)
+{
+    GtkActionGroup *group = gtk_action_group_new (name);
+
+    gtk_action_group_set_translation_domain (group, GETTEXT_PACKAGE);
+    if (entries != NULL)
+        gtk_action_group_add_actions (group, entries, n_entries, window);
+    if (toggle_entries != NULL)
+        gtk_action_group_add_toggle_actions (group, toggle_entries,
+                                             n_toggle_entries, window);
+
+    gtk_ui_manager_insert_action_group (window->ui_mngr, group, 0);
+    return group;
+}
+
+static void
+vnr_window_add_ui (VnrWindow *window, const gchar *ui)
+{
+    GError *error = NULL;
+
+    if (!gtk_ui_manager_add_ui_from_string (window->ui_mngr, ui, -1, &error))
+        g_error ("building menus failed: %s\n", error->message);
+}
+
 static void
 vnr_window_init (VnrWindow * window)
 {
-    GError *error = NULL;
     GtkAction *action;
 
     window->writable_format_name = NULL;
@@ -2350,161 +2379,59 @@ vnr_window_init (VnrWindow * window)
     /* Build MENUBAR and TOOLBAR */
     window->ui_mngr = gtk_ui_manager_new();
 
-    window->actions_window = gtk_action_group_new("MenuActionsWindow");
+    window->actions_window =
+        vnr_window_add_action_group (window, "MenuActionsWindow",
+                                     action_entries_window,
+                                     G_N_ELEMENTS (action_entries_window),
+                                     NULL, 0);
+    window->action_save =
+        vnr_window_add_action_group (window, "MenuActionSave",
+                                     action_entry_save,
+                                     G_N_ELEMENTS (action_entry_save),
+                                     NULL, 0);
+    window->action_properties =
+        vnr_window_add_action_group (window, "MenuActionProperties",
+                                     NULL, 0,
+                                     toggle_entry_properties,
+                                     G_N_ELEMENTS (toggle_entry_properties));
+    window->actions_static_image =
+        vnr_window_add_action_group (window, "MenuActionsStaticImage",
+                                     action_entries_static_image,
+                                     G_N_ELEMENTS (action_entries_static_image),
+                                     NULL, 0);
+    window->actions_image =
+        vnr_window_add_action_group (window, "MenuActionsImage",
+                                     action_entries_image,
+                                     G_N_ELEMENTS (action_entries_image),
+                                     toggle_entries_image,
+                                     G_N_ELEMENTS (toggle_entries_image));
+    window->actions_bars =
+        vnr_window_add_action_group (window, "MenuActionsBars",
+                                     NULL, 0,
+                                     toggle_entries_window,
+                                     G_N_ELEMENTS (toggle_entries_window));
+    window->actions_collection =
+        vnr_window_add_action_group (window, "MenuActionsCollection",
+                                     action_entries_collection,
+                                     G_N_ELEMENTS (action_entries_collection),
+                                     toggle_entries_collection,
+                                     G_N_ELEMENTS (toggle_entries_collection));
+    vnr_window_add_ui (window, ui_definition);
 
-
-    gtk_action_group_set_translation_domain (window->actions_window,
-                                             GETTEXT_PACKAGE);
-
-    gtk_action_group_add_actions (window->actions_window,
-                                  action_entries_window,
-                                  G_N_ELEMENTS (action_entries_window),
-                                  window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->actions_window, 0);
-
-    window->action_save = gtk_action_group_new("MenuActionSave");
-
-
-    gtk_action_group_set_translation_domain (window->action_save,
-                                             GETTEXT_PACKAGE);
-
-    gtk_action_group_add_actions (window->action_save,
-                                  action_entry_save,
-                                  G_N_ELEMENTS (action_entry_save),
-                                  window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->action_save, 0);
-
-    window->action_properties = gtk_action_group_new("MenuActionProperties");
-
-
-    gtk_action_group_set_translation_domain (window->action_properties,
-                                             GETTEXT_PACKAGE);
-
-    gtk_action_group_add_toggle_actions (window->action_properties,
-                                  toggle_entry_properties,
-                                  G_N_ELEMENTS (toggle_entry_properties),
-                                  window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->action_properties, 0);
-
-    window->actions_static_image = gtk_action_group_new("MenuActionsStaticImage");
-
-
-    gtk_action_group_set_translation_domain (window->actions_static_image,
-                                             GETTEXT_PACKAGE);
-
-    gtk_action_group_add_actions (window->actions_static_image,
-                                  action_entries_static_image,
-                                  G_N_ELEMENTS (action_entries_static_image),
-                                  window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->actions_static_image, 0);
-
-
-    window->actions_image = gtk_action_group_new("MenuActionsImage");
-
-
-    gtk_action_group_set_translation_domain (window->actions_image,
-                                             GETTEXT_PACKAGE);
-
-    gtk_action_group_add_actions (window->actions_image,
-                                  action_entries_image,
-                                  G_N_ELEMENTS (action_entries_image),
-                                  window);
-    gtk_action_group_add_toggle_actions (window->actions_image,
-                                         toggle_entries_image,
-                                         G_N_ELEMENTS (toggle_entries_image),
-                                         window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->actions_image, 0);
-    /**********/
-    window->actions_bars = gtk_action_group_new("MenuActionsBars");
-
-
-    gtk_action_group_set_translation_domain (window->actions_bars,
-                                              GETTEXT_PACKAGE);
-
-    gtk_action_group_add_toggle_actions (window->actions_bars,
-                                         toggle_entries_window,
-                                         G_N_ELEMENTS (toggle_entries_window),
-                                         window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->actions_bars, 0);
-
-    /*****************/
-    window->actions_collection = gtk_action_group_new("MenuActionsCollection");
-
-
-    gtk_action_group_set_translation_domain (window->actions_collection,
-                                             GETTEXT_PACKAGE);
-
-    gtk_action_group_add_actions (window->actions_collection,
-                                  action_entries_collection,
-                                  G_N_ELEMENTS (action_entries_collection),
-                                  window);
-    gtk_action_group_add_toggle_actions (window->actions_collection,
-                                         toggle_entries_collection,
-                                         G_N_ELEMENTS (toggle_entries_collection),
-                                         window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->actions_collection, 0);
-
-    if (!gtk_ui_manager_add_ui_from_string (window->ui_mngr,
-                                            ui_definition, -1,
-                                            &error)) {
-            g_error ("building menus failed: %s\n", error->message);
-            g_error_free (error);
-    }
-
-    window->action_wallpaper = gtk_action_group_new("ActionWallpaper");
-
-    gtk_action_group_set_translation_domain (window->action_wallpaper,
-                                             GETTEXT_PACKAGE);
-
-    gtk_action_group_add_actions (window->action_wallpaper,
-                                  action_entry_wallpaper,
-                                  G_N_ELEMENTS (action_entry_wallpaper),
-                                  window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->action_wallpaper, 0);
-
-    if (!gtk_ui_manager_add_ui_from_string (window->ui_mngr,
-                                            ui_definition_wallpaper, -1,
-                                            &error)) {
-            g_error ("building menus failed: %s\n", error->message);
-            g_error_free (error);
-    }
+    window->action_wallpaper =
+        vnr_window_add_action_group (window, "ActionWallpaper",
+                                     action_entry_wallpaper,
+                                     G_N_ELEMENTS (action_entry_wallpaper),
+                                     NULL, 0);
+    vnr_window_add_ui (window, ui_definition_wallpaper);
     gtk_action_group_set_sensitive(window->action_wallpaper, FALSE);
 
-    window->action_copy = gtk_action_group_new("ActionCopy");
-
-    gtk_action_group_set_translation_domain (window->action_copy,
-                                             GETTEXT_PACKAGE);
-
-    gtk_action_group_add_actions (window->action_copy,
-                                  action_entry_copy_image,
-                                  G_N_ELEMENTS (action_entry_copy_image),
-                                  window);
-
-    gtk_ui_manager_insert_action_group (window->ui_mngr,
-                                        window->action_copy, 0);
-
-    if (!gtk_ui_manager_add_ui_from_string (window->ui_mngr,
-                                            ui_definition_copy, -1,
-                                            &error)) {
-            g_error ("building menus failed: %s\n", error->message);
-            g_error_free (error);
-    }
+    window->action_copy =
+        vnr_window_add_action_group (window, "ActionCopy",
+                                     action_entry_copy_image,
+                                     G_N_ELEMENTS (action_entry_copy_image),
+                                     NULL, 0);
+    vnr_window_add_ui (window, ui_definition_copy);
     gtk_action_group_set_sensitive(window->action_copy, FALSE);
 
     gtk_action_group_set_sensitive(window->actions_collection, FALSE);
