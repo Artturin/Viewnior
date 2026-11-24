@@ -27,35 +27,13 @@
 void
 vnr_tools_fit_to_size (gint * width, gint * height, gint max_width, gint max_height)
 {
-    gfloat ratio, max_ratio;
+    gdouble w = *width;
+    gdouble h = *height;
 
-    /* if size fits well, then exit */
-    if (*width < max_width && *height < max_height)
-        return;
-    /* check if dividing by 0 */
-    if (*width == 0 || max_height == 0)
-        return;
+    vnr_tools_fit_to_size_double (&w, &h, max_width, max_height);
 
-    ratio = 1. * (*height) / (*width);
-    max_ratio = 1. * max_height / max_width;
-
-    if (max_ratio > ratio)
-    {
-        *width = max_width;
-        *height = ratio * (*width);
-    }
-    else if (ratio > max_ratio)
-    {
-        *height = max_height;
-        *width = (*height) / ratio;
-    }
-    else
-    {
-        *width = max_width;
-        *height = max_height;
-    }
-
-    return;
+    *width = w;
+    *height = h;
 }
 
 void
