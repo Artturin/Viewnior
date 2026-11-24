@@ -478,6 +478,15 @@ vnr_window_set_busy_cursor(GtkWidget *widget, gboolean busy)
     }
 }
 
+/* Like vnr_window_set_busy_cursor() on the main window, but leaves a
+ * cursor hidden in fullscreen alone. */
+static void
+vnr_window_set_busy(VnrWindow *window, gboolean busy)
+{
+    if(!window->cursor_is_hidden)
+        vnr_window_set_busy_cursor(GTK_WIDGET(window), busy);
+}
+
 static void
 update_fs_filename_label(VnrWindow *window)
 {
@@ -497,6 +506,17 @@ update_fs_filename_label(VnrWindow *window)
     g_free(buf);
 }
 
+static gboolean next_image_src(VnrWindow *window);
+
+/* Show the next image of the slideshow after the timeout */
+static void
+slideshow_schedule_next(VnrWindow *window)
+{
+    window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
+                                                   (GSourceFunc)next_image_src,
+                                                   window);
+}
+
 static gboolean
 next_image_src(VnrWindow *window)
 {
@@ -505,9 +525,7 @@ next_image_src(VnrWindow *window)
     else
         vnr_window_next(window, FALSE);
 
-    window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
-                                                   (GSourceFunc)next_image_src,
-                                                   window);
+    slideshow_schedule_next(window);
 
     return FALSE;
 }
@@ -719,6 +737,22 @@ vnr_window_unfullscreen(VnrWindow *window)
     vnr_window_show_cursor(window);
 }
 
+/* Set the "Show next image" button and the Slideshow menu item without
+ * their handlers starting or stopping the slideshow again. */
+static void
+slideshow_sync_toggles(VnrWindow *window, gboolean active)
+{
+    GtkAction *action;
+
+    action = gtk_action_group_get_action (window->actions_collection,
+                                          "ViewSlideshow");
+
+    window->slideshow = FALSE;
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(window->toggle_btn), active);
+    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), active);
+    window->slideshow = TRUE;
+}
+
 static void
 stop_slideshow(VnrWindow *window)
 {
@@ -728,15 +762,7 @@ stop_slideshow(VnrWindow *window)
     if(window->mode != VNR_WINDOW_MODE_SLIDESHOW)
         return;
 
-    GtkAction *action;
-
-    action = gtk_action_group_get_action (window->actions_collection,
-                                          "ViewSlideshow");
-
-    window->slideshow = FALSE;
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(window->toggle_btn), FALSE);
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
-    window->slideshow = TRUE;
+    slideshow_sync_toggles(window, FALSE);
 
     window->mode = VNR_WINDOW_MODE_FULLSCREEN;
 
@@ -754,19 +780,8 @@ start_slideshow(VnrWindow *window)
 
     window->mode = VNR_WINDOW_MODE_SLIDESHOW;
 
-    window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
-                                                   (GSourceFunc)next_image_src,
-                                                   window);
-
-    GtkAction *action;
-
-    action = gtk_action_group_get_action (window->actions_collection,
-                                          "ViewSlideshow");
-
-    window->slideshow = FALSE;
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(window->toggle_btn), TRUE);
-    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
-    window->slideshow = TRUE;
+    slideshow_schedule_next(window);
+    slideshow_sync_toggles(window, TRUE);
 }
 
 static void
@@ -779,9 +794,7 @@ restart_slideshow(VnrWindow *window)
         return;
 
     g_source_remove (window->ss_source_tag);
-    window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
-                                                   (GSourceFunc)next_image_src,
-                                                   window);
+    slideshow_schedule_next(window);
 }
 
 static void
@@ -885,12 +898,10 @@ rotate_pixbuf(VnrWindow *window, GdkPixbufRotation angle)
     /* Stop slideshow while editing the image */
     stop_slideshow(window);
 
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
+    vnr_window_set_busy(window, TRUE);
     result = gdk_pixbuf_rotate_simple(UNI_IMAGE_VIEW(window->view)->pixbuf,
                                       angle);
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+    vnr_window_set_busy(window, FALSE);
 
     if(!vnr_window_show_edited(window, result))
         return;
@@ -908,12 +919,10 @@ flip_pixbuf(VnrWindow *window, gboolean horizontal)
 {
     GdkPixbuf *result;
 
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
+    vnr_window_set_busy(window, TRUE);
     result = gdk_pixbuf_flip(UNI_IMAGE_VIEW(window->view)->pixbuf,
                              horizontal);
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+    vnr_window_set_busy(window, FALSE);
 
     if(!vnr_window_show_edited(window, result))
         return;
@@ -1015,8 +1024,7 @@ static void
 save_image_cb (GtkWidget *widget, VnrWindow *window)
 {
     GError *error = NULL;
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
+    vnr_window_set_busy(window, TRUE);
 
     if(window->prefs->behavior_modify == VNR_PREFS_MODIFY_ASK)
         vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
@@ -1052,8 +1060,7 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
     }
     uni_write_exiv2_from_cache(VNR_FILE(window->file_list->data)->path);
 
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+    vnr_window_set_busy(window, FALSE);
 
     if(error != NULL)
     {
@@ -2780,13 +2787,11 @@ vnr_window_open_from_list(VnrWindow *window, GSList *uri_list)
     else
     {
         vnr_window_set_list(window, file_list, TRUE);
-        if(!window->cursor_is_hidden)
-            vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
+        vnr_window_set_busy(window, TRUE);
 
         vnr_window_close(window);
         vnr_window_open(window, FALSE);
-        if(!window->cursor_is_hidden)
-            vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+        vnr_window_set_busy(window, FALSE);
     }
 }
 
@@ -2819,6 +2824,31 @@ vnr_window_set_list (VnrWindow *window, GList *list, gboolean free_current)
     window->file_list = list;
 }
 
+/* Show @target, a link of the file list. In a slideshow, the countdown to
+ * the next image starts over if @restart_timer is TRUE. */
+static void
+vnr_window_go_to (VnrWindow *window, GList *target, gboolean restart_timer)
+{
+    gboolean restart = restart_timer && window->mode == VNR_WINDOW_MODE_SLIDESHOW;
+
+    if(vnr_message_area_is_critical(VNR_MESSAGE_AREA(window->msg_area)))
+    {
+        vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
+    }
+
+    if(restart)
+        g_source_remove (window->ss_source_tag);
+
+    window->file_list = target;
+
+    vnr_window_set_busy(window, TRUE);
+    vnr_window_open(window, FALSE);
+    vnr_window_set_busy(window, FALSE);
+
+    if(restart)
+        slideshow_schedule_next(window);
+}
+
 gboolean
 vnr_window_next (VnrWindow *window, gboolean rem_timeout){
     GList *next;
@@ -2828,29 +2858,13 @@ vnr_window_next (VnrWindow *window, gboolean rem_timeout){
     if (g_list_length(g_list_first(window->file_list)) <2)
         return FALSE;
 
-    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW && rem_timeout)
-        g_source_remove (window->ss_source_tag);
-
     next = g_list_next(window->file_list);
     if(next == NULL)
     {
         next = g_list_first(window->file_list);
     }
 
-    window->file_list = next;
-
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
-
-    vnr_window_open(window, FALSE);
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
-
-    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW && rem_timeout)
-        window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
-                                                       (GSourceFunc)next_image_src,
-                                                       window);
-
+    vnr_window_go_to(window, next, rem_timeout);
     return TRUE;
 }
 
@@ -2863,73 +2877,25 @@ vnr_window_prev (VnrWindow *window){
     if (g_list_length(g_list_first(window->file_list)) <2)
         return FALSE;
 
-    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
-        g_source_remove (window->ss_source_tag);
-
     prev = g_list_previous(window->file_list);
     if(prev == NULL)
     {
         prev = g_list_last(window->file_list);
     }
 
-    window->file_list = prev;
-
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
-
-    vnr_window_open(window, FALSE);
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
-
-    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
-        window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
-                                                       (GSourceFunc)next_image_src,
-                                                       window);
-
+    vnr_window_go_to(window, prev, TRUE);
     return TRUE;
 }
 
 gboolean
 vnr_window_first (VnrWindow *window){
-    GList *prev;
-
-    prev = g_list_first(window->file_list);
-
-    if(vnr_message_area_is_critical(VNR_MESSAGE_AREA(window->msg_area)))
-    {
-        vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
-    }
-
-    window->file_list = prev;
-
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
-
-    vnr_window_open(window, FALSE);
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+    vnr_window_go_to(window, g_list_first(window->file_list), TRUE);
     return TRUE;
 }
 
 gboolean
 vnr_window_last (VnrWindow *window){
-    GList *prev;
-
-    prev = g_list_last(window->file_list);
-
-    if(vnr_message_area_is_critical(VNR_MESSAGE_AREA(window->msg_area)))
-    {
-        vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
-    }
-
-    window->file_list = prev;
-
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
-
-    vnr_window_open(window, FALSE);
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+    vnr_window_go_to(window, g_list_last(window->file_list), TRUE);
     return TRUE;
 }
 
@@ -2955,28 +2921,7 @@ vnr_window_random (VnrWindow *window)
     if (pos >= current)
         pos++;
 
-    if(vnr_message_area_is_critical(VNR_MESSAGE_AREA(window->msg_area)))
-    {
-        vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
-    }
-
-    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
-        g_source_remove (window->ss_source_tag);
-
-    window->file_list = g_list_nth(first, pos);
-
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
-
-    vnr_window_open(window, FALSE);
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
-
-    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
-        window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
-                                                       (GSourceFunc)next_image_src,
-                                                       window);
-
+    vnr_window_go_to(window, g_list_nth(first, pos), TRUE);
     return TRUE;
 }
 
