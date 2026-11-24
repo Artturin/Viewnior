@@ -71,48 +71,11 @@ G_DEFINE_TYPE (VnrPrefs, vnr_prefs, G_TYPE_OBJECT);
 /***** Private signal handlers *******************************/
 /*************************************************************/
 
+/* Store the state of a check button in the preference @field */
 static void
-toggle_show_hidden_cb (GtkToggleButton *togglebutton, gpointer user_data)
+pref_toggled_cb (GtkToggleButton *togglebutton, gboolean *field)
 {
-    VNR_PREFS(user_data)->show_hidden = gtk_toggle_button_get_active(togglebutton);
-    vnr_prefs_save(VNR_PREFS(user_data));
-}
-
-static void
-toggle_dark_background_cb (GtkToggleButton *togglebutton, gpointer user_data)
-{
-    VNR_PREFS(user_data)->dark_background = gtk_toggle_button_get_active(togglebutton);
-    vnr_prefs_save(VNR_PREFS(user_data));
-    vnr_window_apply_preferences(VNR_WINDOW(VNR_PREFS(user_data)->vnr_win));
-}
-
-static void
-toggle_fit_on_fullscreen_cb (GtkToggleButton *togglebutton, gpointer user_data)
-{
-    VNR_PREFS(user_data)->fit_on_fullscreen = gtk_toggle_button_get_active(togglebutton);
-    vnr_prefs_save(VNR_PREFS(user_data));
-}
-
-static void
-toggle_smooth_images_cb (GtkToggleButton *togglebutton, gpointer user_data)
-{
-    VNR_PREFS(user_data)->smooth_images = gtk_toggle_button_get_active(togglebutton);
-    vnr_prefs_save(VNR_PREFS(user_data));
-    vnr_window_apply_preferences(VNR_WINDOW(VNR_PREFS(user_data)->vnr_win));
-}
-
-static void
-toggle_confirm_delete_cb (GtkToggleButton *togglebutton, gpointer user_data)
-{
-    VNR_PREFS(user_data)->confirm_delete = gtk_toggle_button_get_active(togglebutton);
-    vnr_prefs_save(VNR_PREFS(user_data));
-}
-
-static void
-toggle_reload_on_save_cb (GtkToggleButton *togglebutton, gpointer user_data)
-{
-    VNR_PREFS(user_data)->reload_on_save = gtk_toggle_button_get_active(togglebutton);
-    vnr_prefs_save(VNR_PREFS(user_data));
+    *field = gtk_toggle_button_get_active(togglebutton);
 }
 
 static void
@@ -190,6 +153,41 @@ vnr_prefs_set_default(VnrPrefs *prefs)
     prefs->start_fullscreen = FALSE;
 }
 
+/* Make the check button @id show and change the preference @field. With
+ * @apply, changes are applied to the window right away. */
+static void
+bind_toggle (GtkBuilder *builder, const gchar *id, VnrPrefs *prefs,
+             gboolean *field, gboolean apply)
+{
+    GtkToggleButton *button = GTK_TOGGLE_BUTTON (gtk_builder_get_object (builder, id));
+
+    gtk_toggle_button_set_active (button, *field);
+
+    /* Handlers run in the order they are connected: store, save, apply */
+    g_signal_connect (button, "toggled", G_CALLBACK (pref_toggled_cb), field);
+    g_signal_connect_swapped (button, "toggled", G_CALLBACK (vnr_prefs_save), prefs);
+    if (apply)
+        g_signal_connect_swapped (button, "toggled",
+                                  G_CALLBACK (vnr_window_apply_preferences),
+                                  prefs->vnr_win);
+}
+
+/* Create a combo box with the NULL-terminated @items, showing item
+ * @active, that calls @callback with @prefs when the choice changes */
+static GtkWidget *
+combo_new (const gchar *const *items, gint active, GCallback callback, VnrPrefs *prefs)
+{
+    GtkComboBoxText *combo = GTK_COMBO_BOX_TEXT (gtk_combo_box_text_new ());
+
+    for (; *items != NULL; items++)
+        gtk_combo_box_text_append_text (combo, *items);
+    gtk_combo_box_set_active (GTK_COMBO_BOX (combo), active);
+    gtk_widget_show (GTK_WIDGET (combo));
+    g_signal_connect (combo, "changed", callback, prefs);
+
+    return GTK_WIDGET (combo);
+}
+
 static GtkWidget *
 build_dialog (VnrPrefs *prefs)
 {
@@ -198,24 +196,27 @@ build_dialog (VnrPrefs *prefs)
     GError *error = NULL;
 
     GObject *close_button;
-    GtkToggleButton *show_hidden;
-    GtkToggleButton *dark_background;
-    GtkToggleButton *fit_on_fullscreen;
-    GtkBox *zoom_mode_box;
-    GtkComboBoxText *zoom_mode;
-    GtkToggleButton *smooth_images;
-    GtkToggleButton *confirm_delete;
-    GtkToggleButton *reload_on_save;
     GtkSpinButton *slideshow_timeout;
     GtkGrid *behavior_table;
-    GtkComboBoxText *action_wheel;
-    GtkComboBoxText *action_click;
-    GtkComboBoxText *action_modify;
     GtkRange *jpeg_scale;
     GtkRange *png_scale;
 
-    GtkBox *desktop_box;
-    GtkComboBoxText *desktop_env;
+    const gchar *zoom_modes[] = {
+        _("Smart Mode"), _("1:1 Mode"), _("Fit To Window Mode"), _("Last Used Mode"), NULL
+    };
+    const gchar *desktops[] = {
+        "GNOME 2", "GNOME 3", "XFCE", "LXDE", "PUPPY", "FluxBox", "Nitrogen", "MATE",
+        "Cinnamon", _("Autodetect"), NULL
+    };
+    const gchar *wheel_actions[] = {
+        _("Navigate images"), _("Zoom image"), _("Scroll image up/down"), NULL
+    };
+    const gchar *click_actions[] = {
+        _("Switch zoom modes"), _("Enter fullscreen mode"), _("Navigate images"), NULL
+    };
+    const gchar *modify_actions[] = {
+        _("Ask every time"), _("Autosave"), _("Ignore changes"), NULL
+    };
 
     builder = gtk_builder_new ();
     gtk_builder_add_from_file (builder, UI_PATH, &error);
@@ -234,35 +235,13 @@ build_dialog (VnrPrefs *prefs)
     g_signal_connect_swapped(close_button, "clicked",
                              G_CALLBACK(gtk_widget_hide_on_delete), window);
 
-    /* Show hidden files checkbox */
-    show_hidden = GTK_TOGGLE_BUTTON (gtk_builder_get_object (builder, "show_hidden"));
-    gtk_toggle_button_set_active( show_hidden, prefs->show_hidden );
-    g_signal_connect(G_OBJECT(show_hidden), "toggled", G_CALLBACK(toggle_show_hidden_cb), prefs);
-
-    /* Show dark background checkbox */
-    dark_background = GTK_TOGGLE_BUTTON (gtk_builder_get_object (builder, "dark_background"));
-    gtk_toggle_button_set_active( dark_background, prefs->dark_background );
-    g_signal_connect(G_OBJECT(dark_background), "toggled", G_CALLBACK(toggle_dark_background_cb), prefs);
-
-    /* Fit on fullscreen checkbox */
-    fit_on_fullscreen = GTK_TOGGLE_BUTTON (gtk_builder_get_object (builder, "fit_on_fullscreen"));
-    gtk_toggle_button_set_active( fit_on_fullscreen, prefs->fit_on_fullscreen );
-    g_signal_connect(G_OBJECT(fit_on_fullscreen), "toggled", G_CALLBACK(toggle_fit_on_fullscreen_cb), prefs);
-
-    /* Smooth images checkbox */
-    smooth_images = GTK_TOGGLE_BUTTON (gtk_builder_get_object (builder, "smooth_images"));
-    gtk_toggle_button_set_active( smooth_images, prefs->smooth_images );
-    g_signal_connect(G_OBJECT(smooth_images), "toggled", G_CALLBACK(toggle_smooth_images_cb), prefs);
-
-    /* Confirm delete checkbox */
-    confirm_delete = GTK_TOGGLE_BUTTON (gtk_builder_get_object (builder, "confirm_delete"));
-    gtk_toggle_button_set_active( confirm_delete, prefs->confirm_delete );
-    g_signal_connect(G_OBJECT(confirm_delete), "toggled", G_CALLBACK(toggle_confirm_delete_cb), prefs);
-
-    /* Reload image after save checkbox */
-    reload_on_save = GTK_TOGGLE_BUTTON (gtk_builder_get_object (builder, "reload"));
-    gtk_toggle_button_set_active( reload_on_save, prefs->reload_on_save );
-    g_signal_connect(G_OBJECT(reload_on_save), "toggled", G_CALLBACK(toggle_reload_on_save_cb), prefs);
+    /* Checkboxes */
+    bind_toggle (builder, "show_hidden", prefs, &prefs->show_hidden, FALSE);
+    bind_toggle (builder, "dark_background", prefs, &prefs->dark_background, TRUE);
+    bind_toggle (builder, "fit_on_fullscreen", prefs, &prefs->fit_on_fullscreen, FALSE);
+    bind_toggle (builder, "smooth_images", prefs, &prefs->smooth_images, TRUE);
+    bind_toggle (builder, "confirm_delete", prefs, &prefs->confirm_delete, FALSE);
+    bind_toggle (builder, "reload", prefs, &prefs->reload_on_save, FALSE);
 
     /* Slideshow timeout spin button */
     slideshow_timeout = GTK_SPIN_BUTTON (gtk_builder_get_object (builder, "slideshow_timeout"));
@@ -281,73 +260,32 @@ build_dialog (VnrPrefs *prefs)
     g_signal_connect(G_OBJECT(png_scale), "value-changed", G_CALLBACK(change_png_compression_cb), prefs);
 
     /* Zoom mode combo box */
-    zoom_mode_box = GTK_BOX (gtk_builder_get_object (builder, "zoom_mode_box"));
-
-    zoom_mode = (GtkComboBoxText*) gtk_combo_box_text_new();
-    gtk_combo_box_text_append_text(zoom_mode, _("Smart Mode"));
-    gtk_combo_box_text_append_text(zoom_mode, _("1:1 Mode"));
-    gtk_combo_box_text_append_text(zoom_mode, _("Fit To Window Mode"));
-    gtk_combo_box_text_append_text(zoom_mode, _("Last Used Mode"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(zoom_mode), prefs->zoom);
-
-    gtk_box_pack_end (zoom_mode_box, GTK_WIDGET(zoom_mode), FALSE, FALSE, 0);
-    gtk_widget_show(GTK_WIDGET(zoom_mode));
-
-    g_signal_connect(G_OBJECT(zoom_mode), "changed", G_CALLBACK(change_zoom_mode_cb), prefs);
+    gtk_box_pack_end (GTK_BOX (gtk_builder_get_object (builder, "zoom_mode_box")),
+                      combo_new (zoom_modes, prefs->zoom,
+                                 G_CALLBACK (change_zoom_mode_cb), prefs),
+                      FALSE, FALSE, 0);
 
     /* Desktop combo box */
-    desktop_box = GTK_BOX (gtk_builder_get_object (builder, "desktop_box"));
-
-    desktop_env = (GtkComboBoxText*) gtk_combo_box_text_new();
-    gtk_combo_box_text_append_text(desktop_env, "GNOME 2");
-    gtk_combo_box_text_append_text(desktop_env, "GNOME 3");
-    gtk_combo_box_text_append_text(desktop_env, "XFCE");
-    gtk_combo_box_text_append_text(desktop_env, "LXDE");
-    gtk_combo_box_text_append_text(desktop_env, "PUPPY");
-    gtk_combo_box_text_append_text(desktop_env, "FluxBox");
-    gtk_combo_box_text_append_text(desktop_env, "Nitrogen");
-    gtk_combo_box_text_append_text(desktop_env, "MATE");
-    gtk_combo_box_text_append_text(desktop_env, "Cinnamon");
-    gtk_combo_box_text_append_text(desktop_env, _("Autodetect"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(desktop_env), prefs->desktop);
-
-    gtk_box_pack_end (desktop_box, GTK_WIDGET(desktop_env), FALSE, FALSE, 0);
-    gtk_widget_show(GTK_WIDGET(desktop_env));
-
-    g_signal_connect(G_OBJECT(desktop_env), "changed", G_CALLBACK(change_desktop_env_cb), prefs);
+    gtk_box_pack_end (GTK_BOX (gtk_builder_get_object (builder, "desktop_box")),
+                      combo_new (desktops, prefs->desktop,
+                                 G_CALLBACK (change_desktop_env_cb), prefs),
+                      FALSE, FALSE, 0);
 
     /* Behavior combo boxes */
     behavior_table = GTK_GRID (gtk_builder_get_object (builder, "behavior_table"));
 
-    action_wheel = (GtkComboBoxText*) gtk_combo_box_text_new();
-    gtk_combo_box_text_append_text(action_wheel, _("Navigate images"));
-    gtk_combo_box_text_append_text(action_wheel, _("Zoom image"));
-    gtk_combo_box_text_append_text(action_wheel, _("Scroll image up/down"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(action_wheel), prefs->behavior_wheel);
-
-    gtk_grid_attach (behavior_table, GTK_WIDGET(action_wheel), 1, 0, 1, 1);
-    gtk_widget_show(GTK_WIDGET(action_wheel));
-    g_signal_connect(G_OBJECT(action_wheel), "changed", G_CALLBACK(change_action_wheel_cb), prefs);
-
-    action_click = (GtkComboBoxText*) gtk_combo_box_text_new();
-    gtk_combo_box_text_append_text(action_click, _("Switch zoom modes"));
-    gtk_combo_box_text_append_text(action_click, _("Enter fullscreen mode"));
-    gtk_combo_box_text_append_text(action_click, _("Navigate images"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(action_click), prefs->behavior_click);
-
-    gtk_grid_attach (behavior_table, GTK_WIDGET(action_click), 1, 1, 1, 1);
-    gtk_widget_show(GTK_WIDGET(action_click));
-    g_signal_connect(G_OBJECT(action_click), "changed", G_CALLBACK(change_action_click_cb), prefs);
-
-    action_modify = (GtkComboBoxText*) gtk_combo_box_text_new();
-    gtk_combo_box_text_append_text(action_modify, _("Ask every time"));
-    gtk_combo_box_text_append_text(action_modify, _("Autosave"));
-    gtk_combo_box_text_append_text(action_modify, _("Ignore changes"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(action_modify), prefs->behavior_modify);
-
-    gtk_grid_attach (behavior_table, GTK_WIDGET(action_modify), 1, 2, 1, 1);
-    gtk_widget_show(GTK_WIDGET(action_modify));
-    g_signal_connect(G_OBJECT(action_modify), "changed", G_CALLBACK(change_action_modify_cb), prefs);
+    gtk_grid_attach (behavior_table,
+                     combo_new (wheel_actions, prefs->behavior_wheel,
+                                G_CALLBACK (change_action_wheel_cb), prefs),
+                     1, 0, 1, 1);
+    gtk_grid_attach (behavior_table,
+                     combo_new (click_actions, prefs->behavior_click,
+                                G_CALLBACK (change_action_click_cb), prefs),
+                     1, 1, 1, 1);
+    gtk_grid_attach (behavior_table,
+                     combo_new (modify_actions, prefs->behavior_modify,
+                                G_CALLBACK (change_action_modify_cb), prefs),
+                     1, 2, 1, 1);
 
     /* Window signals */
     g_signal_connect(G_OBJECT(window), "delete-event",
@@ -489,42 +427,36 @@ vnr_prefs_set_slideshow_timeout (VnrPrefs *prefs, int value)
         gtk_spin_button_set_value(prefs->slideshow_timeout_widget, (gdouble)value);
 }
 
+static void
+vnr_prefs_set_bool (VnrPrefs *prefs, gboolean *field, gboolean value)
+{
+    if(*field != value)
+    {
+        *field = value;
+        vnr_prefs_save(prefs);
+    }
+}
+
 void
 vnr_prefs_set_show_toolbar (VnrPrefs *prefs, gboolean show_toolbar)
 {
-    if(prefs->show_toolbar != show_toolbar)
-    {
-        prefs->show_toolbar = show_toolbar;
-        vnr_prefs_save(prefs);
-    }
+    vnr_prefs_set_bool (prefs, &prefs->show_toolbar, show_toolbar);
 }
 
 void
 vnr_prefs_set_show_scrollbar (VnrPrefs *prefs, gboolean show_scrollbar)
 {
-    if(prefs->show_scrollbar != show_scrollbar)
-    {
-        prefs->show_scrollbar = show_scrollbar;
-        vnr_prefs_save(prefs);
-    }
+    vnr_prefs_set_bool (prefs, &prefs->show_scrollbar, show_scrollbar);
 }
 
 void
 vnr_prefs_set_show_statusbar (VnrPrefs *prefs, gboolean show_statusbar)
 {
-    if(prefs->show_statusbar != show_statusbar)
-    {
-        prefs->show_statusbar = show_statusbar;
-        vnr_prefs_save(prefs);
-    }
+    vnr_prefs_set_bool (prefs, &prefs->show_statusbar, show_statusbar);
 }
 
 void
 vnr_prefs_set_show_menu_bar (VnrPrefs *prefs, gboolean show_menu_bar)
 {
-    if(prefs->show_menu_bar != show_menu_bar)
-    {
-        prefs->show_menu_bar = show_menu_bar;
-        vnr_prefs_save(prefs);
-    }
+    vnr_prefs_set_bool (prefs, &prefs->show_menu_bar, show_menu_bar);
 }
