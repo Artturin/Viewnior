@@ -1408,43 +1408,49 @@ update_preview_cb(GtkFileChooser *file_chooser, gpointer data)
     }
 }
 
+/* Show a dialog for opening images, or folders if @folder is TRUE */
 static void
-vnr_window_cmd_open(GtkAction *action, VnrWindow *window)
+vnr_window_show_open_dialog(VnrWindow *window, gboolean folder)
 {
     GtkWidget *dialog;
-    GtkWidget *preview;
-    GtkFileFilter *img_filter;
-    GtkFileFilter *all_filter;
 
-    dialog = gtk_file_chooser_dialog_new (_("Open Image"),
+    dialog = gtk_file_chooser_dialog_new (folder ? _("Open Folder") : _("Open Image"),
                           GTK_WINDOW(window),
-                          GTK_FILE_CHOOSER_ACTION_OPEN,
+                          folder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
+                                 : GTK_FILE_CHOOSER_ACTION_OPEN,
                           _("_Cancel"), GTK_RESPONSE_CANCEL,
                           _("_Open"), GTK_RESPONSE_ACCEPT,
                           NULL);
 
-    img_filter = gtk_file_filter_new ();
-    g_assert (img_filter != NULL);
-    gtk_file_filter_add_pixbuf_formats (img_filter);
-    gtk_file_filter_add_mime_type (img_filter, "image/vnd.microsoft.icon");
-    gtk_file_filter_set_name (img_filter, _("All Images"));
-    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER(dialog), img_filter);
-
-    all_filter = gtk_file_filter_new ();
-    g_assert(all_filter != NULL);
-    gtk_file_filter_add_pattern (all_filter, "*");
-    gtk_file_filter_set_name (all_filter, _("All Files"));
-    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER(dialog), all_filter);
-
     gtk_window_set_modal (GTK_WINDOW(dialog), FALSE);
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
 
-    gtk_file_chooser_set_filter (GTK_FILE_CHOOSER(dialog), img_filter);
+    if(!folder)
+    {
+        GtkWidget *preview;
+        GtkFileFilter *img_filter;
+        GtkFileFilter *all_filter;
 
-    preview = gtk_image_new();
-    gtk_file_chooser_set_preview_widget(GTK_FILE_CHOOSER(dialog), preview);
-    g_signal_connect(GTK_FILE_CHOOSER(dialog), "update-preview",
-                     G_CALLBACK(update_preview_cb), preview);
+        img_filter = gtk_file_filter_new ();
+        g_assert (img_filter != NULL);
+        gtk_file_filter_add_pixbuf_formats (img_filter);
+        gtk_file_filter_add_mime_type (img_filter, "image/vnd.microsoft.icon");
+        gtk_file_filter_set_name (img_filter, _("All Images"));
+        gtk_file_chooser_add_filter (GTK_FILE_CHOOSER(dialog), img_filter);
+
+        all_filter = gtk_file_filter_new ();
+        g_assert(all_filter != NULL);
+        gtk_file_filter_add_pattern (all_filter, "*");
+        gtk_file_filter_set_name (all_filter, _("All Files"));
+        gtk_file_chooser_add_filter (GTK_FILE_CHOOSER(dialog), all_filter);
+
+        gtk_file_chooser_set_filter (GTK_FILE_CHOOSER(dialog), img_filter);
+
+        preview = gtk_image_new();
+        gtk_file_chooser_set_preview_widget(GTK_FILE_CHOOSER(dialog), preview);
+        g_signal_connect(GTK_FILE_CHOOSER(dialog), "update-preview",
+                         G_CALLBACK(update_preview_cb), preview);
+    }
 
     if(window->file_list != NULL)
     {
@@ -1464,34 +1470,15 @@ vnr_window_cmd_open(GtkAction *action, VnrWindow *window)
 }
 
 static void
+vnr_window_cmd_open(GtkAction *action, VnrWindow *window)
+{
+    vnr_window_show_open_dialog(window, FALSE);
+}
+
+static void
 vnr_window_cmd_open_dir(GtkAction *action, VnrWindow *window)
 {
-    GtkWidget *dialog;
-    dialog = gtk_file_chooser_dialog_new (_("Open Folder"),
-                          GTK_WINDOW(window),
-                          GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                          _("_Cancel"), GTK_RESPONSE_CANCEL,
-                          _("_Open"), GTK_RESPONSE_ACCEPT,
-                          NULL);
-
-    gtk_window_set_modal (GTK_WINDOW(dialog), FALSE);
-    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
-
-    if(window->file_list != NULL)
-    {
-        gchar *dirname = g_path_get_dirname (VNR_FILE(window->file_list->data)->path);
-        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(dialog), dirname);
-        g_free(dirname);
-    }
-
-    g_signal_connect (dialog, "response",
-                      G_CALLBACK (file_open_dialog_response_cb),
-                      window);
-
-    gtk_widget_show_all (GTK_WIDGET(dialog));
-
-    /* This only works when here. */
-    gtk_file_chooser_set_show_hidden (GTK_FILE_CHOOSER(dialog), window->prefs->show_hidden);
+    vnr_window_show_open_dialog(window, TRUE);
 }
 
 static void
