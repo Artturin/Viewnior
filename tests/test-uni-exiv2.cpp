@@ -146,16 +146,40 @@ test_map_without_exif (Fixture *fixture, gconstpointer user_data)
     g_hash_table_unref (map);
 }
 
-/* Saving a rotated, flipped or cropped image writes a new file without
- * metadata, then copies the metadata of the original over */
+/* Copies the metadata of @source onto the image file at @target, as
+ * saving an edited image does. Returns whether that worked. */
+static gboolean
+copy_metadata (const gchar *source, const gchar *target, gboolean reset_orientation)
+{
+    gchar *data;
+    gsize length;
+    unsigned char *result;
+    size_t result_length;
+    GError *error = NULL;
+
+    g_file_get_contents (target, &data, &length, &error);
+    g_assert_no_error (error);
+    result = uni_exiv2_copy_metadata (source, (const unsigned char *) data, length,
+                                      reset_orientation, &result_length);
+    g_free (data);
+    if (result == NULL)
+        return FALSE;
+
+    g_file_set_contents (target, (const gchar *) result, result_length, &error);
+    g_assert_no_error (error);
+    g_free (result);
+    return TRUE;
+}
+
+/* Saving a rotated, flipped or cropped image encodes it without metadata,
+ * then copies the metadata of the original over */
 static void
-test_cache_copies_metadata (Fixture *fixture, gconstpointer user_data)
+test_copy_metadata (Fixture *fixture, gconstpointer user_data)
 {
     gchar *make;
     gchar *xmp_orientation;
 
-    g_assert_cmpint (uni_read_exiv2_to_cache (fixture->with_exif), ==, 0);
-    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif, FALSE), ==, 0);
+    g_assert_true (copy_metadata (fixture->with_exif, fixture->without_exif, FALSE));
 
     make = read_make (fixture->without_exif);
     g_assert_cmpstr (make, ==, "Canon");
@@ -167,21 +191,17 @@ test_cache_copies_metadata (Fixture *fixture, gconstpointer user_data)
     g_assert_cmpstr (xmp_orientation, ==, "6");
     g_free (xmp_orientation);
     g_assert_true (has_thumbnail (fixture->without_exif));
-
-    /* The cache is used up */
-    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif, FALSE), ==, 1);
 }
 
 /* Saving an image whose orientation was applied when it was opened: the
  * saved pixels are upright, so viewers must not turn them again */
 static void
-test_cache_resets_orientation (Fixture *fixture, gconstpointer user_data)
+test_copy_resets_orientation (Fixture *fixture, gconstpointer user_data)
 {
     gchar *make;
     gchar *xmp_orientation;
 
-    g_assert_cmpint (uni_read_exiv2_to_cache (fixture->with_exif), ==, 0);
-    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif, TRUE), ==, 0);
+    g_assert_true (copy_metadata (fixture->with_exif, fixture->without_exif, TRUE));
 
     g_assert_cmpint (test_get_orientation (fixture->without_exif), ==, 1);
     xmp_orientation = read_xmp_orientation (fixture->without_exif);
@@ -198,12 +218,11 @@ test_cache_resets_orientation (Fixture *fixture, gconstpointer user_data)
 
 /* An image that is upright already keeps its thumbnail */
 static void
-test_cache_reset_upright (Fixture *fixture, gconstpointer user_data)
+test_copy_reset_upright (Fixture *fixture, gconstpointer user_data)
 {
     test_set_orientation (fixture->with_exif, 1);
 
-    g_assert_cmpint (uni_read_exiv2_to_cache (fixture->with_exif), ==, 0);
-    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif, TRUE), ==, 0);
+    g_assert_true (copy_metadata (fixture->with_exif, fixture->without_exif, TRUE));
 
     g_assert_cmpint (test_get_orientation (fixture->without_exif), ==, 1);
     g_assert_true (has_thumbnail (fixture->without_exif));
@@ -211,17 +230,26 @@ test_cache_reset_upright (Fixture *fixture, gconstpointer user_data)
 
 /* No orientation is added to an image that had none */
 static void
-test_cache_reset_without_orientation (Fixture *fixture, gconstpointer user_data)
+test_copy_reset_without_orientation (Fixture *fixture, gconstpointer user_data)
 {
-    gchar *copy = g_build_filename (fixture->dir, "copy.jpg", NULL);
+    gchar *copy = test_write_jpeg (fixture->dir, "copy.jpg", 8, 8);
 
-    g_free (test_write_jpeg (fixture->dir, "copy.jpg", 8, 8));
-    g_assert_cmpint (uni_read_exiv2_to_cache (fixture->without_exif), ==, 0);
-    g_assert_cmpint (uni_write_exiv2_from_cache (copy, TRUE), ==, 0);
+    g_assert_true (copy_metadata (fixture->without_exif, copy, TRUE));
 
     g_assert_cmpint (test_get_orientation (copy), ==, -1);
 
     g_free (copy);
+}
+
+/* Nothing to copy from a file exiv2 can't read */
+static void
+test_copy_from_non_image (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *text = test_write_text (fixture->dir, "notes.txt", "not an image\n");
+
+    g_assert_false (copy_metadata (text, fixture->without_exif, FALSE));
+
+    g_free (text);
 }
 
 int
@@ -234,10 +262,11 @@ main (int argc, char *argv[])
 
     ADD ("/exiv2/map", test_map);
     ADD ("/exiv2/map-without-exif", test_map_without_exif);
-    ADD ("/exiv2/cache-copies-metadata", test_cache_copies_metadata);
-    ADD ("/exiv2/cache-resets-orientation", test_cache_resets_orientation);
-    ADD ("/exiv2/cache-reset-upright", test_cache_reset_upright);
-    ADD ("/exiv2/cache-reset-without-orientation", test_cache_reset_without_orientation);
+    ADD ("/exiv2/copy-metadata", test_copy_metadata);
+    ADD ("/exiv2/copy-resets-orientation", test_copy_resets_orientation);
+    ADD ("/exiv2/copy-reset-upright", test_copy_reset_upright);
+    ADD ("/exiv2/copy-reset-without-orientation", test_copy_reset_without_orientation);
+    ADD ("/exiv2/copy-from-non-image", test_copy_from_non_image);
 
     return g_test_run ();
 }

@@ -87,8 +87,6 @@ static IptcDataDictionary iptcDataDictionary[] = {
     #endif
 #endif
 
-static std::unique_ptr<Exiv2::Image> cached_image;
-
 extern "C"
 void
 uni_read_exiv2_map(const char *uri, void (*callback)(const char*, const char*, void*), void *user_data)
@@ -145,31 +143,6 @@ uni_read_exiv2_map(const char *uri, void (*callback)(const char*, const char*, v
     }
 }
 
-extern "C"
-int
-uni_read_exiv2_to_cache(const char *uri)
-{
-    Exiv2::LogMsg::setLevel(Exiv2::LogMsg::mute);
-
-    if (cached_image != nullptr) {
-        cached_image->clearMetadata();
-        cached_image.reset(nullptr);
-    }
-
-    try {
-        cached_image = Exiv2::ImageFactory::open(uri);
-        if (cached_image == nullptr) {
-            return 1;
-        }
-
-        cached_image->readMetadata();
-    } catch (EXIV_ERROR& e) {
-        std::cerr << "Exiv2: '" << e << "'\n";
-    }
-
-    return 0;
-}
-
 /* Marks @image as upright. The embedded thumbnail is dropped too: it
  * still has the old orientation, which nothing would apply to it now. */
 static void
@@ -190,34 +163,50 @@ reset_orientation(Exiv2::Image &image)
 }
 
 extern "C"
-int
-uni_write_exiv2_from_cache(const char *uri, int reset_orientation_tag)
+unsigned char *
+uni_exiv2_copy_metadata(const char *source_path,
+                        const unsigned char *data, size_t length,
+                        int reset_orientation_tag,
+                        size_t *result_length)
 {
     Exiv2::LogMsg::setLevel(Exiv2::LogMsg::mute);
 
-    if (cached_image == nullptr) {
-        return 1;
-    }
-
     try {
-        std::unique_ptr<Exiv2::Image> image = Exiv2::ImageFactory::open(uri);
-        if (image == nullptr) {
-            return 2;
+        auto source = Exiv2::ImageFactory::open(source_path);
+        if (source == nullptr) {
+            return NULL;
         }
+        source->readMetadata();
 
-        image->setMetadata( *cached_image );
+        auto image = Exiv2::ImageFactory::open(data, length);
+        if (image == nullptr) {
+            return NULL;
+        }
+        image->setMetadata(*source);
         if (reset_orientation_tag) {
             reset_orientation(*image);
         }
         image->writeMetadata();
 
-        cached_image->clearMetadata();
-        cached_image.reset(nullptr);
+        /* The image was written into its in-memory source */
+        Exiv2::BasicIo &io = image->io();
+        if (io.open() != 0) {
+            return NULL;
+        }
+        size_t size = (size_t) io.size();
+        unsigned char *result = (unsigned char *) g_malloc(size);
+        if ((size_t) io.read(result, size) != size) {
+            io.close();
+            g_free(result);
+            return NULL;
+        }
+        io.close();
 
-        return 0;
+        *result_length = size;
+        return result;
     } catch (EXIV_ERROR& e) {
         std::cerr << "Exiv2: '" << e << "'\n";
     }
 
-    return 0;
+    return NULL;
 }

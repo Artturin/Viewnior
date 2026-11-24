@@ -19,6 +19,8 @@
  * xvfb-run, and skips them when it isn't installed. */
 
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
 #include "vnr-window.h"
@@ -603,6 +605,95 @@ test_save_disabled_unwritable (Fixture *fixture, gconstpointer user_data)
     g_free (dir);
 }
 
+/* A save that fails must leave the original as it was, not truncated or
+ * deleted */
+static void
+test_save_failed_keeps_original (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = test_write_jpeg (dir, "photo.jpg", SMALL_W, SMALL_H);
+    gchar *before;
+    gchar *after;
+    gsize before_length;
+    gsize after_length;
+    GError *error = NULL;
+
+    g_file_get_contents (path, &before, &before_length, &error);
+    g_assert_no_error (error);
+    open_and_show (fixture, path);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    /* Encoding fails, as with an encoder error or a full disk */
+    g_free (fixture->window->writable_format_name);
+    fixture->window->writable_format_name = g_strdup ("no-such-format");
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_file_get_contents (path, &after, &after_length, &error);
+    g_assert_no_error (error);
+    g_assert_cmpmem (after, after_length, before, before_length);
+    g_assert_true (gtk_widget_get_visible (fixture->window->msg_area));
+
+    g_free (after);
+    g_free (before);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* Saving replaces the file's contents but keeps its permissions */
+static void
+test_save_keeps_permissions (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = test_write_jpeg (dir, "photo.jpg", SMALL_W, SMALL_H);
+    GStatBuf st;
+
+    g_assert_cmpint (g_chmod (path, 0640), ==, 0);
+    open_and_show (fixture, path);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_assert_cmpint (g_stat (path, &st), ==, 0);
+    g_assert_cmpint (st.st_mode & 07777, ==, 0640);
+    g_assert_false (gtk_action_is_sensitive (find_action (fixture->window, "FileSave")));
+
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* Saving an image opened through a symbolic link changes the image the
+ * link points at, and keeps the link */
+static void
+test_save_through_symlink (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *target = test_write_jpeg (dir, "photo.jpg", SMALL_W, SMALL_H);
+    gchar *link = g_build_filename (dir, "link.jpg", NULL);
+    GdkPixbuf *saved;
+    GError *error = NULL;
+    GStatBuf st;
+
+    g_assert_cmpint (symlink ("photo.jpg", link), ==, 0);
+    open_and_show (fixture, link);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+    gtk_action_activate (find_action (fixture->window, "FileSave"));
+
+    g_assert_cmpint (g_lstat (link, &st), ==, 0);
+    g_assert_true (S_ISLNK (st.st_mode));
+    saved = gdk_pixbuf_new_from_file (target, &error);
+    g_assert_no_error (error);
+    g_assert_cmpint (gdk_pixbuf_get_width (saved), ==, SMALL_H);
+
+    g_object_unref (saved);
+    g_free (link);
+    g_free (target);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 /* An image Viewnior can't write is left alone, metadata too: its pixels
  * on disk are still the unturned ones */
 static void
@@ -716,6 +807,9 @@ main (int argc, char *argv[])
     ADD_EMPTY ("/window/edit/save-after-failed-open", test_save_after_failed_open);
     ADD_EMPTY ("/window/edit/save-disabled-unwritable", test_save_disabled_unwritable);
     ADD_EMPTY ("/window/edit/save-unwritable", test_save_unwritable);
+    ADD_EMPTY ("/window/edit/save-failed-keeps-original", test_save_failed_keeps_original);
+    ADD_EMPTY ("/window/edit/save-keeps-permissions", test_save_keeps_permissions);
+    ADD_EMPTY ("/window/edit/save-through-symlink", test_save_through_symlink);
 
     result = g_test_run ();
 
