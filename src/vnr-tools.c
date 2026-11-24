@@ -184,3 +184,16 @@ vnr_tools_apply_embedded_orientation (GdkPixbufAnimation **anim)
 
     *anim = GDK_PIXBUF_ANIMATION(s_anim);
 }
+
+/* "key-press-event" handler that hides the window on Escape */
+gboolean
+vnr_tools_hide_on_escape_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+{
+    if(event->keyval == GDK_KEY_Escape)
+    {
+        gtk_widget_hide(widget);
+        return TRUE;
+    }
+    else
+        return FALSE;
+}

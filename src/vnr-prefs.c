@@ -24,6 +24,7 @@
 #include "config.h"
 #include "vnr-prefs.h"
 #include "vnr-window.h"
+#include "vnr-tools.h"
 
 #define UI_PATH PACKAGE_DATA_DIR"/viewnior/vnr-preferences-dialog.ui"
 
@@ -145,18 +146,6 @@ change_spin_value_cb (GtkSpinButton *spinbutton, gpointer user_data)
     VNR_PREFS(user_data)->slideshow_timeout = new_value;
     vnr_prefs_save(VNR_PREFS(user_data));
     vnr_window_apply_preferences(VNR_WINDOW(VNR_PREFS(user_data)->vnr_win));
-}
-
-static gboolean
-key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
-{
-    if(event->keyval == GDK_KEY_Escape)
-    {
-        gtk_widget_hide(widget);
-        return TRUE;
-    }
-    else
-        return FALSE;
 }
 
 /*************************************************************/
@@ -352,7 +341,8 @@ build_dialog (VnrPrefs *prefs)
     /* Window signals */
     g_signal_connect(G_OBJECT(window), "delete-event",
                      G_CALLBACK(gtk_widget_hide_on_delete), NULL);
-    g_signal_connect(G_OBJECT(window), "key-press-event", G_CALLBACK(key_press_cb), NULL);
+    g_signal_connect(G_OBJECT(window), "key-press-event",
+                     G_CALLBACK(vnr_tools_hide_on_escape_cb), NULL);
 
 
     g_object_unref (G_OBJECT (builder));
