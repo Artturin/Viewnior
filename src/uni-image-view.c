@@ -1012,37 +1012,43 @@ uni_image_view_scroll_event (GtkWidget * widget, GdkEventScroll * ev)
     return TRUE;
 }
 
+/* Replace the adjustment in @slot with @adj, or with nothing if @adj is
+ * NULL, and call @value_changed when the value of @adj changes. */
+static void
+uni_image_view_replace_adjustment (UniImageView * view,
+                                   GtkAdjustment ** slot,
+                                   GtkAdjustment * adj,
+                                   GCallback value_changed)
+{
+    if (*slot == adj)
+        return;
+
+    if (*slot)
+    {
+        g_signal_handlers_disconnect_by_data (G_OBJECT (*slot), view);
+        g_object_unref (*slot);
+    }
+
+    *slot = adj;
+
+    if (adj)
+    {
+        g_signal_connect (adj, "value_changed", value_changed, view);
+        g_object_ref_sink (adj);
+    }
+}
+
 static void
 uni_image_view_set_scroll_adjustments (UniImageView * view,
                                        GtkAdjustment * hadj,
                                        GtkAdjustment * vadj)
 {
-    if (hadj && (view->priv->hadjustment != hadj))
-    {
-        if (view->priv->hadjustment)
-        {
-            g_signal_handlers_disconnect_by_data (G_OBJECT (view->priv->hadjustment), view);
-            g_object_unref (view->priv->hadjustment);
-        }
-        g_signal_connect (hadj,
-                          "value_changed",
-                          G_CALLBACK(uni_image_view_hadj_changed_cb), view);
-        view->priv->hadjustment = hadj;
-        g_object_ref_sink (view->priv->hadjustment);
-    }
-    if (vadj && (view->priv->vadjustment != vadj))
-    {
-        if (view->priv->vadjustment)
-        {
-            g_signal_handlers_disconnect_by_data (G_OBJECT (view->priv->vadjustment), view);
-            g_object_unref (view->priv->vadjustment);
-        }
-        g_signal_connect (vadj,
-                          "value_changed",
-                          G_CALLBACK(uni_image_view_vadj_changed_cb), view);
-        view->priv->vadjustment = vadj;
-        g_object_ref_sink (view->priv->vadjustment);
-    }
+    if (hadj)
+        uni_image_view_replace_adjustment (view, &view->priv->hadjustment, hadj,
+                                           G_CALLBACK (uni_image_view_hadj_changed_cb));
+    if (vadj)
+        uni_image_view_replace_adjustment (view, &view->priv->vadjustment, vadj,
+                                           G_CALLBACK (uni_image_view_vadj_changed_cb));
 }
 
 
@@ -1079,18 +1085,8 @@ static void
 uni_image_view_finalize (GObject * object)
 {
     UniImageView *view = UNI_IMAGE_VIEW (object);
-    if (view->priv->hadjustment)
-    {
-        g_signal_handlers_disconnect_by_data (G_OBJECT (view->priv->hadjustment), view);
-        g_object_unref (view->priv->hadjustment);
-        view->priv->hadjustment = NULL;
-    }
-    if (view->priv->vadjustment)
-    {
-        g_signal_handlers_disconnect_by_data (G_OBJECT (view->priv->vadjustment), view);
-        g_object_unref (view->priv->vadjustment);
-        view->priv->vadjustment = NULL;
-    }
+    uni_image_view_replace_adjustment (view, &view->priv->hadjustment, NULL, NULL);
+    uni_image_view_replace_adjustment (view, &view->priv->vadjustment, NULL, NULL);
     if (view->pixbuf)
     {
         g_object_unref (view->pixbuf);
