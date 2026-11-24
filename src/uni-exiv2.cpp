@@ -177,7 +177,7 @@ reset_orientation(Exiv2::Image &image)
 {
     Exiv2::ExifData &exif = image.exifData();
     auto pos = exif.findKey(Exiv2::ExifKey("Exif.Image.Orientation"));
-    if (pos != exif.end()) {
+    if (pos != exif.end() && pos->toString() != "1") {
         pos->setValue("1");
         Exiv2::ExifThumb(exif).erase();
     }

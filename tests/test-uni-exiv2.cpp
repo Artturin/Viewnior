@@ -196,6 +196,19 @@ test_cache_resets_orientation (Fixture *fixture, gconstpointer user_data)
     g_free (make);
 }
 
+/* An image that is upright already keeps its thumbnail */
+static void
+test_cache_reset_upright (Fixture *fixture, gconstpointer user_data)
+{
+    test_set_orientation (fixture->with_exif, 1);
+
+    g_assert_cmpint (uni_read_exiv2_to_cache (fixture->with_exif), ==, 0);
+    g_assert_cmpint (uni_write_exiv2_from_cache (fixture->without_exif, TRUE), ==, 0);
+
+    g_assert_cmpint (test_get_orientation (fixture->without_exif), ==, 1);
+    g_assert_true (has_thumbnail (fixture->without_exif));
+}
+
 /* No orientation is added to an image that had none */
 static void
 test_cache_reset_without_orientation (Fixture *fixture, gconstpointer user_data)
@@ -223,6 +236,7 @@ main (int argc, char *argv[])
     ADD ("/exiv2/map-without-exif", test_map_without_exif);
     ADD ("/exiv2/cache-copies-metadata", test_cache_copies_metadata);
     ADD ("/exiv2/cache-resets-orientation", test_cache_resets_orientation);
+    ADD ("/exiv2/cache-reset-upright", test_cache_reset_upright);
     ADD ("/exiv2/cache-reset-without-orientation", test_cache_reset_without_orientation);
 
     return g_test_run ();
