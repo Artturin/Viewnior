@@ -13,10 +13,11 @@ mime_prefix = dependency('shared-mime-info').get_pkgconfig_variable('prefix')
 test_env.prepend('XDG_DATA_DIRS', join_paths(mime_prefix, 'share'))
 test_env.set('GSETTINGS_BACKEND', 'memory')
 
-foreach name : ['vnr-tools', 'vnr-file']
+foreach source : ['vnr-tools.c', 'vnr-file.c', 'uni-exiv2.cpp']
+  name = source.split('.')[0]
   exe = executable(
     'test-' + name,
-    'test-' + name + '.c',
+    'test-' + source,
     dependencies: test_deps,
     link_with: test_helpers
   )
