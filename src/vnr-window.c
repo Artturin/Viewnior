@@ -821,48 +821,42 @@ deny_slideshow(VnrWindow *window)
     gtk_widget_set_sensitive(window->toggle_btn, FALSE);
 }
 
-static void
-rotate_pixbuf(VnrWindow *window, GdkPixbufRotation angle)
+/* Show @result, an edited copy of the current image, in its place.
+ * Takes ownership of @result, which is NULL when the edit ran out of
+ * memory. Returns FALSE in that case. */
+static gboolean
+vnr_window_show_edited(VnrWindow *window, GdkPixbuf *result)
 {
-    GdkPixbuf *result;
-
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
-
-    /* Stop slideshow while editing the image */
-    stop_slideshow(window);
-
-    result = gdk_pixbuf_rotate_simple(UNI_IMAGE_VIEW(window->view)->pixbuf,
-                                      angle);
-
     if(result == NULL)
     {
         vnr_message_area_show(VNR_MESSAGE_AREA(window->msg_area),
                               TRUE, _("Not enough virtual memory."),
                               FALSE);
-        return;
+        return FALSE;
     }
 
     uni_anim_view_set_static(UNI_ANIM_VIEW(window->view), result);
 
-    if(!window->cursor_is_hidden)
-        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
-    g_object_unref(result);
-
     window->current_image_width = gdk_pixbuf_get_width (result);
     window->current_image_height = gdk_pixbuf_get_height (result);
+    g_object_unref(result);
 
     if(gtk_widget_get_visible(window->props_dlg))
         vnr_properties_dialog_update_image(VNR_PROPERTIES_DIALOG(window->props_dlg));
 
-    /* Extra conditions. Rotating 180 degrees is also flipping horizontal and vertical */
-    if((window->modifications & (4))^((angle==GDK_PIXBUF_ROTATE_CLOCKWISE)<<2))
-        window->modifications ^= 3;
+    return TRUE;
+}
 
-    window->modifications ^= 4;
+/* Call after changing window->modifications. Depending on the
+ * preferences, offers to save the edits, saves them right away or says
+ * that they can't be saved. */
+static void
+vnr_window_image_modified(VnrWindow *window)
+{
     gtk_action_group_set_sensitive(window->action_save, window->modifications);
 
-    if(window->modifications == 0 && window->prefs->behavior_modify != VNR_PREFS_MODIFY_IGNORE)
+    /* The edits cancelled each other out */
+    if(window->modifications == 0)
     {
         vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
         return;
@@ -884,57 +878,49 @@ rotate_pixbuf(VnrWindow *window, GdkPixbufRotation angle)
 }
 
 static void
+rotate_pixbuf(VnrWindow *window, GdkPixbufRotation angle)
+{
+    GdkPixbuf *result;
+
+    /* Stop slideshow while editing the image */
+    stop_slideshow(window);
+
+    if(!window->cursor_is_hidden)
+        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
+    result = gdk_pixbuf_rotate_simple(UNI_IMAGE_VIEW(window->view)->pixbuf,
+                                      angle);
+    if(!window->cursor_is_hidden)
+        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+
+    if(!vnr_window_show_edited(window, result))
+        return;
+
+    /* Extra conditions. Rotating 180 degrees is also flipping horizontal and vertical */
+    if((window->modifications & (4))^((angle==GDK_PIXBUF_ROTATE_CLOCKWISE)<<2))
+        window->modifications ^= 3;
+
+    window->modifications ^= 4;
+    vnr_window_image_modified(window);
+}
+
+static void
 flip_pixbuf(VnrWindow *window, gboolean horizontal)
 {
     GdkPixbuf *result;
 
     if(!window->cursor_is_hidden)
         vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
-
     result = gdk_pixbuf_flip(UNI_IMAGE_VIEW(window->view)->pixbuf,
                              horizontal);
-
-    if(result == NULL)
-    {
-        vnr_message_area_show(VNR_MESSAGE_AREA(window->msg_area),
-                              TRUE, _("Not enough virtual memory."),
-                              FALSE);
-        return;
-    }
-
-    uni_anim_view_set_static(UNI_ANIM_VIEW(window->view), result);
-
-    if(gtk_widget_get_visible(window->props_dlg))
-        vnr_properties_dialog_update_image(VNR_PROPERTIES_DIALOG(window->props_dlg));
-
     if(!window->cursor_is_hidden)
         vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
-    g_object_unref(result);
+
+    if(!vnr_window_show_edited(window, result))
+        return;
 
     /* Extra conditions. Rotating 180 degrees is also flipping horizontal and vertical */
     window->modifications ^= (window->modifications&4)?1+horizontal:2-horizontal;
-
-    gtk_action_group_set_sensitive(window->action_save, window->modifications);
-
-    if(window->modifications == 0)
-    {
-        vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
-        return;
-    }
-
-    if(window->writable_format_name == NULL)
-        vnr_message_area_show(VNR_MESSAGE_AREA(window->msg_area),
-                              TRUE,
-                              _("Image modifications cannot be saved.\nWriting in this format is not supported."),
-                              FALSE);
-    else if(window->prefs->behavior_modify == VNR_PREFS_MODIFY_SAVE)
-        save_image_cb(NULL, window);
-    else if(window->prefs->behavior_modify == VNR_PREFS_MODIFY_ASK)
-        vnr_message_area_show_with_button(VNR_MESSAGE_AREA(window->msg_area),
-                                          FALSE,
-                                          _("Save modifications?\nThis will overwrite the image and may reduce its quality!"),
-                                          FALSE, _("_Save"),
-                                          G_CALLBACK(save_image_cb));
+    vnr_window_image_modified(window);
 }
 
 /*************************************************************/
@@ -1999,32 +1985,13 @@ vnr_window_cmd_crop(GtkAction *action, VnrWindow *window)
     gdk_pixbuf_copy_area((const GdkPixbuf*)original, crop->area.x, crop->area.y,
                          crop->area.width, crop->area.height, cropped, 0, 0);
 
-    uni_anim_view_set_static(UNI_ANIM_VIEW(window->view), cropped);
+    g_object_unref(crop);
 
-    g_object_unref(cropped);
+    if(!vnr_window_show_edited(window, cropped))
+        return;
 
     window->modifications |= 8;
-
-    window->current_image_width = crop->area.width;
-    window->current_image_height = crop->area.height;
-
-    gtk_action_group_set_sensitive(window->action_save, TRUE);
-
-    if(window->writable_format_name == NULL)
-        vnr_message_area_show(VNR_MESSAGE_AREA(window->msg_area),
-                              TRUE,
-                              _("Image modifications cannot be saved.\nWriting in this format is not supported."),
-                              FALSE);
-    else if(window->prefs->behavior_modify == VNR_PREFS_MODIFY_SAVE)
-        save_image_cb(NULL, window);
-    else if(window->prefs->behavior_modify == VNR_PREFS_MODIFY_ASK)
-        vnr_message_area_show_with_button(VNR_MESSAGE_AREA(window->msg_area),
-                                          FALSE,
-                                          _("Save modifications?\nThis will overwrite the image and may reduce its quality!"),
-                                          FALSE, _("_Save"),
-                                          G_CALLBACK(save_image_cb));
-
-    g_object_unref(crop);
+    vnr_window_image_modified(window);
 }
 
 static const GtkActionEntry action_entries_window[] = {
