@@ -495,14 +495,12 @@ msgid "Fit the image to the window"
 msgstr "Sovita kuva ikkunaan"
 
 #: src/vnr-window.c:2068
-#, fuzzy
 msgid "Zoom _50%"
-msgstr "L_oitonna"
+msgstr "Koko _50 %"
 
 #: src/vnr-window.c:2069
-#, fuzzy
 msgid "Show the image at half its normal size"
-msgstr "Näytä kuva normaalikoossa"
+msgstr "Näytä kuva puolet normaalikoosta"
 
 #: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"

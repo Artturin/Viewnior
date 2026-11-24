@@ -490,14 +490,12 @@ msgid "Fit the image to the window"
 msgstr "Prispôsobiť obrázok veľkosti okna"
 
 #: src/vnr-window.c:2068
-#, fuzzy
 msgid "Zoom _50%"
-msgstr "Zm_enšiť"
+msgstr "Zväčšenie _50 %"
 
 #: src/vnr-window.c:2069
-#, fuzzy
 msgid "Show the image at half its normal size"
-msgstr "Zobraziť obrázok v jeho pôvodnej veľkosti"
+msgstr "Zobraziť obrázok v polovici jeho pôvodnej veľkosti"
 
 #: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"

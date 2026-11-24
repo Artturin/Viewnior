@@ -500,14 +500,12 @@ msgid "Fit the image to the window"
 msgstr "Priderinti paveikslo dydį prie lango"
 
 #: src/vnr-window.c:2068
-#, fuzzy
 msgid "Zoom _50%"
-msgstr "_Mažinti"
+msgstr "Mastelis _50 %"
 
 #: src/vnr-window.c:2069
-#, fuzzy
 msgid "Show the image at half its normal size"
-msgstr "Rodyti paveikslą normaliu dydžiu"
+msgstr "Rodyti paveikslą perpus sumažintą"
 
 #: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"

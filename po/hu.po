@@ -494,14 +494,12 @@ msgid "Fit the image to the window"
 msgstr "Kép igazítása az ablakhoz"
 
 #: src/vnr-window.c:2068
-#, fuzzy
 msgid "Zoom _50%"
-msgstr "_Kicsinyítés"
+msgstr "_50%-os nagyítás"
 
 #: src/vnr-window.c:2069
-#, fuzzy
 msgid "Show the image at half its normal size"
-msgstr "Kép megjelenítése rendes méretben"
+msgstr "Kép megjelenítése a rendes méret felében"
 
 #: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"

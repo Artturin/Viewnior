@@ -486,11 +486,11 @@ msgstr ""
 
 #: src/vnr-window.c:2068
 msgid "Zoom _50%"
-msgstr ""
+msgstr "Zum _50%"
 
 #: src/vnr-window.c:2069
 msgid "Show the image at half its normal size"
-msgstr ""
+msgstr "Prikaži sliku u pola normalne veličine"
 
 #: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"

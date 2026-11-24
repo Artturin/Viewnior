@@ -493,14 +493,12 @@ msgid "Fit the image to the window"
 msgstr "圖片符合視窗大小"
 
 #: src/vnr-window.c:2068
-#, fuzzy
 msgid "Zoom _50%"
-msgstr "縮小(_O)"
+msgstr "縮放 50%(_5)"
 
 #: src/vnr-window.c:2069
-#, fuzzy
 msgid "Show the image at half its normal size"
-msgstr "以圖片的正常大小顯示"
+msgstr "以圖片正常大小的一半顯示"
 
 #: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"

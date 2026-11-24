@@ -502,14 +502,12 @@ msgid "Fit the image to the window"
 msgstr "Розмістити зображення цілком у вікні"
 
 #: src/vnr-window.c:2068
-#, fuzzy
 msgid "Zoom _50%"
-msgstr "З_меншити"
+msgstr "Масштаб _50%"
 
 #: src/vnr-window.c:2069
-#, fuzzy
 msgid "Show the image at half its normal size"
-msgstr "Відобразити зображення зі звичайними розмірами"
+msgstr "Відобразити зображення в половину звичайного розміру"
 
 #: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"

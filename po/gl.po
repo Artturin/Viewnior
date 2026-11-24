@@ -497,14 +497,12 @@ msgid "Fit the image to the window"
 msgstr "Axusta a imaxe á xanela"
 
 #: src/vnr-window.c:2068
-#, fuzzy
 msgid "Zoom _50%"
-msgstr "_Reducir"
+msgstr "Zoom ao _50%"
 
 #: src/vnr-window.c:2069
-#, fuzzy
 msgid "Show the image at half its normal size"
-msgstr "Mostrar a imaxe no seu tamaño normal"
+msgstr "Mostrar a imaxe á metade do seu tamaño normal"
 
 #: src/vnr-window.c:2083
 msgid "Rotate _Clockwise"
