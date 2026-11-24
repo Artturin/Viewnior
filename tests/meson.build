@@ -6,11 +6,13 @@ test_helpers = static_library(
 
 test_deps = [libviewnior_dep]
 
-test_env = environment()
 # GIO needs the MIME database to tell images from other files. It isn't
 # on XDG_DATA_DIRS in the Nix build sandbox.
 mime_prefix = dependency('shared-mime-info').get_pkgconfig_variable('prefix')
-test_env.prepend('XDG_DATA_DIRS', join_paths(mime_prefix, 'share'))
+mime_data_dir = join_paths(mime_prefix, 'share')
+
+test_env = environment()
+test_env.prepend('XDG_DATA_DIRS', mime_data_dir)
 test_env.set('GSETTINGS_BACKEND', 'memory')
 
 foreach source : ['vnr-tools.c', 'vnr-file.c', 'uni-exiv2.cpp']
@@ -24,9 +26,12 @@ foreach source : ['vnr-tools.c', 'vnr-file.c', 'uni-exiv2.cpp']
   test(name, exe, env: test_env)
 endforeach
 
-# The window tests need a display. They run on a virtual one when
-# xvfb-run is installed, and skip themselves when there is no display.
-window_env = test_env
+# The window tests need a display. They run on a virtual one from
+# xvfb-run, and are skipped without it rather than opening windows on
+# the user's display.
+window_env = environment()
+window_env.prepend('XDG_DATA_DIRS', mime_data_dir)
+window_env.set('GSETTINGS_BACKEND', 'memory')
 window_env.set('GDK_BACKEND', 'x11')
 window_env.set('NO_AT_BRIDGE', '1')
 
@@ -45,5 +50,7 @@ if xvfb_run.found()
     timeout: 120
   )
 else
-  test('vnr-window', test_window, env: window_env, timeout: 120)
+  message('xvfb-run not found, the window tests will be skipped')
+  window_env.set('VIEWNIOR_TEST_SKIP', 'xvfb-run not found, skipping the window tests')
+  test('vnr-window', test_window, env: window_env)
 endif

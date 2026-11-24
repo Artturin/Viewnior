@@ -16,7 +16,7 @@
  */
 
 /* Tests of the main window. They need a display; meson runs them under
- * xvfb-run when it is installed. */
+ * xvfb-run, and skips them when it isn't installed. */
 
 #include <string.h>
 #include <glib/gstdio.h>
@@ -459,9 +459,19 @@ make_folders (void)
 int
 main (int argc, char *argv[])
 {
-    gchar *home = test_make_tmp_dir ();
+    const gchar *skip = g_getenv ("VIEWNIOR_TEST_SKIP");
+    gchar *home;
     gchar *dir;
     int result;
+
+    /* Set by meson when it can't give the tests a virtual display */
+    if (skip != NULL)
+    {
+        g_printerr ("%s\n", skip);
+        return 77;
+    }
+
+    home = test_make_tmp_dir ();
 
     /* Keep the preferences and keyboard shortcuts the window loads and
      * saves away from the user's own */
