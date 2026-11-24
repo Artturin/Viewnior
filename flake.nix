@@ -14,9 +14,14 @@
           localSystem = system;
           overlays = [
             (_: prev: {
-              viewnior = (prev.viewnior.override { stdenv = prev.clangStdenv; }).overrideAttrs {
+              viewnior = (prev.viewnior.override { stdenv = prev.clangStdenv; }).overrideAttrs (old: {
                 src = prev.nix-gitignore.gitignoreSource [ ] ./.;
-              };
+                doCheck = true;
+                # The window tests run on a virtual display
+                nativeCheckInputs =
+                  (old.nativeCheckInputs or [ ])
+                  ++ prev.lib.optionals prev.stdenv.hostPlatform.isLinux [ prev.xvfb-run ];
+              });
             })
           ];
         };
@@ -32,7 +37,7 @@
           with pkgs;
           mkShell.override { stdenv = pkgs.viewnior.stdenv; } {
             inputsFrom = [ inputs.self.packages."${system}".${name} ];
-            nativeBuildInputs = [ clang-tools ];
+            nativeBuildInputs = [ clang-tools ] ++ lib.optionals stdenv.hostPlatform.isLinux [ xvfb-run ];
             env = {
               CLANGD_FLAGS = "--query-driver=${pkgs.lib.getExe pkgs.viewnior.stdenv.cc}";
             };

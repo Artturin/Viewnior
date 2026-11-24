@@ -1,7 +1,7 @@
 src_inc = include_directories('.')
 
-viewnior_sources = [
-    'main.c',
+# Everything but main(), so that the tests can link against it too
+libviewnior_sources = [
     'vnr-window.c',
     'vnr-window.h',
     'uni-cache.c',
@@ -22,17 +22,29 @@ viewnior_sources = [
 
 marshal = 'uni-marshal'
 
-viewnior_sources += gnome.genmarshal(
+marshal_files = gnome.genmarshal(
   marshal,
   sources: marshal + '.list',
   prefix: 'uni_marshal',
   internal: true
 )
 
+libviewnior = static_library(
+  'viewnior',
+  libviewnior_sources + marshal_files,
+  include_directories: viewnior_include_dirs,
+  dependencies: viewnior_deps
+)
+
+libviewnior_dep = declare_dependency(
+  link_with: libviewnior,
+  include_directories: [viewnior_include_dirs, src_inc],
+  dependencies: viewnior_deps
+)
+
 nautilus = executable(
   'viewnior',
-  viewnior_sources,
-  include_directories: viewnior_include_dirs,
-  dependencies: viewnior_deps,
+  'main.c',
+  dependencies: libviewnior_dep,
   install: true
 )

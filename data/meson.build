@@ -36,7 +36,7 @@ if desktop_file_validate.found()
     'validate-desktop',
     desktop_file_validate,
     args: [
-      desktop.full_path()
+      desktop
     ]
   )
 endif
