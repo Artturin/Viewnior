@@ -99,6 +99,7 @@ const gchar *ui_definition = "<ui>"
       "<menuitem action=\"ViewZoomOut\"/>"
       "<menuitem action=\"ViewZoomNormal\"/>"
       "<menuitem action=\"ViewZoomFit\"/>"
+      "<menuitem action=\"ViewZoom50\"/>"
       "<separator/>"
       "<menuitem name=\"Fullscreen\" action=\"ViewFullscreen\"/>"
       "<menuitem name=\"Slideshow\" action=\"ViewSlideshow\"/>"
@@ -147,6 +148,7 @@ const gchar *ui_definition = "<ui>"
       "<menuitem action=\"ViewZoomOut\"/>"
       "<menuitem action=\"ViewZoomNormal\"/>"
       "<menuitem action=\"ViewZoomFit\"/>"
+      "<menuitem action=\"ViewZoom50\"/>"
       "<separator/>"
       "<menuitem action=\"ViewMenuBar\"/>"
       "<menuitem action=\"ViewToolbar\"/>"
@@ -200,6 +202,7 @@ const gchar *ui_definition = "<ui>"
     "<menuitem action=\"ViewZoomOut\"/>"
     "<menuitem action=\"ViewZoomNormal\"/>"
     "<menuitem action=\"ViewZoomFit\"/>"
+    "<menuitem action=\"ViewZoom50\"/>"
     "<placeholder name=\"WallpaperEntry\"/>"
     "<placeholder name=\"CopyEntry\"/>"
     "<separator/>"
@@ -1284,6 +1287,13 @@ vnr_window_cmd_zoom_out (GtkAction *action, gpointer user_data)
 }
 
 static void
+vnr_window_cmd_zoom_50 (GtkAction *action, gpointer user_data)
+{
+    uni_image_view_set_zoom(UNI_IMAGE_VIEW(VNR_WINDOW(user_data)->view), 0.5);
+    uni_image_view_set_fitting(UNI_IMAGE_VIEW(VNR_WINDOW(user_data)->view), UNI_FITTING_NONE);
+}
+
+static void
 vnr_window_cmd_normal_size (GtkAction *action, gpointer user_data)
 {
     uni_image_view_set_zoom(UNI_IMAGE_VIEW(VNR_WINDOW(user_data)->view), 1);
@@ -1321,6 +1331,17 @@ vnr_window_cmd_prev (GtkAction *action, gpointer user_data)
 }
 
 static void
+vnr_window_resize (VnrWindow *window)
+{
+    gint img_w = window->current_image_width;          /* Width of the pixbuf */
+    gint img_h = window->current_image_height;         /* Height of the pixbuf */
+
+    vnr_tools_fit_to_size (&img_w, &img_h, window->max_width, window->max_height);
+
+    gtk_window_resize (GTK_WINDOW (window), img_w, img_h + get_top_widgets_height(window));
+}
+
+static void
 vnr_window_cmd_resize (GtkToggleAction *action, VnrWindow *window)
 {
     if ( action != NULL && !gtk_toggle_action_get_active(action) ) {
@@ -1328,18 +1349,12 @@ vnr_window_cmd_resize (GtkToggleAction *action, VnrWindow *window)
         return;
     }
 
-    gint img_h, img_w;          /* Width and Height of the pixbuf */
-
-    img_w = window->current_image_width;
-    img_h = window->current_image_height;
-
-    if ( img_w == 0 || img_h == 0 )
+    if ( window->current_image_width == 0 || window->current_image_height == 0 )
         return;
 
     window->prefs->auto_resize = TRUE;
 
-    vnr_tools_fit_to_size (&img_w, &img_h, window->max_width, window->max_height);
-    gtk_window_resize (GTK_WINDOW (window), img_w, img_h + get_top_widgets_height(window));
+    vnr_window_resize (window);
 }
 
 static void
@@ -2089,6 +2104,9 @@ static const GtkActionEntry action_entries_image[] = {
     { "ViewZoomFit", GTK_STOCK_ZOOM_FIT, N_("Best _Fit"), NULL,
       N_("Fit the image to the window"),
       G_CALLBACK (vnr_window_cmd_fit) },
+    { "ViewZoom50", NULL, N_("Zoom _50%"), NULL,
+      N_("Show the image at half its normal size"),
+      G_CALLBACK (vnr_window_cmd_zoom_50) },
     { "ControlEqual", GTK_STOCK_ZOOM_IN, N_("_Zoom In"), "<control>equal",
       N_("Shrink the image"),
       G_CALLBACK (vnr_window_cmd_zoom_in) },
@@ -2261,6 +2279,14 @@ vnr_window_key_press (GtkWidget *widget, GdkEventKey *event)
             if (!(event->state & GDK_CONTROL_MASK)) {
                 vnr_window_cmd_crop(NULL, window);
             }
+            break;
+        case GDK_KEY_r:
+            // ctrl + r is rotate, the bind is added in action_entries_static_image
+            if (event->state & (GDK_CONTROL_MASK | GDK_MOD1_MASK))
+                break;
+            if (toolbar_focus_child != NULL || msg_area_focus_child != NULL)
+                break;
+            result = vnr_window_random(window);
             break;
     }
 
@@ -2705,14 +2731,7 @@ vnr_window_open (VnrWindow * window, gboolean fit_to_screen)
 
     if(fit_to_screen)
     {
-        gint img_h, img_w;          /* Width and Height of the pixbuf */
-
-        img_w = window->current_image_width;
-        img_h = window->current_image_height;
-
-        vnr_tools_fit_to_size (&img_w, &img_h, window->max_width, window->max_height);
-
-        gtk_window_resize (GTK_WINDOW (window), img_w, img_h + get_top_widgets_height(window));
+        vnr_window_resize (window);
     }
 
     last_fit_mode = UNI_IMAGE_VIEW(window->view)->fitting;
@@ -2944,6 +2963,53 @@ vnr_window_last (VnrWindow *window){
     vnr_window_open(window, FALSE);
     if(!window->cursor_is_hidden)
         vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+    return TRUE;
+}
+
+/* Jump to a random image of the collection, never the one being shown. */
+gboolean
+vnr_window_random (VnrWindow *window)
+{
+    GList *first;
+    guint length;
+    gint current;
+    gint pos;
+
+    first = g_list_first(window->file_list);
+    length = g_list_length(first);
+
+    /* There is nothing else to pick with fewer than two images */
+    if (length < 2)
+        return FALSE;
+
+    /* Pick from the other length - 1 images, skipping over the current one */
+    current = g_list_position(first, window->file_list);
+    pos = g_random_int_range(0, length - 1);
+    if (pos >= current)
+        pos++;
+
+    if(vnr_message_area_is_critical(VNR_MESSAGE_AREA(window->msg_area)))
+    {
+        vnr_message_area_hide(VNR_MESSAGE_AREA(window->msg_area));
+    }
+
+    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
+        g_source_remove (window->ss_source_tag);
+
+    window->file_list = g_list_nth(first, pos);
+
+    if(!window->cursor_is_hidden)
+        vnr_window_set_busy_cursor(GTK_WIDGET(window), TRUE);
+
+    vnr_window_open(window, FALSE);
+    if(!window->cursor_is_hidden)
+        vnr_window_set_busy_cursor(GTK_WIDGET(window), FALSE);
+
+    if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
+        window->ss_source_tag = g_timeout_add_seconds (window->ss_timeout,
+                                                       (GSourceFunc)next_image_src,
+                                                       window);
+
     return TRUE;
 }
 
