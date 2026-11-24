@@ -1265,6 +1265,10 @@ uni_image_view_class_init (UniImageViewClass * klass)
                                   "set_zoom", 1, G_TYPE_DOUBLE, 2.0);
     gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_3, 0,
                                   "set_zoom", 1, G_TYPE_DOUBLE, 3.0);
+    gtk_binding_entry_add_signal (binding_set, GDK_KEY_5, 0,
+                                  "set_zoom", 1, G_TYPE_DOUBLE, 5.0);
+    gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_5, 0,
+                                  "set_zoom", 1, G_TYPE_DOUBLE, 5.0);
 
     /* Zoom in */
     gtk_binding_entry_add_signal (binding_set, GDK_KEY_plus, 0, "zoom_in", 0);

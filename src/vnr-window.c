@@ -99,6 +99,7 @@ const gchar *ui_definition = "<ui>"
       "<menuitem action=\"ViewZoomOut\"/>"
       "<menuitem action=\"ViewZoomNormal\"/>"
       "<menuitem action=\"ViewZoomFit\"/>"
+      "<menuitem action=\"ViewZoom50\"/>"
       "<separator/>"
       "<menuitem name=\"Fullscreen\" action=\"ViewFullscreen\"/>"
       "<menuitem name=\"Slideshow\" action=\"ViewSlideshow\"/>"
@@ -147,6 +148,7 @@ const gchar *ui_definition = "<ui>"
       "<menuitem action=\"ViewZoomOut\"/>"
       "<menuitem action=\"ViewZoomNormal\"/>"
       "<menuitem action=\"ViewZoomFit\"/>"
+      "<menuitem action=\"ViewZoom50\"/>"
       "<separator/>"
       "<menuitem action=\"ViewMenuBar\"/>"
       "<menuitem action=\"ViewToolbar\"/>"
@@ -200,6 +202,7 @@ const gchar *ui_definition = "<ui>"
     "<menuitem action=\"ViewZoomOut\"/>"
     "<menuitem action=\"ViewZoomNormal\"/>"
     "<menuitem action=\"ViewZoomFit\"/>"
+    "<menuitem action=\"ViewZoom50\"/>"
     "<placeholder name=\"WallpaperEntry\"/>"
     "<placeholder name=\"CopyEntry\"/>"
     "<separator/>"
@@ -1284,6 +1287,13 @@ vnr_window_cmd_zoom_out (GtkAction *action, gpointer user_data)
 }
 
 static void
+vnr_window_cmd_zoom_50 (GtkAction *action, gpointer user_data)
+{
+    uni_image_view_set_zoom(UNI_IMAGE_VIEW(VNR_WINDOW(user_data)->view), 0.5);
+    uni_image_view_set_fitting(UNI_IMAGE_VIEW(VNR_WINDOW(user_data)->view), UNI_FITTING_NONE);
+}
+
+static void
 vnr_window_cmd_normal_size (GtkAction *action, gpointer user_data)
 {
     uni_image_view_set_zoom(UNI_IMAGE_VIEW(VNR_WINDOW(user_data)->view), 1);
@@ -2094,6 +2104,9 @@ static const GtkActionEntry action_entries_image[] = {
     { "ViewZoomFit", GTK_STOCK_ZOOM_FIT, N_("Best _Fit"), NULL,
       N_("Fit the image to the window"),
       G_CALLBACK (vnr_window_cmd_fit) },
+    { "ViewZoom50", NULL, N_("Zoom _50%"), NULL,
+      N_("Show the image at half its normal size"),
+      G_CALLBACK (vnr_window_cmd_zoom_50) },
     { "ControlEqual", GTK_STOCK_ZOOM_IN, N_("_Zoom In"), "<control>equal",
       N_("Shrink the image"),
       G_CALLBACK (vnr_window_cmd_zoom_in) },
