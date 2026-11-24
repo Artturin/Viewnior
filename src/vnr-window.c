@@ -1086,7 +1086,7 @@ save_image_cb (GtkWidget *widget, VnrWindow *window)
         /* The pixels have the orientation applied already, if gdk-pixbuf
          * found one: don't let the copied tag rotate them again. Without
          * metadata if exiv2 can't copy it, as before. */
-        with_metadata = uni_exiv2_copy_metadata(path, (const guchar *) buffer, length,
+        with_metadata = uni_exiv2_copy_metadata(path, (guchar *) buffer, length,
                                                 window->orientation_applied,
                                                 &with_metadata_length);
         if(with_metadata != NULL)

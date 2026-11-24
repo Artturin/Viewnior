@@ -36,11 +36,12 @@ void    uni_read_exiv2_map          (const char *uri,
 /* Copies the metadata of the image file at @source_path onto the image
  * encoded in @data, for saving an edited image. Returns the result as a
  * new buffer to free with g_free(), and its length in @result_length, or
- * NULL if exiv2 can't read either image or write the result. If the
- * edited pixels already have the EXIF orientation applied, pass TRUE for
- * @reset_orientation_tag so viewers don't apply it a second time. */
+ * NULL if exiv2 can't read either image or write the result. exiv2 may
+ * write into @data while it works. If the edited pixels already have the
+ * EXIF orientation applied, pass TRUE for @reset_orientation_tag so
+ * viewers don't apply it a second time. */
 unsigned char *uni_exiv2_copy_metadata (const char *source_path,
-                                        const unsigned char *data, size_t length,
+                                        unsigned char *data, size_t length,
                                         int reset_orientation_tag,
                                         size_t *result_length);
 

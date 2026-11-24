@@ -159,7 +159,7 @@ copy_metadata (const gchar *source, const gchar *target, gboolean reset_orientat
 
     g_file_get_contents (target, &data, &length, &error);
     g_assert_no_error (error);
-    result = uni_exiv2_copy_metadata (source, (const unsigned char *) data, length,
+    result = uni_exiv2_copy_metadata (source, (unsigned char *) data, length,
                                       reset_orientation, &result_length);
     g_free (data);
     if (result == NULL)

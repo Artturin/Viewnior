@@ -21,6 +21,7 @@
  */
 
 #include <exiv2/exiv2.hpp>
+#include <exception>
 #include <iostream>
 #include <memory>
 
@@ -140,6 +141,12 @@ uni_read_exiv2_map(const char *uri, void (*callback)(const char*, const char*, v
         }
     } catch (EXIV_ERROR& e) {
         std::cerr << "Exiv2: '" << e << "'\n";
+    } catch (const std::exception& e) {
+        /* Such as std::bad_alloc, or std::overflow_error from corrupt
+         * metadata. Nothing may be thrown into the C code. */
+        std::cerr << "Exiv2: '" << e.what() << "'\n";
+    } catch (...) {
+        std::cerr << "Exiv2: unknown error\n";
     }
 }
 
@@ -165,7 +172,7 @@ reset_orientation(Exiv2::Image &image)
 extern "C"
 unsigned char *
 uni_exiv2_copy_metadata(const char *source_path,
-                        const unsigned char *data, size_t length,
+                        unsigned char *data, size_t length,
                         int reset_orientation_tag,
                         size_t *result_length)
 {
@@ -206,6 +213,12 @@ uni_exiv2_copy_metadata(const char *source_path,
         return result;
     } catch (EXIV_ERROR& e) {
         std::cerr << "Exiv2: '" << e << "'\n";
+    } catch (const std::exception& e) {
+        /* Such as std::bad_alloc, or std::overflow_error from corrupt
+         * metadata. Nothing may be thrown into the C code. */
+        std::cerr << "Exiv2: '" << e.what() << "'\n";
+    } catch (...) {
+        std::cerr << "Exiv2: unknown error\n";
     }
 
     return NULL;
