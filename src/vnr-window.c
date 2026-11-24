@@ -870,7 +870,8 @@ vnr_window_show_edited(VnrWindow *window, GdkPixbuf *result)
 static void
 vnr_window_image_modified(VnrWindow *window)
 {
-    gtk_action_group_set_sensitive(window->action_save, window->modifications);
+    gtk_action_group_set_sensitive(window->action_save,
+                                   window->modifications && window->writable_format_name != NULL);
 
     /* The edits cancelled each other out */
     if(window->modifications == 0)

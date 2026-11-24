@@ -481,6 +481,36 @@ test_save_oriented (Fixture *fixture, gconstpointer user_data)
     g_free (dir);
 }
 
+/* gdk-pixbuf reads GIF but can't write it: an edited GIF can't be saved */
+static void
+test_save_disabled_unwritable (Fixture *fixture, gconstpointer user_data)
+{
+    /* A 1x1 GIF */
+    static const guchar gif[] = {
+        'G', 'I', 'F', '8', '9', 'a', 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00,
+        0xff, 0xff, 0xff, 0x00, 0x00, 0x00, ',', 0x00, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x44, 0x01, 0x00, ';'
+    };
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = g_build_filename (dir, "image.gif", NULL);
+    GError *error = NULL;
+
+    g_file_set_contents (path, (const gchar *) gif, sizeof gif, &error);
+    g_assert_no_error (error);
+    open_and_show (fixture, path);
+    g_assert_null (fixture->window->writable_format_name);
+
+    gtk_action_activate (find_action (fixture->window, "ImageRotateCW"));
+
+    g_assert_false (gtk_action_is_sensitive (find_action (fixture->window, "FileSave")));
+    g_assert_cmpstr (message_text (fixture->window), ==,
+                     "Image modifications cannot be saved.\nWriting in this format is not supported.");
+
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 /* An image Viewnior can't write is left alone, metadata too: its pixels
  * on disk are still the unturned ones */
 static void
@@ -590,6 +620,7 @@ main (int argc, char *argv[])
 
     ADD ("/window/edit/rotate", "a.png", test_rotate);
     ADD_EMPTY ("/window/edit/save-oriented", test_save_oriented);
+    ADD_EMPTY ("/window/edit/save-disabled-unwritable", test_save_disabled_unwritable);
     ADD_EMPTY ("/window/edit/save-unwritable", test_save_unwritable);
 
     result = g_test_run ();
