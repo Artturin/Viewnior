@@ -2214,11 +2214,17 @@ vnr_window_key_press (GtkWidget *widget, GdkEventKey *event)
             result = TRUE;
             break;
         case GDK_KEY_Page_Up:
-            vnr_window_cmd_prev (NULL, window);
+            if (event->state & GDK_SHIFT_MASK)
+                vnr_window_jump (window, -VNR_WINDOW_JUMP);
+            else
+                vnr_window_cmd_prev (NULL, window);
             result = TRUE;
             break;
         case GDK_KEY_Page_Down:
-            vnr_window_cmd_next (NULL, window);
+            if (event->state & GDK_SHIFT_MASK)
+                vnr_window_jump (window, VNR_WINDOW_JUMP);
+            else
+                vnr_window_cmd_next (NULL, window);
             result = TRUE;
             break;
         case GDK_KEY_Escape:
@@ -2816,6 +2822,29 @@ vnr_window_prev (VnrWindow *window){
     }
 
     vnr_window_go_to(window, prev, TRUE);
+    return TRUE;
+}
+
+/* Moves @count images forward, or back when @count is negative. Unlike
+ * stepping one image, this stops at the first or last image rather than
+ * wrapping around. Returns FALSE when already there. */
+gboolean
+vnr_window_jump (VnrWindow *window, gint count)
+{
+    GList *target = window->file_list;
+
+    if (target == NULL)
+        return FALSE;
+
+    for (; count > 0 && target->next != NULL; count--)
+        target = target->next;
+    for (; count < 0 && target->prev != NULL; count++)
+        target = target->prev;
+
+    if (target == window->file_list)
+        return FALSE;
+
+    vnr_window_go_to (window, target, TRUE);
     return TRUE;
 }
 
