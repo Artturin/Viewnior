@@ -390,6 +390,99 @@ test_reload_key (Fixture *fixture, gconstpointer user_data)
 /***** Zoom **************************************************/
 /*************************************************************/
 
+/* Sends @event to the image view as if it came from the pointer, and
+ * frees it */
+static void
+send_to_view (Fixture *fixture, GdkEvent *event)
+{
+    GdkDisplay *display = gtk_widget_get_display (GTK_WIDGET (fixture->view));
+    GdkDevice *pointer = gdk_seat_get_pointer (gdk_display_get_default_seat (display));
+
+    gdk_event_set_device (event, pointer);
+    gtk_widget_event (GTK_WIDGET (fixture->view), event);
+    gdk_event_free (event);
+}
+
+static void
+click_view (Fixture *fixture, guint button)
+{
+    GdkEvent *event = gdk_event_new (GDK_BUTTON_PRESS);
+
+    event->button.window = g_object_ref (gtk_widget_get_window (GTK_WIDGET (fixture->view)));
+    event->button.time = GDK_CURRENT_TIME;
+    event->button.button = button;
+    event->button.x = event->button.y = 10;
+    send_to_view (fixture, event);
+}
+
+static void
+scroll_view (Fixture *fixture, GdkScrollDirection direction)
+{
+    GdkEvent *event = gdk_event_new (GDK_SCROLL);
+
+    event->scroll.window = g_object_ref (gtk_widget_get_window (GTK_WIDGET (fixture->view)));
+    event->scroll.time = GDK_CURRENT_TIME;
+    event->scroll.direction = direction;
+    event->scroll.x = event->scroll.y = 10;
+    send_to_view (fixture, event);
+}
+
+/* A middle click swaps the wheel between zooming, the default, and
+ * navigating, until the next middle click */
+static void
+test_middle_click_wheel (Fixture *fixture, gconstpointer user_data)
+{
+    VnrWindow *window = fixture->window;
+    gdouble zoom = fixture->view->zoom;
+
+    g_assert_cmpint (window->prefs->behavior_wheel, ==, VNR_PREFS_WHEEL_ZOOM);
+
+    scroll_view (fixture, GDK_SCROLL_DOWN);
+    assert_current (window, "a.png");
+    g_assert_cmpfloat (fixture->view->zoom, <, zoom);
+
+    click_view (fixture, 2);
+    g_assert_cmpint (vnr_window_get_wheel_behavior (window), ==, VNR_PREFS_WHEEL_NAVIGATE);
+    scroll_view (fixture, GDK_SCROLL_DOWN);
+    assert_current (window, "b.png");
+
+    click_view (fixture, 2);
+    zoom = fixture->view->zoom;
+    scroll_view (fixture, GDK_SCROLL_UP);
+    assert_current (window, "b.png");
+    g_assert_cmpfloat (fixture->view->zoom, >, zoom);
+
+    /* The preference isn't changed, so it isn't saved either */
+    click_view (fixture, 2);
+    g_assert_cmpint (window->prefs->behavior_wheel, ==, VNR_PREFS_WHEEL_ZOOM);
+}
+
+/* When the wheel navigates or scrolls, a middle click makes it zoom */
+static void
+test_middle_click_wheel_other_prefs (Fixture *fixture, gconstpointer user_data)
+{
+    VnrWindow *window = fixture->window;
+    gdouble zoom;
+
+    window->prefs->behavior_wheel = VNR_PREFS_WHEEL_NAVIGATE;
+    scroll_view (fixture, GDK_SCROLL_DOWN);
+    assert_current (window, "b.png");
+
+    click_view (fixture, 2);
+    zoom = fixture->view->zoom;
+    scroll_view (fixture, GDK_SCROLL_UP);
+    assert_current (window, "b.png");
+    g_assert_cmpfloat (fixture->view->zoom, >, zoom);
+    click_view (fixture, 2);
+    g_assert_cmpint (vnr_window_get_wheel_behavior (window), ==, VNR_PREFS_WHEEL_NAVIGATE);
+
+    window->prefs->behavior_wheel = VNR_PREFS_WHEEL_SCROLL;
+    click_view (fixture, 2);
+    g_assert_cmpint (vnr_window_get_wheel_behavior (window), ==, VNR_PREFS_WHEEL_ZOOM);
+    click_view (fixture, 2);
+    g_assert_cmpint (vnr_window_get_wheel_behavior (window), ==, VNR_PREFS_WHEEL_SCROLL);
+}
+
 static void
 test_zoom_keys (Fixture *fixture, gconstpointer user_data)
 {
@@ -729,6 +822,8 @@ main (int argc, char *argv[])
     ADD_EMPTY ("/window/navigation/reload-key", test_reload_key);
 
     ADD ("/window/zoom/keys", "a.png", test_zoom_keys);
+    ADD ("/window/zoom/middle-click-wheel", "a.png", test_middle_click_wheel);
+    ADD ("/window/zoom/middle-click-wheel-other-prefs", "a.png", test_middle_click_wheel_other_prefs);
     ADD ("/window/zoom/steps", "a.png", test_zoom_steps);
     ADD ("/window/zoom/50", "a.png", test_zoom_50);
     ADD ("/window/zoom/smart-fit-large", "big.png", test_smart_fit_large);
