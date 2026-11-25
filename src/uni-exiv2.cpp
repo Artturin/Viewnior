@@ -21,8 +21,10 @@
  */
 
 #include <exiv2/exiv2.hpp>
+#include <cmath>
 #include <iostream>
 #include <memory>
+#include <string>
 
 #include <glib/gi18n.h>
 
@@ -40,6 +42,22 @@
 #endif
 
 typedef Exiv2::ExifData::const_iterator (*ExifDataFinder)(const Exiv2::ExifData& ed);
+
+/* Most cameras record the aperture as an f-number, some only as an APEX
+ * aperture value. exiv2 prints both as an f-number. */
+static Exiv2::ExifData::const_iterator
+findAperture(const Exiv2::ExifData& ed)
+{
+    Exiv2::ExifData::const_iterator pos = Exiv2::fNumber(ed);
+    if (pos != ed.end())
+        return pos;
+#if defined(EXIV2_TEST_VERSION) && EXIV2_TEST_VERSION(0,27,4)
+    return Exiv2::apertureValue(ed);
+#else
+    return ed.findKey(Exiv2::ExifKey("Exif.Photo.ApertureValue"));
+#endif
+}
+
 typedef struct _ExifDataDictionary ExifDataDictionary;
 typedef struct _IptcDataDictionary IptcDataDictionary;
 
@@ -60,7 +78,7 @@ static ExifDataDictionary exifDataDictionary[] = {
     { "Exif.Photo.DateTimeOriginal", N_("Date Taken"), UNI_EXIV2_FINDER_0_27_4(dateTimeOriginal) },
     { "Exif.Photo.ExposureTime", N_("Exposure time"), Exiv2::exposureTime },
     { "Exif.Photo.ExposureMode", N_("Exposure mode"), Exiv2::exposureMode },
-    { "Exif.Photo.ApertureValue", N_("Aperture Value"), UNI_EXIV2_FINDER_0_27_4(apertureValue) },
+    { "Exif.Photo.FNumber", N_("Aperture Value"), findAperture },
     { "Exif.Photo.ISOSpeedRatings", N_("ISO speed"), Exiv2::isoSpeed },
     { "Exif.Photo.Flash", N_("Flash"), UNI_EXIV2_FINDER_0_27_4(flash) },
     { "Exif.Photo.MeteringMode", N_("Metering mode"), Exiv2::meteringMode },
@@ -88,6 +106,42 @@ static IptcDataDictionary iptcDataDictionary[] = {
 #endif
 
 static std::unique_ptr<Exiv2::Image> cached_image;
+
+/* Formats the GPS latitude or longitude under @key, three rationals for
+ * degrees, minutes and seconds, as 52°31'12.0"N, the form map sites
+ * accept. Some writers keep fractional minutes and zero seconds, so the
+ * value is split again from the total. The letter comes from @ref_key. */
+static bool
+format_gps_coordinate(const Exiv2::ExifData& ed, const char *key,
+                      const char *ref_key, std::string& out)
+{
+    static const double divisors[] = { 1, 60, 3600 };
+    Exiv2::ExifData::const_iterator pos = ed.findKey(Exiv2::ExifKey(key));
+    double degrees = 0;
+
+    if (pos == ed.end() || pos->count() != 3)
+        return false;
+
+    for (int i = 0; i < 3; i++) {
+        Exiv2::Rational r = pos->toRational(i);
+        if (r.second == 0 || r.first < 0 || r.second < 0)
+            return false;
+        degrees += (double) r.first / r.second / divisors[i];
+    }
+
+    /* In tenths of a second, so rounding can carry into the minutes and
+     * degrees, and no locale's decimal comma gets in */
+    long tenths = lround(degrees * 36000);
+    gchar *text = g_strdup_printf("%ld°%ld'%ld.%ld\"", tenths / 36000,
+                                  tenths / 600 % 60, tenths / 10 % 60, tenths % 10);
+    out = text;
+    g_free(text);
+
+    Exiv2::ExifData::const_iterator ref = ed.findKey(Exiv2::ExifKey(ref_key));
+    if (ref != ed.end())
+        out += ref->toString();
+    return true;
+}
 
 extern "C"
 void
@@ -119,6 +173,14 @@ uni_read_exiv2_map(const char *uri, void (*callback)(const char*, const char*, v
                 if ( pos != exifData.end() ) {
                     callback(_(dict.label), pos->print(&exifData).c_str(), user_data);
                 }
+            }
+
+            std::string latitude, longitude;
+            if ( format_gps_coordinate(exifData, "Exif.GPSInfo.GPSLatitude",
+                                       "Exif.GPSInfo.GPSLatitudeRef", latitude)
+                 && format_gps_coordinate(exifData, "Exif.GPSInfo.GPSLongitude",
+                                          "Exif.GPSInfo.GPSLongitudeRef", longitude) ) {
+                callback(_("GPS coordinates"), (latitude + " " + longitude).c_str(), user_data);
             }
         }
 

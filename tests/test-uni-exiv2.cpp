@@ -136,6 +136,128 @@ test_map (Fixture *fixture, gconstpointer user_data)
     g_hash_table_unref (map);
 }
 
+/* Sets each EXIF key in the NULL-terminated @tags, key and value in turn,
+ * on @path. Values are parsed as the key's type, "28/10" for a rational. */
+static void
+write_tags (const gchar *path, const gchar *const *tags)
+{
+    auto image = Exiv2::ImageFactory::open (path);
+    image->readMetadata ();
+
+    for (; tags[0] != NULL; tags += 2)
+        image->exifData ()[tags[0]] = std::string (tags[1]);
+    image->writeMetadata ();
+}
+
+/* The value shown under @label for @path with @tags, or NULL */
+static gchar *
+map_value (const gchar *path, const gchar *const *tags, const gchar *label)
+{
+    GHashTable *map;
+    gchar *value;
+
+    write_tags (path, tags);
+    map = read_map (path);
+    value = g_strdup ((const gchar *) g_hash_table_lookup (map, label));
+    g_hash_table_unref (map);
+    return value;
+}
+
+static void
+test_map_aperture (Fixture *fixture, gconstpointer user_data)
+{
+    static const gchar *const f_number[] = { "Exif.Photo.FNumber", "28/10", NULL };
+    /* APEX 3 is f/2.8 */
+    static const gchar *const apex[] = { "Exif.Photo.ApertureValue", "3/1", NULL };
+    gchar *dir = test_make_tmp_dir ();
+    gchar *apex_only = test_write_jpeg (dir, "apex.jpg", 8, 8);
+    gchar *value;
+
+    value = map_value (fixture->without_exif, f_number, "Aperture Value");
+    g_assert_cmpstr (value, ==, "F2.8");
+    g_free (value);
+
+    value = map_value (apex_only, apex, "Aperture Value");
+    g_assert_cmpstr (value, ==, "F2.8");
+    g_free (value);
+
+    g_free (apex_only);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+static void
+test_map_gps (Fixture *fixture, gconstpointer user_data)
+{
+    static const gchar *const tags[] = {
+        "Exif.GPSInfo.GPSLatitude", "52/1 31/1 1234/100",
+        "Exif.GPSInfo.GPSLatitudeRef", "N",
+        "Exif.GPSInfo.GPSLongitude", "13/1 24/1 36/1",
+        "Exif.GPSInfo.GPSLongitudeRef", "E",
+        NULL
+    };
+    gchar *value = map_value (fixture->without_exif, tags, "GPS coordinates");
+
+    g_assert_cmpstr (value, ==, "52°31'12.3\"N 13°24'36.0\"E");
+    g_free (value);
+}
+
+/* Some writers keep fractional minutes and zero seconds */
+static void
+test_map_gps_fractional_minutes (Fixture *fixture, gconstpointer user_data)
+{
+    static const gchar *const tags[] = {
+        "Exif.GPSInfo.GPSLatitude", "33/1 5162/100 0/1",
+        "Exif.GPSInfo.GPSLatitudeRef", "S",
+        "Exif.GPSInfo.GPSLongitude", "151/1 1263/100 0/1",
+        "Exif.GPSInfo.GPSLongitudeRef", "E",
+        NULL
+    };
+    gchar *value = map_value (fixture->without_exif, tags, "GPS coordinates");
+
+    g_assert_cmpstr (value, ==, "33°51'37.2\"S 151°12'37.8\"E");
+    g_free (value);
+}
+
+/* Seconds that round up to 60 carry into the minutes and degrees */
+static void
+test_map_gps_rounding (Fixture *fixture, gconstpointer user_data)
+{
+    static const gchar *const tags[] = {
+        "Exif.GPSInfo.GPSLatitude", "10/1 59/1 5996/100",
+        "Exif.GPSInfo.GPSLatitudeRef", "N",
+        "Exif.GPSInfo.GPSLongitude", "0/1 0/1 0/1",
+        "Exif.GPSInfo.GPSLongitudeRef", "W",
+        NULL
+    };
+    gchar *value = map_value (fixture->without_exif, tags, "GPS coordinates");
+
+    g_assert_cmpstr (value, ==, "11°0'0.0\"N 0°0'0.0\"W");
+    g_free (value);
+}
+
+/* A latitude alone, or a coordinate with a zero denominator, is not shown */
+static void
+test_map_gps_incomplete (Fixture *fixture, gconstpointer user_data)
+{
+    static const gchar *const latitude_only[] = {
+        "Exif.GPSInfo.GPSLatitude", "52/1 31/1 12/1",
+        "Exif.GPSInfo.GPSLatitudeRef", "N",
+        NULL
+    };
+    static const gchar *const broken[] = {
+        "Exif.GPSInfo.GPSLongitude", "13/1 24/0 36/1",
+        NULL
+    };
+    gchar *value;
+
+    value = map_value (fixture->without_exif, latitude_only, "GPS coordinates");
+    g_assert_null (value);
+
+    value = map_value (fixture->without_exif, broken, "GPS coordinates");
+    g_assert_null (value);
+}
+
 static void
 test_map_without_exif (Fixture *fixture, gconstpointer user_data)
 {
@@ -234,6 +356,11 @@ main (int argc, char *argv[])
 
     ADD ("/exiv2/map", test_map);
     ADD ("/exiv2/map-without-exif", test_map_without_exif);
+    ADD ("/exiv2/map-aperture", test_map_aperture);
+    ADD ("/exiv2/map-gps", test_map_gps);
+    ADD ("/exiv2/map-gps-fractional-minutes", test_map_gps_fractional_minutes);
+    ADD ("/exiv2/map-gps-rounding", test_map_gps_rounding);
+    ADD ("/exiv2/map-gps-incomplete", test_map_gps_incomplete);
     ADD ("/exiv2/cache-copies-metadata", test_cache_copies_metadata);
     ADD ("/exiv2/cache-resets-orientation", test_cache_resets_orientation);
     ADD ("/exiv2/cache-reset-upright", test_cache_reset_upright);

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: viewnior\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 22:40+0200\n"
+"POT-Creation-Date: 2026-11-25 03:32+0200\n"
 "PO-Revision-Date: 2017-12-03 03:07+0000\n"
 "Last-Translator: Ammuu5 <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "Viewnior"
 msgstr "Viewnior"
 
-#: data/viewnior.desktop.in:3 src/vnr-window.c:1503
+#: data/viewnior.desktop.in:3 src/vnr-window.c:1520
 msgid "Elegant Image Viewer"
 msgstr "Tyylikäs kuvannäyttäjä"
 
@@ -118,7 +118,7 @@ msgid "Saving"
 msgstr "Tallennetaan"
 
 #: data/vnr-preferences-dialog.ui:399 src/vnr-properties-dialog.c:181
-#: src/vnr-window.c:2005
+#: src/vnr-window.c:2022
 msgid "_Close"
 msgstr "_Sulje"
 
@@ -142,7 +142,7 @@ msgstr "Leveys: "
 msgid "Height: "
 msgstr "Korkeus: "
 
-#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2096
+#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2113
 msgid "Crop"
 msgstr "Rajaa"
 
@@ -268,7 +268,7 @@ msgstr "Avaa valittu kuva komennolla ”%s”"
 msgid "Show next image after: "
 msgstr ""
 
-#: src/vnr-window.c:601 src/vnr-window.c:1010
+#: src/vnr-window.c:601 src/vnr-window.c:1011
 msgid " second"
 msgid_plural " seconds"
 msgstr[0] " sekunti"
@@ -278,13 +278,13 @@ msgstr[1] " sekuntia"
 msgid "Not enough virtual memory."
 msgstr "Riittämätön virtuaalimuisti"
 
-#: src/vnr-window.c:885
+#: src/vnr-window.c:886 src/vnr-window.c:1038
 msgid ""
 "Image modifications cannot be saved.\n"
 "Writing in this format is not supported."
 msgstr ""
 
-#: src/vnr-window.c:892
+#: src/vnr-window.c:893
 msgid ""
 "Save modifications?\n"
 "This will overwrite the image and may reduce its quality!"
@@ -292,43 +292,43 @@ msgstr ""
 "Tallennetaanko muutokset?\n"
 "Tämä korvaa kuvan ja voi heikentää sen laatua!"
 
-#: src/vnr-window.c:893 src/vnr-window.c:2017
+#: src/vnr-window.c:894 src/vnr-window.c:2034
 msgid "_Save"
 msgstr "_Tallenna"
 
-#: src/vnr-window.c:1410
+#: src/vnr-window.c:1427
 msgid "Open Folder"
 msgstr "Avaa kansio"
 
-#: src/vnr-window.c:1410
+#: src/vnr-window.c:1427
 msgid "Open Image"
 msgstr "Avaa kuva"
 
-#: src/vnr-window.c:1431
+#: src/vnr-window.c:1448
 msgid "All Images"
 msgstr "Kaikki kuvat"
 
-#: src/vnr-window.c:1437
+#: src/vnr-window.c:1454
 msgid "All Files"
 msgstr "Kaikki tiedostot"
 
-#: src/vnr-window.c:1509
+#: src/vnr-window.c:1526
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Ammuu5 https://launchpad.net/~ammuu5\n"
 "  Kivikauppias https://launchpad.net/~kivikauppias"
 
-#: src/vnr-window.c:1720
+#: src/vnr-window.c:1737
 msgid "Image copied to clipboard."
 msgstr "Kuva kopioitiin leikepöydälle."
 
-#: src/vnr-window.c:1856
+#: src/vnr-window.c:1873
 msgid "If you delete an item, it will be permanently lost."
 msgstr "Jos poistat kohteen, se häviää pysyvästi."
 
 #. I18N: The '%s' is replaced with the name of the file to be deleted.
-#: src/vnr-window.c:1859
+#: src/vnr-window.c:1876
 #, c-format
 msgid ""
 "Are you sure you want to\n"
@@ -337,363 +337,367 @@ msgstr ""
 "Haluatko varmasti poistaa\n"
 "pysyvästi tiedoston \"%s\"?"
 
-#: src/vnr-window.c:1877 src/vnr-window.c:2044 src/vnr-window.c:2053
+#: src/vnr-window.c:1894 src/vnr-window.c:2061 src/vnr-window.c:2070
 msgid "_Delete"
 msgstr "_Poista"
 
-#: src/vnr-window.c:1915 src/vnr-window.c:2286 src/vnr-window.c:2683
+#: src/vnr-window.c:1932 src/vnr-window.c:2303 src/vnr-window.c:2710
 msgid "The given locations contain no images."
 msgstr "Annetuissa paikoissa ei ole kuvia."
 
-#: src/vnr-window.c:1992
+#: src/vnr-window.c:2009
 msgid "_File"
 msgstr "_Tiedosto"
 
-#: src/vnr-window.c:1993
+#: src/vnr-window.c:2010
 msgid "_Edit"
 msgstr "_Muokkaa"
 
-#: src/vnr-window.c:1994
+#: src/vnr-window.c:2011
 msgid "_View"
 msgstr "_Näytä"
 
-#: src/vnr-window.c:1995
+#: src/vnr-window.c:2012
 msgid "_Image"
 msgstr "_Kuva"
 
-#: src/vnr-window.c:1996
+#: src/vnr-window.c:2013
 msgid "_Go"
 msgstr "_Siirry"
 
-#: src/vnr-window.c:1997
+#: src/vnr-window.c:2014
 msgid "_Help"
 msgstr "_Ohje"
 
-#: src/vnr-window.c:1999
+#: src/vnr-window.c:2016
 msgid "Open _Image..."
 msgstr "Avaa _kuva..."
 
-#: src/vnr-window.c:2000
+#: src/vnr-window.c:2017
 msgid "Open an Image"
 msgstr "Avaa kuva"
 
-#: src/vnr-window.c:2002
+#: src/vnr-window.c:2019
 msgid "Open _Folder..."
 msgstr "Avaa _kansio..."
 
-#: src/vnr-window.c:2003
+#: src/vnr-window.c:2020
 msgid "Open a Folder"
 msgstr "Avaa kansio"
 
-#: src/vnr-window.c:2006
+#: src/vnr-window.c:2023
 msgid "Close window"
 msgstr "Sulje ikkuna"
 
-#: src/vnr-window.c:2008
+#: src/vnr-window.c:2025
 msgid "_About"
 msgstr "Tietoj_a"
 
-#: src/vnr-window.c:2009
+#: src/vnr-window.c:2026
 msgid "About this application"
 msgstr "Tietoja tästä sovelluksesta"
 
-#: src/vnr-window.c:2011
+#: src/vnr-window.c:2028
 msgid "_Preferences..."
 msgstr "_Asetukset..."
 
-#: src/vnr-window.c:2012
+#: src/vnr-window.c:2029
 msgid "User preferences for Viewnior"
 msgstr "Käyttäjäasetukset Viewniorille"
 
-#: src/vnr-window.c:2018
+#: src/vnr-window.c:2035
 msgid "Save changes"
 msgstr "Tallenna muutokset"
 
-#: src/vnr-window.c:2023
+#: src/vnr-window.c:2040
 msgid "_Properties"
 msgstr "_Ominaisuudet"
 
-#: src/vnr-window.c:2024
+#: src/vnr-window.c:2041
 msgid "Properties"
 msgstr "Ominaisuudet"
 
-#: src/vnr-window.c:2029
+#: src/vnr-window.c:2046
 msgid "Set as _Wallpaper"
 msgstr "Aseta _taustakuvaksi"
 
-#: src/vnr-window.c:2030
+#: src/vnr-window.c:2047
 msgid "Set the selected image as the desktop background"
 msgstr "Aseta valittu kuva työpöydän taustakuvaksi"
 
-#: src/vnr-window.c:2035
+#: src/vnr-window.c:2052
 msgid "Copy image to clipboard"
 msgstr "Kopioi kuva leikepöydälle"
 
-#: src/vnr-window.c:2036
+#: src/vnr-window.c:2053
 msgid "Copy the image to the clipboard"
 msgstr "Kopioi kuva leikepöydälle"
 
-#: src/vnr-window.c:2041
+#: src/vnr-window.c:2058
 msgid "Open _With"
 msgstr "Avaa _sovelluksella"
 
-#: src/vnr-window.c:2042
+#: src/vnr-window.c:2059
 msgid "Open the selected image with a different application"
 msgstr "Avaa valittu kuva eri sovelluksella"
 
-#: src/vnr-window.c:2045 src/vnr-window.c:2054
+#: src/vnr-window.c:2062 src/vnr-window.c:2071
 msgid "Delete the current file"
 msgstr "Poista nykyinen tiedosto"
 
-#: src/vnr-window.c:2047
+#: src/vnr-window.c:2064
 msgid "_Properties..."
 msgstr "_Ominaisuudet..."
 
-#: src/vnr-window.c:2048
+#: src/vnr-window.c:2065
 msgid "Show information about the current file"
 msgstr "Näytä tietoja nykyisestä tiedostosta"
 
-#: src/vnr-window.c:2050
+#: src/vnr-window.c:2067
 msgid "_Reload"
 msgstr "_Lataa uudelleen"
 
-#: src/vnr-window.c:2051
+#: src/vnr-window.c:2068
 msgid "Reload the current file"
 msgstr "Lataa nykyinen tiedosto uudelleen"
 
-#: src/vnr-window.c:2056 src/vnr-window.c:2071 src/vnr-window.c:2074
+#: src/vnr-window.c:2073 src/vnr-window.c:2088 src/vnr-window.c:2091
 msgid "_Zoom In"
 msgstr "_Lähennä"
 
-#: src/vnr-window.c:2057
+#: src/vnr-window.c:2074
 msgid "Enlarge the image"
 msgstr "Suurenna kuvaa"
 
-#: src/vnr-window.c:2059 src/vnr-window.c:2077
+#: src/vnr-window.c:2076 src/vnr-window.c:2094
 msgid "Zoom _Out"
 msgstr "L_oitonna"
 
-#: src/vnr-window.c:2060 src/vnr-window.c:2072 src/vnr-window.c:2075
-#: src/vnr-window.c:2078
+#: src/vnr-window.c:2077 src/vnr-window.c:2089 src/vnr-window.c:2092
+#: src/vnr-window.c:2095
 msgid "Shrink the image"
 msgstr "Pienennä kuvaa"
 
-#: src/vnr-window.c:2062
+#: src/vnr-window.c:2079
 msgid "_Normal Size"
 msgstr "_Normaali koko"
 
-#: src/vnr-window.c:2063
+#: src/vnr-window.c:2080
 msgid "Show the image at its normal size"
 msgstr "Näytä kuva normaalikoossa"
 
-#: src/vnr-window.c:2065
+#: src/vnr-window.c:2082
 msgid "Best _Fit"
 msgstr "_Paras sovitus"
 
-#: src/vnr-window.c:2066
+#: src/vnr-window.c:2083
 msgid "Fit the image to the window"
 msgstr "Sovita kuva ikkunaan"
 
-#: src/vnr-window.c:2068
+#: src/vnr-window.c:2085
 msgid "Zoom _50%"
 msgstr "Koko _50 %"
 
-#: src/vnr-window.c:2069
+#: src/vnr-window.c:2086
 msgid "Show the image at half its normal size"
 msgstr "Näytä kuva puolet normaalikoosta"
 
-#: src/vnr-window.c:2083
+#: src/vnr-window.c:2100
 msgid "Rotate _Clockwise"
 msgstr "Käännä _myötäpäivään"
 
-#: src/vnr-window.c:2084
+#: src/vnr-window.c:2101
 msgid "Rotate image clockwise"
 msgstr "Käännä kuvaa myötäpäivään"
 
-#: src/vnr-window.c:2086
+#: src/vnr-window.c:2103
 msgid "Rotate _Anti-clockwise"
 msgstr "Käännä _vastapäivään"
 
-#: src/vnr-window.c:2087
+#: src/vnr-window.c:2104
 msgid "Rotate image anti-clockwise"
 msgstr "Käännä kuvaa vastapäivään"
 
-#: src/vnr-window.c:2089
+#: src/vnr-window.c:2106
 msgid "Flip _Vertical"
 msgstr "Peilaa _pystysuunnassa"
 
-#: src/vnr-window.c:2090
+#: src/vnr-window.c:2107
 msgid "Flip image vertically"
 msgstr "Peilaa kuva pystysuunnassa"
 
-#: src/vnr-window.c:2092
+#: src/vnr-window.c:2109
 msgid "Flip _Horizontal"
 msgstr "Peilaa _vaakasuunnassa"
 
-#: src/vnr-window.c:2093
+#: src/vnr-window.c:2110
 msgid "Flip image horizontally"
 msgstr "Peilaa kuva vaakasuunnassa"
 
-#: src/vnr-window.c:2095
+#: src/vnr-window.c:2112
 msgid "Crop..."
 msgstr "Rajaa..."
 
-#: src/vnr-window.c:2101
+#: src/vnr-window.c:2118
 msgid "Full _Screen"
 msgstr "Koko_ruutu"
 
-#: src/vnr-window.c:2102
+#: src/vnr-window.c:2119
 msgid "Show in fullscreen mode"
 msgstr "Näytä kokoruututilassa"
 
-#: src/vnr-window.c:2104
+#: src/vnr-window.c:2121
 msgid "_Adjust window size"
 msgstr "Säädä ikkunan koko_a"
 
-#: src/vnr-window.c:2105
+#: src/vnr-window.c:2122
 msgid "Adjust window size to fit the image"
 msgstr "Säädä ikkunan koko sopimaan kuvaan"
 
-#: src/vnr-window.c:2110
+#: src/vnr-window.c:2127
 msgid "Menu Bar"
 msgstr "Valikkopalkki"
 
-#: src/vnr-window.c:2111
+#: src/vnr-window.c:2128
 msgid "Show Menu Bar"
 msgstr "Näytä valikkopalkki"
 
-#: src/vnr-window.c:2113
+#: src/vnr-window.c:2130
 msgid "Toolbar"
 msgstr "Työkalupalkki"
 
-#: src/vnr-window.c:2114
+#: src/vnr-window.c:2131
 msgid "Show Toolbar"
 msgstr "Näytä työkalupalkki"
 
-#: src/vnr-window.c:2116
+#: src/vnr-window.c:2133
 #, fuzzy
 msgid "Scrollbar"
 msgstr "Työkalupalkki"
 
-#: src/vnr-window.c:2117
+#: src/vnr-window.c:2134
 #, fuzzy
 msgid "Show Scrollbar"
 msgstr "Näytä työkalupalkki"
 
-#: src/vnr-window.c:2119
+#: src/vnr-window.c:2136
 msgid "Statusbar"
 msgstr ""
 
-#: src/vnr-window.c:2120
+#: src/vnr-window.c:2137
 #, fuzzy
 msgid "Show Statusbar"
 msgstr "Näytä työkalupalkki"
 
-#: src/vnr-window.c:2125
+#: src/vnr-window.c:2142
 msgid "Sli_deshow"
 msgstr "_Diaesitys"
 
-#: src/vnr-window.c:2126
+#: src/vnr-window.c:2143
 msgid "Show in slideshow mode"
 msgstr "Näytä diaesitystilassa"
 
-#: src/vnr-window.c:2131
+#: src/vnr-window.c:2148
 msgid "_Previous Image"
 msgstr "_Edellinen kuva"
 
-#: src/vnr-window.c:2132
+#: src/vnr-window.c:2149
 msgid "Go to the previous image of the collection"
 msgstr "Siirry kokoelman edelliseen kuvaan"
 
-#: src/vnr-window.c:2134
+#: src/vnr-window.c:2151
 msgid "_Next Image"
 msgstr "_Seuraava kuva"
 
-#: src/vnr-window.c:2135
+#: src/vnr-window.c:2152
 msgid "Go to the next image of the collection"
 msgstr "Siirry kokoelman seuraavaan kuvaan"
 
-#: src/vnr-window.c:2137
+#: src/vnr-window.c:2154
 msgid "_First Image"
 msgstr "_Ensimmäinen kuva"
 
-#: src/vnr-window.c:2138
+#: src/vnr-window.c:2155
 msgid "Go to the first image of the collection"
 msgstr "Siirry kokoelman ensimmäiseen kuvaan"
 
-#: src/vnr-window.c:2140
+#: src/vnr-window.c:2157
 msgid "_Last Image"
 msgstr "_Viimeinen kuva"
 
-#: src/vnr-window.c:2141
+#: src/vnr-window.c:2158
 msgid "Go to the last image of the collection"
 msgstr "Siirry kokoelman viimeiseen kuvaan"
 
-#: src/uni-exiv2.cpp:58
+#: src/uni-exiv2.cpp:76
 msgid "Camera make"
 msgstr "Kameran merkki"
 
-#: src/uni-exiv2.cpp:59
+#: src/uni-exiv2.cpp:77
 msgid "Camera model"
 msgstr "Kameran malli"
 
-#: src/uni-exiv2.cpp:60
+#: src/uni-exiv2.cpp:78
 msgid "Date Taken"
 msgstr "Ottopäivä"
 
-#: src/uni-exiv2.cpp:61
+#: src/uni-exiv2.cpp:79
 msgid "Exposure time"
 msgstr "Valotusaika"
 
-#: src/uni-exiv2.cpp:62
+#: src/uni-exiv2.cpp:80
 msgid "Exposure mode"
 msgstr "Valotustila"
 
-#: src/uni-exiv2.cpp:63
+#: src/uni-exiv2.cpp:81
 msgid "Aperture Value"
 msgstr "Aukkoarvo"
 
-#: src/uni-exiv2.cpp:64
+#: src/uni-exiv2.cpp:82
 msgid "ISO speed"
 msgstr "ISO-herkkyys"
 
-#: src/uni-exiv2.cpp:65
+#: src/uni-exiv2.cpp:83
 msgid "Flash"
 msgstr "Salama"
 
-#: src/uni-exiv2.cpp:66
+#: src/uni-exiv2.cpp:84
 msgid "Metering mode"
 msgstr "Mittaustapa"
 
-#: src/uni-exiv2.cpp:67
+#: src/uni-exiv2.cpp:85
 msgid "Focal length"
 msgstr "Polttoväli"
 
-#: src/uni-exiv2.cpp:68
+#: src/uni-exiv2.cpp:86
 msgid "Software"
 msgstr "Ohjelmisto"
 
-#: src/uni-exiv2.cpp:69
+#: src/uni-exiv2.cpp:87
 #, fuzzy
 msgid "Image description"
 msgstr "Kuvaus"
 
-#: src/uni-exiv2.cpp:70
+#: src/uni-exiv2.cpp:88
 msgid "User comment"
 msgstr ""
 
-#: src/uni-exiv2.cpp:74
+#: src/uni-exiv2.cpp:92
 msgid "Description"
 msgstr "Kuvaus"
 
-#: src/uni-exiv2.cpp:75
+#: src/uni-exiv2.cpp:93
 msgid "Copyright"
 msgstr "Tekijänoikeus"
 
-#: src/uni-exiv2.cpp:76
+#: src/uni-exiv2.cpp:94
 msgid "Author"
 msgstr "Tekijä"
 
-#: src/uni-exiv2.cpp:127
+#: src/uni-exiv2.cpp:183
+msgid "GPS coordinates"
+msgstr "GPS-koordinaatit"
+
+#: src/uni-exiv2.cpp:189
 msgid "Comment"
 msgstr ""
