@@ -176,6 +176,39 @@ test_xfce_wallpaper_properties_none (void)
     g_strfreev (props);
 }
 
+/* Detects @expected with only @var set to @value among the variables
+ * uni_detect_desktop_environment() reads */
+static void
+assert_desktop (const gchar *var, const gchar *value, VnrPrefsDesktop expected)
+{
+    const gchar *vars[] = { "XDG_CURRENT_DESKTOP", "XDG_SESSION_DESKTOP",
+                            "DESKTOP_SESSION", "GDMSESSION", NULL };
+    const gchar **it;
+
+    for (it = vars; *it != NULL; it++)
+        g_unsetenv (*it);
+    g_setenv (var, value, TRUE);
+    g_assert_cmpint (uni_detect_desktop_environment (), ==, expected);
+    g_unsetenv (var);
+}
+
+static void
+test_detect_desktop (void)
+{
+    assert_desktop ("XDG_CURRENT_DESKTOP", "XFCE", VNR_PREFS_DESKTOP_XFCE);
+    assert_desktop ("XDG_CURRENT_DESKTOP", "MATE", VNR_PREFS_DESKTOP_MATE);
+    assert_desktop ("XDG_CURRENT_DESKTOP", "GNOME", VNR_PREFS_DESKTOP_GNOME3);
+}
+
+/* An unknown desktop is warned about, and treated as GNOME 3 */
+static void
+test_detect_desktop_unknown (void)
+{
+    g_test_expect_message (NULL, G_LOG_LEVEL_WARNING, "Cannot detect desktop environment*");
+    assert_desktop ("XDG_CURRENT_DESKTOP", "Hyprland", VNR_PREFS_DESKTOP_GNOME3);
+    g_test_assert_expected_messages ();
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -185,6 +218,8 @@ main (int argc, char *argv[])
     g_test_add_func ("/tools/orientation/can-be-played", test_orientation_can_be_played);
     g_test_add_func ("/tools/orientation/none", test_orientation_none);
     g_test_add_func ("/tools/fit-to-size", test_fit_to_size);
+    g_test_add_func ("/utils/detect-desktop", test_detect_desktop);
+    g_test_add_func ("/utils/detect-desktop/unknown", test_detect_desktop_unknown);
     g_test_add_func ("/utils/xfce-wallpaper-properties", test_xfce_wallpaper_properties);
     g_test_add_func ("/utils/xfce-wallpaper-properties/none", test_xfce_wallpaper_properties_none);
 
