@@ -2894,3 +2894,25 @@ vnr_window_toggle_fullscreen (VnrWindow *window)
     else
         vnr_window_unfullscreen (window);
 }
+
+/* What the mouse wheel does: what the preferences say, or after a
+ * middle click, the other of zooming and navigating */
+VnrPrefsWheel
+vnr_window_get_wheel_behavior (VnrWindow *window)
+{
+    VnrPrefsWheel behavior = window->prefs->behavior_wheel;
+
+    if (!window->wheel_swapped)
+        return behavior;
+    if (behavior == VNR_PREFS_WHEEL_ZOOM)
+        return VNR_PREFS_WHEEL_NAVIGATE;
+    return VNR_PREFS_WHEEL_ZOOM;
+}
+
+/* Switches the mouse wheel between zooming and navigating, so one can
+ * browse to an image and zoom into it without opening the preferences */
+void
+vnr_window_toggle_wheel_behavior (VnrWindow *window)
+{
+    window->wheel_swapped = !window->wheel_swapped;
+}

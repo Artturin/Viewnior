@@ -93,6 +93,9 @@ struct _VnrWindow {
     guint8 modifications;
 
     gboolean cursor_is_hidden;
+    /* Whether a middle click swapped what the mouse wheel does, until
+     * the next middle click. Not saved. */
+    gboolean wheel_swapped;
 
     /* Fullscreen (fs) variables */
     GtkWidget *fs_controls;
@@ -137,6 +140,8 @@ gboolean vnr_window_random   (VnrWindow *win);
 void     deny_slideshow      (VnrWindow *window);
 void     vnr_window_apply_preferences (VnrWindow *window);
 void     vnr_window_toggle_fullscreen (VnrWindow *win);
+VnrPrefsWheel vnr_window_get_wheel_behavior    (VnrWindow *win);
+void          vnr_window_toggle_wheel_behavior (VnrWindow *win);
 
 G_END_DECLS
 #endif /* __VNR_WINDOW_H__ */

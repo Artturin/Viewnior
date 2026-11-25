@@ -867,6 +867,11 @@ uni_image_view_button_press (GtkWidget * widget, GdkEventButton * ev)
             uni_image_view_set_fitting (view, UNI_FITTING_FULL);
         return 1;
     }
+    else if(ev->type == GDK_BUTTON_PRESS && ev->button == 2)
+    {
+        vnr_window_toggle_wheel_behavior (vnr_win);
+        return 1;
+    }
     else if(ev->type == GDK_BUTTON_PRESS && ev->button == 3)
     {
         uni_image_view_popup_menu (widget, ev);
@@ -927,7 +932,9 @@ uni_image_view_scroll_event (GtkWidget * widget, GdkEventScroll * ev)
      * like scroll down. No idea if that is correct -- I have no input
      * device that can do horizontal scrolls. */
 
-	if (vnr_win->prefs->behavior_wheel == VNR_PREFS_WHEEL_ZOOM || (ev->state & GDK_CONTROL_MASK) != 0)
+    VnrPrefsWheel wheel = vnr_window_get_wheel_behavior (vnr_win);
+
+	if (wheel == VNR_PREFS_WHEEL_ZOOM || (ev->state & GDK_CONTROL_MASK) != 0)
 	{
         switch (ev->direction)
         {
@@ -954,7 +961,7 @@ uni_image_view_scroll_event (GtkWidget * widget, GdkEventScroll * ev)
         }
 
 	}
-	else if(vnr_win->prefs->behavior_wheel == VNR_PREFS_WHEEL_NAVIGATE)
+	else if(wheel == VNR_PREFS_WHEEL_NAVIGATE)
 	{
         switch (ev->direction)
         {
