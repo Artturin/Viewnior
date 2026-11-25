@@ -305,6 +305,59 @@ test_next_prev (Fixture *fixture, gconstpointer user_data)
     g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, BIG_W);
 }
 
+/* Shift+Page Down and Up move 10 images, stopping at either end
+ * instead of wrapping around like a single step */
+static void
+test_jump_keys (Fixture *fixture, gconstpointer user_data)
+{
+    VnrWindow *window = fixture->window;
+    gchar *dir = test_make_tmp_dir ();
+    gchar *first = NULL;
+    int i;
+
+    for (i = 0; i < 25; i++)
+    {
+        gchar *name = g_strdup_printf ("img%02d.png", i);
+        gchar *path = test_write_png (dir, name, SMALL_W, SMALL_H);
+
+        if (i == 0)
+            first = path;
+        else
+            g_free (path);
+        g_free (name);
+    }
+    open_and_show (fixture, first);
+    assert_current (window, "img00.png");
+
+    g_assert_true (press_key (window, GDK_KEY_Page_Down, GDK_SHIFT_MASK));
+    assert_current (window, "img10.png");
+    g_assert_true (press_key (window, GDK_KEY_Page_Down, GDK_SHIFT_MASK));
+    assert_current (window, "img20.png");
+    g_assert_true (press_key (window, GDK_KEY_Page_Down, GDK_SHIFT_MASK));
+    assert_current (window, "img24.png");
+    g_assert_true (press_key (window, GDK_KEY_Page_Down, GDK_SHIFT_MASK));
+    assert_current (window, "img24.png");
+
+    g_assert_true (press_key (window, GDK_KEY_Page_Up, GDK_SHIFT_MASK));
+    assert_current (window, "img14.png");
+    g_assert_true (press_key (window, GDK_KEY_Page_Up, GDK_SHIFT_MASK));
+    assert_current (window, "img04.png");
+    g_assert_true (press_key (window, GDK_KEY_Page_Up, GDK_SHIFT_MASK));
+    assert_current (window, "img00.png");
+    g_assert_true (press_key (window, GDK_KEY_Page_Up, GDK_SHIFT_MASK));
+    assert_current (window, "img00.png");
+
+    /* Without Shift they still move one image, and wrap around */
+    g_assert_true (press_key (window, GDK_KEY_Page_Up, 0));
+    assert_current (window, "img24.png");
+    g_assert_true (press_key (window, GDK_KEY_Page_Down, 0));
+    assert_current (window, "img00.png");
+
+    g_free (first);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 static void
 test_random (Fixture *fixture, gconstpointer user_data)
 {
@@ -723,6 +776,7 @@ main (int argc, char *argv[])
     ADD_EMPTY ("/window/load/no-images", test_load_no_images);
 
     ADD ("/window/navigation/next-prev", "a.png", test_next_prev);
+    ADD_EMPTY ("/window/navigation/jump-keys", test_jump_keys);
     ADD ("/window/navigation/random", "a.png", test_random);
     ADD_EMPTY ("/window/navigation/random-single", test_random_single);
     ADD ("/window/navigation/random-key", "a.png", test_random_key);

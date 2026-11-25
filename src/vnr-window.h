@@ -37,6 +37,9 @@ typedef struct _VnrWindowClass VnrWindowClass;
 #define VNR_IS_WINDOW_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass),  VNR_TYPE_WINDOW))
 #define VNR_WINDOW_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj),  VNR_TYPE_WINDOW, VnrWindowClass))
 
+/* How many images Shift+Page Up and Down move */
+#define VNR_WINDOW_JUMP 10
+
 typedef enum {
     VNR_WINDOW_MODE_NORMAL,
     VNR_WINDOW_MODE_FULLSCREEN,
@@ -131,6 +134,7 @@ void     vnr_window_close    (VnrWindow *win);
 void     vnr_window_set_list (VnrWindow *win, GList *list, gboolean free_current);
 gboolean vnr_window_next     (VnrWindow *win, gboolean rem_timeout);
 gboolean vnr_window_prev     (VnrWindow *win);
+gboolean vnr_window_jump     (VnrWindow *win, gint count);
 gboolean vnr_window_first    (VnrWindow *win);
 gboolean vnr_window_last     (VnrWindow *win);
 gboolean vnr_window_random   (VnrWindow *win);
