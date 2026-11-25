@@ -808,6 +808,61 @@ test_delete_fails (Fixture *fixture, gconstpointer user_data)
     g_free (dir);
 }
 
+/* Delete (Shift+Delete) asks first, and no keeps the image */
+static void
+test_delete_permanently_no (Fixture *fixture, gconstpointer user_data)
+{
+    DialogAnswer answer = { GTK_RESPONSE_CANCEL, NULL, FALSE };
+    gchar *dir;
+    gchar *path = make_pair (&dir, "spared-a.png", "spared-b.png");
+
+    open_and_show (fixture, path);
+    fixture->window->prefs->confirm_delete = TRUE;
+
+    g_timeout_add (50, answer_dialog, &answer);
+    gtk_action_activate (find_action (fixture->window, "PermanentDelete"));
+
+    g_assert_true (answer.answered);
+    g_assert_cmpstr (answer.text, ==,
+                     "Are you sure you want to\npermanently delete \"spared-a.png\"?");
+    g_assert_true (g_file_test (path, G_FILE_TEST_EXISTS));
+    assert_current (fixture->window, "spared-a.png");
+
+    g_free (answer.text);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* Yes removes the image for good, bypassing the trash, and shows the
+ * next one. It asks even with confirmation turned off. */
+static void
+test_delete_permanently_yes (Fixture *fixture, gconstpointer user_data)
+{
+    DialogAnswer answer = { GTK_RESPONSE_YES, NULL, FALSE };
+    gchar *dir;
+    gchar *path = make_pair (&dir, "doomed-a.png", "doomed-b.png");
+
+    open_and_show (fixture, path);
+    fixture->window->prefs->confirm_delete = FALSE;
+
+    g_timeout_add (50, answer_dialog, &answer);
+    gtk_action_activate (find_action (fixture->window, "PermanentDelete"));
+
+    g_assert_true (answer.answered);
+    g_assert_cmpstr (answer.text, ==,
+                     "Are you sure you want to\npermanently delete \"doomed-a.png\"?");
+    g_assert_false (g_file_test (path, G_FILE_TEST_EXISTS));
+    g_assert_false (in_trash ("doomed-a.png"));
+    assert_current (fixture->window, "doomed-b.png");
+    g_assert_cmpuint (g_list_length (g_list_first (fixture->window->file_list)), ==, 1);
+
+    g_free (answer.text);
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 /*************************************************************/
 /***** Main **************************************************/
 /*************************************************************/
@@ -906,6 +961,8 @@ main (int argc, char *argv[])
     ADD_EMPTY ("/window/delete/confirm-yes", test_delete_confirm_yes);
     ADD_EMPTY ("/window/delete/last", test_delete_last);
     ADD_EMPTY ("/window/delete/fails", test_delete_fails);
+    ADD_EMPTY ("/window/delete/permanently-no", test_delete_permanently_no);
+    ADD_EMPTY ("/window/delete/permanently-yes", test_delete_permanently_yes);
 
     result = g_test_run ();
 

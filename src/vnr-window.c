@@ -86,6 +86,7 @@ const gchar *ui_definition = "<ui>"
     "</menu>"
     "<menu action=\"Edit\">"
       "<menuitem action=\"FileDelete\"/>"
+      "<menuitem action=\"FilePermanentDelete\"/>"
       "<separator/>"
       "<menuitem action=\"EditPreferences\"/>"
     "</menu>"
@@ -141,6 +142,7 @@ const gchar *ui_definition = "<ui>"
     "<separator/>"
     "<menu action=\"Edit\">"
       "<menuitem action=\"FileDelete\"/>"
+      "<menuitem action=\"FilePermanentDelete\"/>"
       "<separator/>"
     "</menu>"
     "<menu action=\"View\">"
@@ -218,6 +220,7 @@ const gchar *ui_definition = "<ui>"
   "<accelerator name=\"ControlKPAddAccel\" action=\"ControlKpAdd\"/>"
   "<accelerator name=\"ControlKPSubAccel\" action=\"ControlKpSub\"/>"
   "<accelerator name=\"DeleteAccel\" action=\"Delete\"/>"
+  "<accelerator name=\"PermanentDeleteAccel\" action=\"PermanentDelete\"/>"
 "</ui>";
 
 
@@ -1920,8 +1923,41 @@ vnr_window_trash_current (VnrWindow *window, GError **error)
     return removed;
 }
 
+/* Deletes the file shown permanently. Always asks first, whatever the
+ * preferences say, as there is no getting the file back. Returns TRUE if
+ * the file is gone. On FALSE, @error is set unless the user said no. */
+static gboolean
+vnr_window_delete_current (VnrWindow *window, GError **error)
+{
+    VnrFile *vnr_file = VNR_FILE (window->file_list->data);
+    GFile *file;
+    gchar *prompt;
+    gboolean confirmed;
+    gboolean removed;
+
+    /* I18N: The '%s' is replaced with the name of the file to be deleted. */
+    prompt = g_strdup_printf (_("Are you sure you want to\n"
+                                "permanently delete \"%s\"?"),
+                              vnr_file->display_name);
+    confirmed = vnr_window_confirm_delete (window, prompt,
+                                           _("If you delete an item, it will be permanently lost."),
+                                           _("_Delete"));
+    g_free (prompt);
+
+    if (!confirmed)
+        return FALSE;
+
+    file = g_file_new_for_path (vnr_file->path);
+    removed = g_file_delete (file, NULL, error);
+    g_object_unref (file);
+
+    return removed;
+}
+
+/* Removes the file shown, to the trash or @permanently, and shows the
+ * next image. */
 static void
-vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
+vnr_window_remove_current (VnrWindow *window, gboolean permanently)
 {
     GError *error = NULL;
     gboolean restart_slideshow = FALSE;
@@ -1946,7 +1982,8 @@ vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
     if(window->fs_source != NULL)
         restart_autohide_timeout = TRUE;
 
-    if(vnr_window_trash_current(window, &error))
+    if(permanently ? vnr_window_delete_current(window, &error)
+                   : vnr_window_trash_current(window, &error))
     {
         GList *next;
 
@@ -1995,6 +2032,18 @@ vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
         vnr_window_hide_cursor(window);
     if(restart_autohide_timeout)
         fullscreen_set_timeout(window);
+}
+
+static void
+vnr_window_cmd_trash (GtkAction *action, VnrWindow *window)
+{
+    vnr_window_remove_current (window, FALSE);
+}
+
+static void
+vnr_window_cmd_delete (GtkAction *action, VnrWindow *window)
+{
+    vnr_window_remove_current (window, TRUE);
 }
 
 static void
@@ -2090,6 +2139,9 @@ static const GtkActionEntry action_entries_image[] = {
       NULL},
     { "FileDelete", "user-trash", N_("Move to _Trash"), NULL,
       N_("Move the current file to the trash"),
+      G_CALLBACK (vnr_window_cmd_trash) },
+    { "FilePermanentDelete", "edit-delete", N_("_Delete"), NULL,
+      N_("Permanently delete the current file"),
       G_CALLBACK (vnr_window_cmd_delete) },
     { "FileProperties", GTK_STOCK_PROPERTIES, N_("_Properties..."), "<Alt>Return",
       N_("Show information about the current file"),
@@ -2099,6 +2151,9 @@ static const GtkActionEntry action_entries_image[] = {
       G_CALLBACK (vnr_window_cmd_reload) },
     { "Delete", NULL, N_("Move to _Trash"), "Delete",
       N_("Move the current file to the trash"),
+      G_CALLBACK (vnr_window_cmd_trash) },
+    { "PermanentDelete", NULL, N_("_Delete"), "<shift>Delete",
+      N_("Permanently delete the current file"),
       G_CALLBACK (vnr_window_cmd_delete) },
     { "ViewZoomIn", GTK_STOCK_ZOOM_IN, N_("_Zoom In"), "<control>plus",
       N_("Enlarge the image"),
