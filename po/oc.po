@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: viewnior\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 22:40+0200\n"
+"POT-Creation-Date: 2026-11-25 01:59+0200\n"
 "PO-Revision-Date: 2015-10-04 09:30+0000\n"
 "Last-Translator: Vincent L. <Unknown>\n"
 "Language-Team: Occitan (post 1500) <oc@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "Viewnior"
 msgstr "Viewnior"
 
-#: data/viewnior.desktop.in:3 src/vnr-window.c:1503
+#: data/viewnior.desktop.in:3 src/vnr-window.c:1520
 msgid "Elegant Image Viewer"
 msgstr "Un visionador d'imatges elegant"
 
@@ -115,7 +115,7 @@ msgid "Saving"
 msgstr "Enregistrament"
 
 #: data/vnr-preferences-dialog.ui:399 src/vnr-properties-dialog.c:181
-#: src/vnr-window.c:2005
+#: src/vnr-window.c:2052
 msgid "_Close"
 msgstr "_Tampar"
 
@@ -139,7 +139,7 @@ msgstr "Largor : "
 msgid "Height: "
 msgstr "Nautor : "
 
-#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2096
+#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2143
 msgid "Crop"
 msgstr "Retalhar"
 
@@ -263,7 +263,7 @@ msgstr "Utilizar « %s » per dobrir l'imatge seleccionat"
 msgid "Show next image after: "
 msgstr ""
 
-#: src/vnr-window.c:601 src/vnr-window.c:1010
+#: src/vnr-window.c:601 src/vnr-window.c:1011
 msgid " second"
 msgid_plural " seconds"
 msgstr[0] " segonda"
@@ -273,350 +273,361 @@ msgstr[1] " segondas"
 msgid "Not enough virtual memory."
 msgstr ""
 
-#: src/vnr-window.c:885
+#: src/vnr-window.c:886 src/vnr-window.c:1038
 msgid ""
 "Image modifications cannot be saved.\n"
 "Writing in this format is not supported."
 msgstr ""
 
-#: src/vnr-window.c:892
+#: src/vnr-window.c:893
 msgid ""
 "Save modifications?\n"
 "This will overwrite the image and may reduce its quality!"
 msgstr ""
 
-#: src/vnr-window.c:893 src/vnr-window.c:2017
+#: src/vnr-window.c:894 src/vnr-window.c:2064
 msgid "_Save"
 msgstr "_Enregistrar"
 
-#: src/vnr-window.c:1410
+#: src/vnr-window.c:1427
 msgid "Open Folder"
 msgstr "Dobrir un dorsièr"
 
-#: src/vnr-window.c:1410
+#: src/vnr-window.c:1427
 msgid "Open Image"
 msgstr "Dobrir un imatge"
 
-#: src/vnr-window.c:1431
+#: src/vnr-window.c:1448
 msgid "All Images"
 msgstr "Imatges"
 
-#: src/vnr-window.c:1437
+#: src/vnr-window.c:1454
 msgid "All Files"
 msgstr "Fichièrs"
 
-#: src/vnr-window.c:1509
+#: src/vnr-window.c:1526
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Cédric VALMARY (Tot en òc) https://launchpad.net/~cvalmary\n"
 "  Vincent L. https://launchpad.net/~vincent-laporte"
 
-#: src/vnr-window.c:1720
+#: src/vnr-window.c:1737
 msgid "Image copied to clipboard."
 msgstr "Imatge copiat al quichapapièrs."
 
-#: src/vnr-window.c:1856
+#. I18N: The '%s' is replaced with the name of the file.
+#: src/vnr-window.c:1886
+#, c-format
+msgid "Move \"%s\" to the trash?"
+msgstr "Desplaçar « %s » cap a l'escobilhièr ?"
+
+#: src/vnr-window.c:1889 src/vnr-window.c:2091 src/vnr-window.c:2100
+msgid "Move to _Trash"
+msgstr "Desplaçar cap a l'_escobilhièr"
+
+#. I18N: The '%s' is replaced with the name of the file.
+#: src/vnr-window.c:1902
+#, c-format
+msgid ""
+"\"%s\" cannot be moved to the trash. Do you want to delete it permanently?"
+msgstr ""
+"Impossible de desplaçar « %s » cap a l'escobilhièr. Lo volètz suprimir per "
+"totjorn ?"
+
+#: src/vnr-window.c:1906
 msgid "If you delete an item, it will be permanently lost."
 msgstr "Se suprimissètz un element, serà perdut per totjorn."
 
-#. I18N: The '%s' is replaced with the name of the file to be deleted.
-#: src/vnr-window.c:1859
-#, c-format
-msgid ""
-"Are you sure you want to\n"
-"permanently delete \"%s\"?"
-msgstr ""
-
-#: src/vnr-window.c:1877 src/vnr-window.c:2044 src/vnr-window.c:2053
+#: src/vnr-window.c:1907
 msgid "_Delete"
 msgstr "_Suprimir"
 
-#: src/vnr-window.c:1915 src/vnr-window.c:2286 src/vnr-window.c:2683
+#: src/vnr-window.c:1969 src/vnr-window.c:2333 src/vnr-window.c:2740
 msgid "The given locations contain no images."
 msgstr "Los emplaçaments indicats contenon pas d'imatge."
 
-#: src/vnr-window.c:1992
+#: src/vnr-window.c:2039
 msgid "_File"
 msgstr "_Fichièr"
 
-#: src/vnr-window.c:1993
+#: src/vnr-window.c:2040
 msgid "_Edit"
 msgstr "E_dicion"
 
-#: src/vnr-window.c:1994
+#: src/vnr-window.c:2041
 msgid "_View"
 msgstr "_Afichatge"
 
-#: src/vnr-window.c:1995
+#: src/vnr-window.c:2042
 msgid "_Image"
 msgstr "_Imatge"
 
-#: src/vnr-window.c:1996
+#: src/vnr-window.c:2043
 msgid "_Go"
 msgstr "_Començar"
 
-#: src/vnr-window.c:1997
+#: src/vnr-window.c:2044
 msgid "_Help"
 msgstr "_Ajuda"
 
-#: src/vnr-window.c:1999
+#: src/vnr-window.c:2046
 msgid "Open _Image..."
 msgstr "Dobrir un _Imatge..."
 
-#: src/vnr-window.c:2000
+#: src/vnr-window.c:2047
 msgid "Open an Image"
 msgstr "Dobrir un Imatge"
 
-#: src/vnr-window.c:2002
+#: src/vnr-window.c:2049
 msgid "Open _Folder..."
 msgstr "Dobrir un _dorsièr..."
 
-#: src/vnr-window.c:2003
+#: src/vnr-window.c:2050
 msgid "Open a Folder"
 msgstr ""
 
-#: src/vnr-window.c:2006
+#: src/vnr-window.c:2053
 msgid "Close window"
 msgstr "Tampa la fenèstra"
 
-#: src/vnr-window.c:2008
+#: src/vnr-window.c:2055
 msgid "_About"
 msgstr "_A prepaus"
 
-#: src/vnr-window.c:2009
+#: src/vnr-window.c:2056
 msgid "About this application"
 msgstr "A prepaus d'aquesta aplicacion"
 
-#: src/vnr-window.c:2011
+#: src/vnr-window.c:2058
 msgid "_Preferences..."
 msgstr "_Preferéncias..."
 
-#: src/vnr-window.c:2012
+#: src/vnr-window.c:2059
 msgid "User preferences for Viewnior"
 msgstr ""
 
-#: src/vnr-window.c:2018
+#: src/vnr-window.c:2065
 msgid "Save changes"
 msgstr "Enregistrar las modificacions"
 
-#: src/vnr-window.c:2023
+#: src/vnr-window.c:2070
 msgid "_Properties"
 msgstr ""
 
-#: src/vnr-window.c:2024
+#: src/vnr-window.c:2071
 msgid "Properties"
 msgstr ""
 
-#: src/vnr-window.c:2029
+#: src/vnr-window.c:2076
 msgid "Set as _Wallpaper"
 msgstr ""
 
-#: src/vnr-window.c:2030
+#: src/vnr-window.c:2077
 msgid "Set the selected image as the desktop background"
 msgstr "Definir l'imatge seleccionat coma fons de burèu"
 
-#: src/vnr-window.c:2035
+#: src/vnr-window.c:2082
 msgid "Copy image to clipboard"
 msgstr "Copiar l'imatge al quichapapièrs"
 
-#: src/vnr-window.c:2036
+#: src/vnr-window.c:2083
 msgid "Copy the image to the clipboard"
 msgstr "Copiar l'imatge al quichapapièrs"
 
-#: src/vnr-window.c:2041
+#: src/vnr-window.c:2088
 msgid "Open _With"
 msgstr "Dobrir _amb"
 
-#: src/vnr-window.c:2042
+#: src/vnr-window.c:2089
 msgid "Open the selected image with a different application"
 msgstr "Dobrir l'imatge seleccionat amb una autra aplicacion"
 
-#: src/vnr-window.c:2045 src/vnr-window.c:2054
-msgid "Delete the current file"
-msgstr ""
+#: src/vnr-window.c:2092 src/vnr-window.c:2101
+msgid "Move the current file to the trash"
+msgstr "Desplaça lo fichièr actual cap a l'escobilhièr"
 
-#: src/vnr-window.c:2047
+#: src/vnr-window.c:2094
 msgid "_Properties..."
 msgstr "_Proprietats..."
 
-#: src/vnr-window.c:2048
+#: src/vnr-window.c:2095
 msgid "Show information about the current file"
 msgstr "Aficha las informacions a prepaus del fichièr actual"
 
-#: src/vnr-window.c:2050
+#: src/vnr-window.c:2097
 msgid "_Reload"
 msgstr "_Recargar"
 
-#: src/vnr-window.c:2051
+#: src/vnr-window.c:2098
 msgid "Reload the current file"
 msgstr ""
 
-#: src/vnr-window.c:2056 src/vnr-window.c:2071 src/vnr-window.c:2074
+#: src/vnr-window.c:2103 src/vnr-window.c:2118 src/vnr-window.c:2121
 msgid "_Zoom In"
 msgstr "_Zoom avant"
 
-#: src/vnr-window.c:2057
+#: src/vnr-window.c:2104
 msgid "Enlarge the image"
 msgstr "Agrandir l'imatge"
 
-#: src/vnr-window.c:2059 src/vnr-window.c:2077
+#: src/vnr-window.c:2106 src/vnr-window.c:2124
 msgid "Zoom _Out"
 msgstr "Zoo_m arrièr"
 
-#: src/vnr-window.c:2060 src/vnr-window.c:2072 src/vnr-window.c:2075
-#: src/vnr-window.c:2078
+#: src/vnr-window.c:2107 src/vnr-window.c:2119 src/vnr-window.c:2122
+#: src/vnr-window.c:2125
 msgid "Shrink the image"
 msgstr "Reduire l'imatge"
 
-#: src/vnr-window.c:2062
+#: src/vnr-window.c:2109
 msgid "_Normal Size"
 msgstr ""
 
-#: src/vnr-window.c:2063
+#: src/vnr-window.c:2110
 msgid "Show the image at its normal size"
 msgstr "Aficha l'imatge a sa talha normala"
 
-#: src/vnr-window.c:2065
+#: src/vnr-window.c:2112
 msgid "Best _Fit"
 msgstr "Ajustar pel melhor"
 
-#: src/vnr-window.c:2066
+#: src/vnr-window.c:2113
 msgid "Fit the image to the window"
 msgstr "Adapta la talha de l'imatge a la de la fenèstra"
 
-#: src/vnr-window.c:2068
+#: src/vnr-window.c:2115
 msgid "Zoom _50%"
 msgstr "Zoom a _50 %"
 
-#: src/vnr-window.c:2069
+#: src/vnr-window.c:2116
 msgid "Show the image at half its normal size"
 msgstr "Aficha l'imatge a la mitat de sa talha normala"
 
-#: src/vnr-window.c:2083
+#: src/vnr-window.c:2130
 msgid "Rotate _Clockwise"
 msgstr ""
 
-#: src/vnr-window.c:2084
+#: src/vnr-window.c:2131
 msgid "Rotate image clockwise"
 msgstr ""
 
-#: src/vnr-window.c:2086
+#: src/vnr-window.c:2133
 msgid "Rotate _Anti-clockwise"
 msgstr ""
 
-#: src/vnr-window.c:2087
+#: src/vnr-window.c:2134
 msgid "Rotate image anti-clockwise"
 msgstr ""
 
-#: src/vnr-window.c:2089
+#: src/vnr-window.c:2136
 msgid "Flip _Vertical"
 msgstr "Miralh _vertical"
 
-#: src/vnr-window.c:2090
+#: src/vnr-window.c:2137
 msgid "Flip image vertically"
 msgstr "Miralh _vertical de l'imatge"
 
-#: src/vnr-window.c:2092
+#: src/vnr-window.c:2139
 msgid "Flip _Horizontal"
 msgstr "Miralh _orizontal"
 
-#: src/vnr-window.c:2093
+#: src/vnr-window.c:2140
 msgid "Flip image horizontally"
 msgstr "Miralh _orizontal de l'imatge"
 
-#: src/vnr-window.c:2095
+#: src/vnr-window.c:2142
 msgid "Crop..."
 msgstr "Decopar..."
 
-#: src/vnr-window.c:2101
+#: src/vnr-window.c:2148
 msgid "Full _Screen"
 msgstr ""
 
-#: src/vnr-window.c:2102
+#: src/vnr-window.c:2149
 msgid "Show in fullscreen mode"
 msgstr ""
 
-#: src/vnr-window.c:2104
+#: src/vnr-window.c:2151
 msgid "_Adjust window size"
 msgstr ""
 
-#: src/vnr-window.c:2105
+#: src/vnr-window.c:2152
 msgid "Adjust window size to fit the image"
 msgstr ""
 
-#: src/vnr-window.c:2110
+#: src/vnr-window.c:2157
 msgid "Menu Bar"
 msgstr ""
 
-#: src/vnr-window.c:2111
+#: src/vnr-window.c:2158
 msgid "Show Menu Bar"
 msgstr ""
 
-#: src/vnr-window.c:2113
+#: src/vnr-window.c:2160
 msgid "Toolbar"
 msgstr "Barra d'aisinas"
 
-#: src/vnr-window.c:2114
+#: src/vnr-window.c:2161
 msgid "Show Toolbar"
 msgstr "Afichar la barra d'aisinas"
 
-#: src/vnr-window.c:2116
+#: src/vnr-window.c:2163
 #, fuzzy
 msgid "Scrollbar"
 msgstr "Barra d'aisinas"
 
-#: src/vnr-window.c:2117
+#: src/vnr-window.c:2164
 #, fuzzy
 msgid "Show Scrollbar"
 msgstr "Afichar la barra d'aisinas"
 
-#: src/vnr-window.c:2119
+#: src/vnr-window.c:2166
 msgid "Statusbar"
 msgstr ""
 
-#: src/vnr-window.c:2120
+#: src/vnr-window.c:2167
 #, fuzzy
 msgid "Show Statusbar"
 msgstr "Afichar la barra d'aisinas"
 
-#: src/vnr-window.c:2125
+#: src/vnr-window.c:2172
 msgid "Sli_deshow"
 msgstr "_Diaporama"
 
-#: src/vnr-window.c:2126
+#: src/vnr-window.c:2173
 msgid "Show in slideshow mode"
 msgstr ""
 
-#: src/vnr-window.c:2131
+#: src/vnr-window.c:2178
 msgid "_Previous Image"
 msgstr "Imatge _precedent"
 
-#: src/vnr-window.c:2132
+#: src/vnr-window.c:2179
 msgid "Go to the previous image of the collection"
 msgstr "Anar a l'imatge precedent de la colleccion"
 
-#: src/vnr-window.c:2134
+#: src/vnr-window.c:2181
 msgid "_Next Image"
 msgstr "Imatge _seguent"
 
-#: src/vnr-window.c:2135
+#: src/vnr-window.c:2182
 msgid "Go to the next image of the collection"
 msgstr "Anar a l'imatge seguent de la colleccion"
 
-#: src/vnr-window.c:2137
+#: src/vnr-window.c:2184
 msgid "_First Image"
 msgstr "_Primièr imatge"
 
-#: src/vnr-window.c:2138
+#: src/vnr-window.c:2185
 msgid "Go to the first image of the collection"
 msgstr "Anar al primièr imatge de la colleccion"
 
-#: src/vnr-window.c:2140
+#: src/vnr-window.c:2187
 msgid "_Last Image"
 msgstr "_Darrièr imatge"
 
-#: src/vnr-window.c:2141
+#: src/vnr-window.c:2188
 msgid "Go to the last image of the collection"
 msgstr "Anar al darrièr imatge de la colleccion"
 
