@@ -1654,6 +1654,10 @@ vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
             default:
                 _exit(0);
         }
+
+        /* The command couldn't be run. Returning would leave this
+         * process going on as a second copy of the window. */
+        _exit(127);
     } else {
         wait(NULL);
     }
