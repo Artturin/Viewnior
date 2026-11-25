@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: viewnior\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-25 01:59+0200\n"
+"POT-Creation-Date: 2026-11-25 03:03+0200\n"
 "PO-Revision-Date: 2014-11-27 08:32+0000\n"
 "Last-Translator: Joe Hansen <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "Viewnior"
 msgstr "Viewnior"
 
-#: data/viewnior.desktop.in:3 src/vnr-window.c:1520
+#: data/viewnior.desktop.in:3 src/vnr-window.c:1523
 msgid "Elegant Image Viewer"
 msgstr "Elegant billedfremviser"
 
@@ -118,7 +118,7 @@ msgid "Saving"
 msgstr "Gemmer"
 
 #: data/vnr-preferences-dialog.ui:399 src/vnr-properties-dialog.c:181
-#: src/vnr-window.c:2052
+#: src/vnr-window.c:2105
 msgid "_Close"
 msgstr "_Luk"
 
@@ -142,7 +142,7 @@ msgstr "Bredde: "
 msgid "Height: "
 msgstr "Højde: "
 
-#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2143
+#: data/vnr-crop-dialog.ui:206 src/vnr-window.c:2202
 msgid "Crop"
 msgstr "Beskær"
 
@@ -259,26 +259,26 @@ msgstr "<b>Størrelse:</b>"
 msgid "None"
 msgstr "Ingen"
 
-#: src/vnr-window.c:351
+#: src/vnr-window.c:354
 #, c-format
 msgid "Use \"%s\" to open the selected image"
 msgstr "Brug »%s« til at åbne det valgte billede"
 
-#: src/vnr-window.c:583
+#: src/vnr-window.c:586
 msgid "Show next image after: "
 msgstr "Vis næste billede efter: "
 
-#: src/vnr-window.c:601 src/vnr-window.c:1011
+#: src/vnr-window.c:604 src/vnr-window.c:1014
 msgid " second"
 msgid_plural " seconds"
 msgstr[0] " sekund"
 msgstr[1] " sekunder"
 
-#: src/vnr-window.c:850
+#: src/vnr-window.c:853
 msgid "Not enough virtual memory."
 msgstr "Ikke nok virtuel hukommelse."
 
-#: src/vnr-window.c:886 src/vnr-window.c:1038
+#: src/vnr-window.c:889 src/vnr-window.c:1041
 msgid ""
 "Image modifications cannot be saved.\n"
 "Writing in this format is not supported."
@@ -286,7 +286,7 @@ msgstr ""
 "Billedændringer kan ikke gemmes.\n"
 "Skrivning i dette format er ikke understøttet."
 
-#: src/vnr-window.c:893
+#: src/vnr-window.c:896
 msgid ""
 "Save modifications?\n"
 "This will overwrite the image and may reduce its quality!"
@@ -294,27 +294,27 @@ msgstr ""
 "Gem ændringer?\n"
 "Dette vil overskrive billedet og kan reducere kvaliteten!"
 
-#: src/vnr-window.c:894 src/vnr-window.c:2064
+#: src/vnr-window.c:897 src/vnr-window.c:2117
 msgid "_Save"
 msgstr "_Gem"
 
-#: src/vnr-window.c:1427
+#: src/vnr-window.c:1430
 msgid "Open Folder"
 msgstr "Åbn mappe"
 
-#: src/vnr-window.c:1427
+#: src/vnr-window.c:1430
 msgid "Open Image"
 msgstr "Åbn billede"
 
-#: src/vnr-window.c:1448
+#: src/vnr-window.c:1451
 msgid "All Images"
 msgstr "Alle billeder"
 
-#: src/vnr-window.c:1454
+#: src/vnr-window.c:1457
 msgid "All Files"
 msgstr "Alle filer"
 
-#: src/vnr-window.c:1526
+#: src/vnr-window.c:1529
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
@@ -322,320 +322,335 @@ msgstr ""
 "  Rasmus Andersen https://launchpad.net/~rkan67\n"
 "  Siyan Panayotov https://launchpad.net/~xsisqox"
 
-#: src/vnr-window.c:1737
+#: src/vnr-window.c:1740
 msgid "Image copied to clipboard."
 msgstr "Billedet er kopieret til udklipsholderen."
 
 #. I18N: The '%s' is replaced with the name of the file.
-#: src/vnr-window.c:1886
+#: src/vnr-window.c:1889
 #, c-format
 msgid "Move \"%s\" to the trash?"
 msgstr "Flyt »%s« til papirkurven?"
 
-#: src/vnr-window.c:1889 src/vnr-window.c:2091 src/vnr-window.c:2100
+#: src/vnr-window.c:1892 src/vnr-window.c:2144 src/vnr-window.c:2156
 msgid "Move to _Trash"
 msgstr "Flyt til _papirkurven"
 
 #. I18N: The '%s' is replaced with the name of the file.
-#: src/vnr-window.c:1902
+#: src/vnr-window.c:1905
 #, c-format
 msgid ""
 "\"%s\" cannot be moved to the trash. Do you want to delete it permanently?"
 msgstr "»%s« kan ikke flyttes til papirkurven. Vil du slette den permanent?"
 
-#: src/vnr-window.c:1906
+#: src/vnr-window.c:1909 src/vnr-window.c:1946
 msgid "If you delete an item, it will be permanently lost."
 msgstr "Hvis du sletter et objekt, vil det være permanent tabt."
 
-#: src/vnr-window.c:1907
+#: src/vnr-window.c:1910 src/vnr-window.c:1947 src/vnr-window.c:2147
+#: src/vnr-window.c:2159
 msgid "_Delete"
 msgstr "_Slet"
 
-#: src/vnr-window.c:1969 src/vnr-window.c:2333 src/vnr-window.c:2740
+#. I18N: The '%s' is replaced with the name of the file to be deleted.
+#: src/vnr-window.c:1942
+#, c-format
+msgid ""
+"Are you sure you want to\n"
+"permanently delete \"%s\"?"
+msgstr ""
+"Er du sikker på, at du vil\n"
+"slette »%s« permanent?"
+
+#: src/vnr-window.c:2010 src/vnr-window.c:2392 src/vnr-window.c:2799
 msgid "The given locations contain no images."
 msgstr "De angivne steder indeholder ikke billeder."
 
-#: src/vnr-window.c:2039
+#: src/vnr-window.c:2092
 msgid "_File"
 msgstr "_Fil"
 
-#: src/vnr-window.c:2040
+#: src/vnr-window.c:2093
 msgid "_Edit"
 msgstr "_Rediger"
 
-#: src/vnr-window.c:2041
+#: src/vnr-window.c:2094
 msgid "_View"
 msgstr "_Vis"
 
-#: src/vnr-window.c:2042
+#: src/vnr-window.c:2095
 msgid "_Image"
 msgstr "_Billede"
 
-#: src/vnr-window.c:2043
+#: src/vnr-window.c:2096
 msgid "_Go"
 msgstr "_Start"
 
-#: src/vnr-window.c:2044
+#: src/vnr-window.c:2097
 msgid "_Help"
 msgstr "_Hjælp"
 
-#: src/vnr-window.c:2046
+#: src/vnr-window.c:2099
 msgid "Open _Image..."
 msgstr "Åbn _billede ..."
 
-#: src/vnr-window.c:2047
+#: src/vnr-window.c:2100
 msgid "Open an Image"
 msgstr "Åbn et billede"
 
-#: src/vnr-window.c:2049
+#: src/vnr-window.c:2102
 msgid "Open _Folder..."
 msgstr "Åbn _mappe ..."
 
-#: src/vnr-window.c:2050
+#: src/vnr-window.c:2103
 msgid "Open a Folder"
 msgstr "Åbn en mappe"
 
-#: src/vnr-window.c:2053
+#: src/vnr-window.c:2106
 msgid "Close window"
 msgstr "Luk vinduet"
 
-#: src/vnr-window.c:2055
+#: src/vnr-window.c:2108
 msgid "_About"
 msgstr "_Om"
 
-#: src/vnr-window.c:2056
+#: src/vnr-window.c:2109
 msgid "About this application"
 msgstr "Om dette program"
 
-#: src/vnr-window.c:2058
+#: src/vnr-window.c:2111
 msgid "_Preferences..."
 msgstr "_Indstillinger ..."
 
-#: src/vnr-window.c:2059
+#: src/vnr-window.c:2112
 msgid "User preferences for Viewnior"
 msgstr "Brugerindstillinger for Viewnior"
 
-#: src/vnr-window.c:2065
+#: src/vnr-window.c:2118
 msgid "Save changes"
 msgstr "Gem ændringer"
 
-#: src/vnr-window.c:2070
+#: src/vnr-window.c:2123
 msgid "_Properties"
 msgstr "_Egenskaber"
 
-#: src/vnr-window.c:2071
+#: src/vnr-window.c:2124
 msgid "Properties"
 msgstr "Egenskaber"
 
-#: src/vnr-window.c:2076
+#: src/vnr-window.c:2129
 msgid "Set as _Wallpaper"
 msgstr "Brug som _baggrundsbillede"
 
-#: src/vnr-window.c:2077
+#: src/vnr-window.c:2130
 msgid "Set the selected image as the desktop background"
 msgstr "Gør det valgte billede til skrivebordsbaggrund"
 
-#: src/vnr-window.c:2082
+#: src/vnr-window.c:2135
 msgid "Copy image to clipboard"
 msgstr "Kopiér billede til udklipsholder"
 
-#: src/vnr-window.c:2083
+#: src/vnr-window.c:2136
 msgid "Copy the image to the clipboard"
 msgstr "Kopiér billedet til udklipsholderen"
 
-#: src/vnr-window.c:2088
+#: src/vnr-window.c:2141
 msgid "Open _With"
 msgstr "Åbn _med"
 
-#: src/vnr-window.c:2089
+#: src/vnr-window.c:2142
 msgid "Open the selected image with a different application"
 msgstr "Åbn det valgte billede med et andet program"
 
-#: src/vnr-window.c:2092 src/vnr-window.c:2101
+#: src/vnr-window.c:2145 src/vnr-window.c:2157
 msgid "Move the current file to the trash"
 msgstr "Flyt den aktuelle fil til papirkurven"
 
-#: src/vnr-window.c:2094
+#: src/vnr-window.c:2148 src/vnr-window.c:2160
+msgid "Permanently delete the current file"
+msgstr "Slet den aktuelle fil permanent"
+
+#: src/vnr-window.c:2150
 msgid "_Properties..."
 msgstr "_Egenskaber ..."
 
-#: src/vnr-window.c:2095
+#: src/vnr-window.c:2151
 msgid "Show information about the current file"
 msgstr "Vis oplysninger om den aktuelle fil"
 
-#: src/vnr-window.c:2097
+#: src/vnr-window.c:2153
 msgid "_Reload"
 msgstr "_Genindlæs"
 
-#: src/vnr-window.c:2098
+#: src/vnr-window.c:2154
 msgid "Reload the current file"
 msgstr "Genindlæs den nuværende fil"
 
-#: src/vnr-window.c:2103 src/vnr-window.c:2118 src/vnr-window.c:2121
+#: src/vnr-window.c:2162 src/vnr-window.c:2177 src/vnr-window.c:2180
 msgid "_Zoom In"
 msgstr "_Zoom Ind"
 
-#: src/vnr-window.c:2104
+#: src/vnr-window.c:2163
 msgid "Enlarge the image"
 msgstr "Forstør billedet"
 
-#: src/vnr-window.c:2106 src/vnr-window.c:2124
+#: src/vnr-window.c:2165 src/vnr-window.c:2183
 msgid "Zoom _Out"
 msgstr "Zoom _ud"
 
-#: src/vnr-window.c:2107 src/vnr-window.c:2119 src/vnr-window.c:2122
-#: src/vnr-window.c:2125
+#: src/vnr-window.c:2166 src/vnr-window.c:2178 src/vnr-window.c:2181
+#: src/vnr-window.c:2184
 msgid "Shrink the image"
 msgstr "Formindsk billedet"
 
-#: src/vnr-window.c:2109
+#: src/vnr-window.c:2168
 msgid "_Normal Size"
 msgstr "_Normal størrelse"
 
-#: src/vnr-window.c:2110
+#: src/vnr-window.c:2169
 msgid "Show the image at its normal size"
 msgstr "Vis billedet i sin normale størrelse"
 
-#: src/vnr-window.c:2112
+#: src/vnr-window.c:2171
 msgid "Best _Fit"
 msgstr "_Tilpas"
 
-#: src/vnr-window.c:2113
+#: src/vnr-window.c:2172
 msgid "Fit the image to the window"
 msgstr "Tilpas billedet til vinduet"
 
-#: src/vnr-window.c:2115
+#: src/vnr-window.c:2174
 msgid "Zoom _50%"
 msgstr "Zoom _50%"
 
-#: src/vnr-window.c:2116
+#: src/vnr-window.c:2175
 msgid "Show the image at half its normal size"
 msgstr "Vis billedet i halvdelen af sin normale størrelse"
 
-#: src/vnr-window.c:2130
+#: src/vnr-window.c:2189
 msgid "Rotate _Clockwise"
 msgstr "Roter _med uret"
 
-#: src/vnr-window.c:2131
+#: src/vnr-window.c:2190
 msgid "Rotate image clockwise"
 msgstr "Roter billedet med uret"
 
-#: src/vnr-window.c:2133
+#: src/vnr-window.c:2192
 msgid "Rotate _Anti-clockwise"
 msgstr "Roter m_od uret"
 
-#: src/vnr-window.c:2134
+#: src/vnr-window.c:2193
 msgid "Rotate image anti-clockwise"
 msgstr "Roter billedet mod uret"
 
-#: src/vnr-window.c:2136
+#: src/vnr-window.c:2195
 msgid "Flip _Vertical"
 msgstr "Vend _lodret"
 
-#: src/vnr-window.c:2137
+#: src/vnr-window.c:2196
 msgid "Flip image vertically"
 msgstr "Vend billedet lodret"
 
-#: src/vnr-window.c:2139
+#: src/vnr-window.c:2198
 msgid "Flip _Horizontal"
 msgstr "Vend _vandret"
 
-#: src/vnr-window.c:2140
+#: src/vnr-window.c:2199
 msgid "Flip image horizontally"
 msgstr "Vend billedet vandret"
 
-#: src/vnr-window.c:2142
+#: src/vnr-window.c:2201
 msgid "Crop..."
 msgstr "Beskær ..."
 
-#: src/vnr-window.c:2148
+#: src/vnr-window.c:2207
 msgid "Full _Screen"
 msgstr "Fuld_skærm"
 
-#: src/vnr-window.c:2149
+#: src/vnr-window.c:2208
 msgid "Show in fullscreen mode"
 msgstr "Vis i fuld skærm"
 
-#: src/vnr-window.c:2151
+#: src/vnr-window.c:2210
 msgid "_Adjust window size"
 msgstr "_Juster vinduesstørrelse"
 
-#: src/vnr-window.c:2152
+#: src/vnr-window.c:2211
 msgid "Adjust window size to fit the image"
 msgstr "Juster vinduestørrelse, så det passer til billedet"
 
-#: src/vnr-window.c:2157
+#: src/vnr-window.c:2216
 msgid "Menu Bar"
 msgstr "Menulinje"
 
-#: src/vnr-window.c:2158
+#: src/vnr-window.c:2217
 msgid "Show Menu Bar"
 msgstr "Vis menulinje"
 
-#: src/vnr-window.c:2160
+#: src/vnr-window.c:2219
 msgid "Toolbar"
 msgstr "Værktøjslinje"
 
-#: src/vnr-window.c:2161
+#: src/vnr-window.c:2220
 msgid "Show Toolbar"
 msgstr "Vis værktøjslinje"
 
-#: src/vnr-window.c:2163
+#: src/vnr-window.c:2222
 #, fuzzy
 msgid "Scrollbar"
 msgstr "Værktøjslinje"
 
-#: src/vnr-window.c:2164
+#: src/vnr-window.c:2223
 #, fuzzy
 msgid "Show Scrollbar"
 msgstr "Vis værktøjslinje"
 
-#: src/vnr-window.c:2166
+#: src/vnr-window.c:2225
 msgid "Statusbar"
 msgstr ""
 
-#: src/vnr-window.c:2167
+#: src/vnr-window.c:2226
 #, fuzzy
 msgid "Show Statusbar"
 msgstr "Vis værktøjslinje"
 
-#: src/vnr-window.c:2172
+#: src/vnr-window.c:2231
 msgid "Sli_deshow"
 msgstr "_Diasshow"
 
-#: src/vnr-window.c:2173
+#: src/vnr-window.c:2232
 msgid "Show in slideshow mode"
 msgstr "Vis i diasshow-tilstand"
 
-#: src/vnr-window.c:2178
+#: src/vnr-window.c:2237
 msgid "_Previous Image"
 msgstr "_Forrige billede"
 
-#: src/vnr-window.c:2179
+#: src/vnr-window.c:2238
 msgid "Go to the previous image of the collection"
 msgstr "Gå til det forrige billede i samlingen"
 
-#: src/vnr-window.c:2181
+#: src/vnr-window.c:2240
 msgid "_Next Image"
 msgstr "_Næste billede"
 
-#: src/vnr-window.c:2182
+#: src/vnr-window.c:2241
 msgid "Go to the next image of the collection"
 msgstr "Gå til det næste billede i samlingen"
 
-#: src/vnr-window.c:2184
+#: src/vnr-window.c:2243
 msgid "_First Image"
 msgstr "_Første billede"
 
-#: src/vnr-window.c:2185
+#: src/vnr-window.c:2244
 msgid "Go to the first image of the collection"
 msgstr "Gå til det første billede i samlingen"
 
-#: src/vnr-window.c:2187
+#: src/vnr-window.c:2246
 msgid "_Last Image"
 msgstr "_Sidste billede"
 
-#: src/vnr-window.c:2188
+#: src/vnr-window.c:2247
 msgid "Go to the last image of the collection"
 msgstr "Gå til det sidste billede i samlingen"
 
@@ -707,11 +722,3 @@ msgstr "Forfatter"
 #: src/uni-exiv2.cpp:127
 msgid "Comment"
 msgstr ""
-
-#, c-format
-#~ msgid ""
-#~ "Are you sure you want to\n"
-#~ "permanently delete \"%s\"?"
-#~ msgstr ""
-#~ "Er du sikker på, at du vil\n"
-#~ "slette »%s« permanent?"
