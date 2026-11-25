@@ -2064,7 +2064,7 @@ static const GtkActionEntry action_entries_image[] = {
     { "FileProperties", GTK_STOCK_PROPERTIES, N_("_Properties..."), "<Alt>Return",
       N_("Show information about the current file"),
       G_CALLBACK (vnr_window_cmd_properties) },
-    { "FileReload", GTK_STOCK_REFRESH, N_("_Reload"), NULL,
+    { "FileReload", GTK_STOCK_REFRESH, N_("_Reload"), "<shift>R",
       N_("Reload the current file"),
       G_CALLBACK (vnr_window_cmd_reload) },
     { "Delete", NULL, N_("_Delete"), "Delete",

@@ -363,6 +363,29 @@ test_random_key (Fixture *fixture, gconstpointer user_data)
     g_assert_false (window->file_list == g_list_first (window->file_list));
 }
 
+/* Shift+R reloads the file from disk, unlike r. This is also the only
+ * test of reloading itself. */
+static void
+test_reload_key (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *path = test_write_png (dir, "a.png", SMALL_W, SMALL_H);
+
+    open_and_show (fixture, path);
+    g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, SMALL_W);
+
+    g_free (test_write_png (dir, "a.png", SMALL_H, SMALL_W));
+    g_assert_true (press_key (fixture->window, GDK_KEY_R, GDK_SHIFT_MASK));
+
+    assert_current (fixture->window, "a.png");
+    g_assert_cmpint (gdk_pixbuf_get_width (fixture->view->pixbuf), ==, SMALL_H);
+    g_assert_cmpint (gdk_pixbuf_get_height (fixture->view->pixbuf), ==, SMALL_W);
+
+    g_free (path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 /*************************************************************/
 /***** Zoom **************************************************/
 /*************************************************************/
@@ -703,6 +726,7 @@ main (int argc, char *argv[])
     ADD ("/window/navigation/random", "a.png", test_random);
     ADD_EMPTY ("/window/navigation/random-single", test_random_single);
     ADD ("/window/navigation/random-key", "a.png", test_random_key);
+    ADD_EMPTY ("/window/navigation/reload-key", test_reload_key);
 
     ADD ("/window/zoom/keys", "a.png", test_zoom_keys);
     ADD ("/window/zoom/steps", "a.png", test_zoom_steps);
