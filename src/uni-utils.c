@@ -85,15 +85,25 @@ uni_rectangle_get_rects_around (GdkRectangle * outer,
             (outer->y + outer->height) - (inner->y + inner->height)};
 }
 
+/* The value of the environment variable @name, or "" when it is unset,
+ * as it can be outside a desktop environment */
+static const gchar *
+getenv_or_empty (const gchar *name)
+{
+    const gchar *value = g_getenv (name);
+
+    return value != NULL ? value : "";
+}
+
 VnrPrefsDesktop
 uni_detect_desktop_environment ()
 {
     VnrPrefsDesktop environment = VNR_PREFS_DESKTOP_GNOME3;
 
-    gchar *xdg_current_desktop = g_ascii_strup(g_getenv("XDG_CURRENT_DESKTOP"), -1);
-    gchar *xdg_session_desktop = g_ascii_strup(g_getenv("XDG_SESSION_DESKTOP"), -1);
-    gchar *desktop_session = g_ascii_strdown(g_getenv("DESKTOP_SESSION"), -1);
-    gchar *gdmsession = g_ascii_strdown(g_getenv("GDMSESSION"), -1);
+    gchar *xdg_current_desktop = g_ascii_strup(getenv_or_empty("XDG_CURRENT_DESKTOP"), -1);
+    gchar *xdg_session_desktop = g_ascii_strup(getenv_or_empty("XDG_SESSION_DESKTOP"), -1);
+    gchar *desktop_session = g_ascii_strdown(getenv_or_empty("DESKTOP_SESSION"), -1);
+    gchar *gdmsession = g_ascii_strdown(getenv_or_empty("GDMSESSION"), -1);
 
     if (!g_strcmp0(xdg_current_desktop, "GNOME") || !g_strcmp0(xdg_session_desktop, "GNOME"))
     {
@@ -113,6 +123,10 @@ uni_detect_desktop_environment ()
     else if (!g_strcmp0(xdg_current_desktop, "MATE") || !g_strcmp0(xdg_session_desktop, "MATE"))
     {
         environment = VNR_PREFS_DESKTOP_MATE;
+    }
+    else if (!g_strcmp0(xdg_current_desktop, "KDE") || !g_strcmp0(xdg_session_desktop, "KDE"))
+    {
+        environment = VNR_PREFS_DESKTOP_KDE;
     }
     else if (!g_strcmp0(xdg_current_desktop, "LXDE") || !g_strcmp0(xdg_session_desktop, "LXDE"))
     {

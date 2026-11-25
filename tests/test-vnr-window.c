@@ -19,6 +19,7 @@
  * xvfb-run, and skips them when it isn't installed. */
 
 #include <string.h>
+#include <unistd.h>
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
 #include "vnr-window.h"
@@ -776,6 +777,60 @@ test_wallpaper_xfce_none (Fixture *fixture, gconstpointer user_data)
     g_free (dir);
 }
 
+static void
+test_wallpaper_plasma (Fixture *fixture, gconstpointer user_data)
+{
+    const gchar *image = VNR_FILE (fixture->window->file_list->data)->path;
+    gchar *dir = test_make_tmp_dir ();
+    gchar *old_path;
+    gchar *log = fake_tool (dir, "plasma-apply-wallpaperimage", "", &old_path);
+    gchar *expected = g_strdup_printf ("%s\n", image);
+    gchar *contents;
+
+    fixture->window->prefs->desktop = VNR_PREFS_DESKTOP_KDE;
+    gtk_action_activate (find_action (fixture->window, "SetAsWallpaper"));
+    g_setenv ("PATH", old_path, TRUE);
+
+    contents = read_log (log);
+    g_assert_cmpstr (contents, ==, expected);
+
+    g_free (contents);
+    g_free (expected);
+    g_free (log);
+    g_free (old_path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* Without the wallpaper tool, the process forked to run it must end
+ * rather than return to the caller as a second copy of the window */
+static void
+test_wallpaper_missing_tool (Fixture *fixture, gconstpointer user_data)
+{
+    gchar *dir = test_make_tmp_dir ();
+    gchar *stray = g_build_filename (dir, "stray", NULL);
+    gchar *old_path = g_strdup (g_getenv ("PATH"));
+    pid_t pid = getpid ();
+
+    g_setenv ("PATH", dir, TRUE);
+    fixture->window->prefs->desktop = VNR_PREFS_DESKTOP_KDE;
+    gtk_action_activate (find_action (fixture->window, "SetAsWallpaper"));
+
+    if (getpid () != pid)
+    {
+        g_file_set_contents (stray, "", 0, NULL);
+        _exit (0);
+    }
+
+    g_setenv ("PATH", old_path, TRUE);
+    g_assert_false (g_file_test (stray, G_FILE_TEST_EXISTS));
+
+    g_free (old_path);
+    g_free (stray);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -844,6 +899,8 @@ main (int argc, char *argv[])
 
     ADD ("/window/wallpaper/xfce", "a.png", test_wallpaper_xfce);
     ADD ("/window/wallpaper/xfce-none", "a.png", test_wallpaper_xfce_none);
+    ADD ("/window/wallpaper/plasma", "a.png", test_wallpaper_plasma);
+    ADD ("/window/wallpaper/missing-tool", "a.png", test_wallpaper_missing_tool);
 
     result = g_test_run ();
 

@@ -85,10 +85,43 @@ change_zoom_mode_cb (GtkComboBox *widget, gpointer user_data)
     vnr_prefs_save(VNR_PREFS(user_data));
 }
 
+/* The desktops in the order the preferences dialog lists them, which
+ * isn't the order of their values */
+static const VnrPrefsDesktop desktop_order[] = {
+    VNR_PREFS_DESKTOP_GNOME2,
+    VNR_PREFS_DESKTOP_GNOME3,
+    VNR_PREFS_DESKTOP_XFCE,
+    VNR_PREFS_DESKTOP_LXDE,
+    VNR_PREFS_DESKTOP_PUPPY,
+    VNR_PREFS_DESKTOP_FLUXBOX,
+    VNR_PREFS_DESKTOP_NITROGEN,
+    VNR_PREFS_DESKTOP_MATE,
+    VNR_PREFS_DESKTOP_CINNAMON,
+    VNR_PREFS_DESKTOP_KDE,
+    VNR_PREFS_DESKTOP_AUTO,
+};
+
+/* The position of @desktop in the dialog's list, or that of
+ * Autodetect for a value no desktop has */
+static gint
+desktop_position (VnrPrefsDesktop desktop)
+{
+    guint i;
+
+    for (i = 0; i < G_N_ELEMENTS (desktop_order); i++)
+        if (desktop_order[i] == desktop)
+            return i;
+    return desktop_position (VNR_PREFS_DESKTOP_AUTO);
+}
+
 static void
 change_desktop_env_cb (GtkComboBox *widget, gpointer user_data)
 {
-    VNR_PREFS(user_data)->desktop = gtk_combo_box_get_active(widget);
+    gint active = gtk_combo_box_get_active (widget);
+
+    if (active < 0 || active >= (gint) G_N_ELEMENTS (desktop_order))
+        return;
+    VNR_PREFS(user_data)->desktop = desktop_order[active];
     vnr_prefs_save(VNR_PREFS(user_data));
 }
 
@@ -206,7 +239,7 @@ build_dialog (VnrPrefs *prefs)
     };
     const gchar *desktops[] = {
         "GNOME 2", "GNOME 3", "XFCE", "LXDE", "PUPPY", "FluxBox", "Nitrogen", "MATE",
-        "Cinnamon", _("Autodetect"), NULL
+        "Cinnamon", "KDE Plasma", _("Autodetect"), NULL
     };
     const gchar *wheel_actions[] = {
         _("Navigate images"), _("Zoom image"), _("Scroll image up/down"), NULL
@@ -267,7 +300,7 @@ build_dialog (VnrPrefs *prefs)
 
     /* Desktop combo box */
     gtk_box_pack_end (GTK_BOX (gtk_builder_get_object (builder, "desktop_box")),
-                      combo_new (desktops, prefs->desktop,
+                      combo_new (desktops, desktop_position (prefs->desktop),
                                  G_CALLBACK (change_desktop_env_cb), prefs),
                       FALSE, FALSE, 0);
 

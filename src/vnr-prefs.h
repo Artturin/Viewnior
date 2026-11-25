@@ -57,6 +57,9 @@ typedef enum{
     VNR_PREFS_DESKTOP_MATE,
     VNR_PREFS_DESKTOP_CINNAMON,
     VNR_PREFS_DESKTOP_AUTO,
+    /* The preference is saved as a number: add new desktops after
+     * AUTO, so saved values keep their meaning */
+    VNR_PREFS_DESKTOP_KDE,
 } VnrPrefsDesktop;
 
 typedef enum{
