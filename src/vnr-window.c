@@ -1527,10 +1527,16 @@ vnr_window_cmd_about (GtkAction *action, VnrWindow *window)
                    NULL);
 }
 
+/* Sets @path as the wallpaper of every monitor and workspace that XFCE
+ * has one for on the screen @win is on */
 static void
-vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
+vnr_set_wallpaper_xfce (VnrWindow *win, const gchar *path)
 {
-    pid_t pid;
+    gchar *list_argv[] = { "xfconf-query", "-c", "xfce4-desktop", "-l", NULL };
+    gchar *listing = NULL;
+    gchar **props;
+    gchar **prop;
+    GError *error = NULL;
     int screen_number = 0;
 
 #ifdef GDK_WINDOWING_X11
@@ -1539,17 +1545,55 @@ vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
         screen_number = gdk_x11_screen_get_screen_number (screen);
 #endif
 
+    if (!g_spawn_sync (NULL, list_argv, NULL,
+                       G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+                       NULL, NULL, &listing, NULL, NULL, &error))
+    {
+        g_warning ("Cannot list the XFCE desktop settings: %s", error->message);
+        g_error_free (error);
+        return;
+    }
+
+    props = uni_xfce_wallpaper_properties (listing, screen_number);
+    for (prop = props; *prop != NULL; prop++)
+    {
+        gchar *set_argv[] = { "xfconf-query", "-c", "xfce4-desktop",
+                              "-p", *prop, "--create", "--type", "string",
+                              "--set", (gchar *) path, NULL };
+
+        if (!g_spawn_sync (NULL, set_argv, NULL,
+                           G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL,
+                           NULL, NULL, NULL, NULL, NULL, &error))
+        {
+            g_warning ("Cannot set the XFCE wallpaper: %s", error->message);
+            g_error_free (error);
+            break;
+        }
+    }
+
+    g_strfreev (props);
+    g_free (listing);
+}
+
+static void
+vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
+{
+    pid_t pid;
+    VnrPrefsDesktop desktop_environment = win->prefs->desktop;
+
+    if (desktop_environment == VNR_PREFS_DESKTOP_AUTO)
+        desktop_environment = uni_detect_desktop_environment();
+
+    if (desktop_environment == VNR_PREFS_DESKTOP_XFCE)
+    {
+        vnr_set_wallpaper_xfce (win, VNR_FILE(win->file_list->data)->path);
+        return;
+    }
+
     pid = fork();
 
     if ( pid == 0 ) {
         gchar * tmp;
-
-        VnrPrefsDesktop desktop_environment = win->prefs->desktop;
-
-        if (desktop_environment == VNR_PREFS_DESKTOP_AUTO)
-        {
-            desktop_environment = uni_detect_desktop_environment();
-        }
 
         switch(desktop_environment) {
             case VNR_PREFS_DESKTOP_GNOME2:
@@ -1570,17 +1614,6 @@ vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
                 execlp("gsettings", "gsettings",
                         "set", "org.gnome.desktop.background",
                         "picture-uri", tmp,
-                        NULL);
-                break;
-            case VNR_PREFS_DESKTOP_XFCE:
-                tmp = g_strdup_printf("/backdrop/screen%d/monitor0/workspace0/last-image",
-                                        screen_number);
-                execlp("xfconf-query", "xfconf-query",
-                        "-c", "xfce4-desktop",
-                        "-p", tmp,
-                        "--type", "string",
-                        "--set",
-                        VNR_FILE(win->file_list->data)->path,
                         NULL);
                 break;
             case VNR_PREFS_DESKTOP_LXDE:

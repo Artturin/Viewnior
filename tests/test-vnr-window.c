@@ -675,6 +675,107 @@ make_folders (void)
     empty_dir = test_make_tmp_dir ();
 }
 
+/*************************************************************/
+/***** Wallpaper *********************************************/
+/*************************************************************/
+
+/* Puts a stand-in for @tool first on PATH: a script that prints
+ * @listing when called with -l, and otherwise appends its arguments to
+ * the file it returns. Restore PATH with @old_path. */
+static gchar *
+fake_tool (const gchar *dir, const gchar *tool, const gchar *listing, gchar **old_path)
+{
+    gchar *log = g_build_filename (dir, "log", NULL);
+    gchar *script = g_strdup_printf ("#!/bin/sh\n"
+                                     "for arg; do [ \"$arg\" = -l ] && { printf '%%s' '%s'; exit; }; done\n"
+                                     "echo \"$*\" >> '%s'\n",
+                                     listing, log);
+    gchar *path = test_write_text (dir, tool, script);
+    gchar *new_path;
+
+    g_assert_cmpint (g_chmod (path, 0755), ==, 0);
+    *old_path = g_strdup (g_getenv ("PATH"));
+    new_path = g_strconcat (dir, ":", *old_path, NULL);
+    g_setenv ("PATH", new_path, TRUE);
+
+    g_free (new_path);
+    g_free (path);
+    g_free (script);
+    return log;
+}
+
+static gchar *
+read_log (const gchar *log)
+{
+    gchar *contents = NULL;
+
+    g_assert_true (g_file_get_contents (log, &contents, NULL, NULL));
+    return contents;
+}
+
+/* XFCE 4.14 and later name the monitors after their connectors. Every
+ * wallpaper of the screen is set, and nothing else. */
+static void
+test_wallpaper_xfce (Fixture *fixture, gconstpointer user_data)
+{
+    const gchar *image = VNR_FILE (fixture->window->file_list->data)->path;
+    gchar *dir = test_make_tmp_dir ();
+    gchar *old_path;
+    gchar *log = fake_tool (dir, "xfconf-query",
+                            "/backdrop/screen0/monitorHDMI-1/workspace0/image-style\n"
+                            "/backdrop/screen0/monitorHDMI-1/workspace0/last-image\n"
+                            "/backdrop/screen0/monitoreDP-1/workspace1/last-image\n"
+                            "/backdrop/screen1/monitorDP-2/workspace0/last-image\n",
+                            &old_path);
+    gchar *expected = g_strdup_printf (
+        "-c xfce4-desktop -p /backdrop/screen0/monitorHDMI-1/workspace0/last-image --create --type string --set %s\n"
+        "-c xfce4-desktop -p /backdrop/screen0/monitoreDP-1/workspace1/last-image --create --type string --set %s\n",
+        image, image);
+    gchar *contents;
+
+    fixture->window->prefs->desktop = VNR_PREFS_DESKTOP_XFCE;
+    gtk_action_activate (find_action (fixture->window, "SetAsWallpaper"));
+    g_setenv ("PATH", old_path, TRUE);
+
+    contents = read_log (log);
+    g_assert_cmpstr (contents, ==, expected);
+
+    g_free (contents);
+    g_free (expected);
+    g_free (log);
+    g_free (old_path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
+/* Before XFCE saved a wallpaper, the property of XFCE 4.12 is created */
+static void
+test_wallpaper_xfce_none (Fixture *fixture, gconstpointer user_data)
+{
+    const gchar *image = VNR_FILE (fixture->window->file_list->data)->path;
+    gchar *dir = test_make_tmp_dir ();
+    gchar *old_path;
+    gchar *log = fake_tool (dir, "xfconf-query", "", &old_path);
+    gchar *expected = g_strdup_printf (
+        "-c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create --type string --set %s\n",
+        image);
+    gchar *contents;
+
+    fixture->window->prefs->desktop = VNR_PREFS_DESKTOP_XFCE;
+    gtk_action_activate (find_action (fixture->window, "SetAsWallpaper"));
+    g_setenv ("PATH", old_path, TRUE);
+
+    contents = read_log (log);
+    g_assert_cmpstr (contents, ==, expected);
+
+    g_free (contents);
+    g_free (expected);
+    g_free (log);
+    g_free (old_path);
+    test_rm_rf (dir);
+    g_free (dir);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -740,6 +841,9 @@ main (int argc, char *argv[])
     ADD_EMPTY ("/window/edit/save-after-failed-open", test_save_after_failed_open);
     ADD_EMPTY ("/window/edit/save-disabled-unwritable", test_save_disabled_unwritable);
     ADD_EMPTY ("/window/edit/save-unwritable", test_save_unwritable);
+
+    ADD ("/window/wallpaper/xfce", "a.png", test_wallpaper_xfce);
+    ADD ("/window/wallpaper/xfce-none", "a.png", test_wallpaper_xfce_none);
 
     result = g_test_run ();
 

@@ -20,6 +20,7 @@
  * along with Viewnior.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 #include "uni-utils.h"
 
 /**
@@ -132,6 +133,56 @@ uni_detect_desktop_environment ()
     g_free(gdmsession);
 
     return environment;
+}
+
+/**
+ * uni_xfce_wallpaper_properties:
+ * @listing: (nullable): the output of `xfconf-query -c xfce4-desktop -l`
+ * @screen_number: the X screen to set the wallpaper on
+ * @returns: (transfer full): a %NULL-terminated array of the xfconf
+ *           properties holding the wallpaper of each monitor and
+ *           workspace of @screen_number
+ *
+ * XFCE 4.14 and later name each monitor after its connector, as in
+ * /backdrop/screen0/monitoreDP-1/workspace0/last-image, so the
+ * properties have to be looked up rather than guessed. When @listing
+ * has none, which is the case before XFCE saved a wallpaper for the
+ * first time, the property XFCE 4.12 uses is returned.
+ **/
+gchar **
+uni_xfce_wallpaper_properties (const gchar *listing, int screen_number)
+{
+    GPtrArray *props = g_ptr_array_new ();
+    gchar *prefix = g_strdup_printf ("/backdrop/screen%d/", screen_number);
+    gchar **lines = g_strsplit (listing != NULL ? listing : "", "\n", -1);
+    gchar **line;
+
+    for (line = lines; *line != NULL; line++)
+    {
+        const gchar *prop = g_strstrip (*line);
+        gchar **parts;
+
+        if (!g_str_has_prefix (prop, prefix))
+            continue;
+
+        /* monitor<name>/workspace<number>/last-image */
+        parts = g_strsplit (prop + strlen (prefix), "/", -1);
+        if (g_strv_length (parts) == 3
+            && g_str_has_prefix (parts[0], "monitor")
+            && g_str_has_prefix (parts[1], "workspace")
+            && g_strcmp0 (parts[2], "last-image") == 0)
+            g_ptr_array_add (props, g_strdup (prop));
+        g_strfreev (parts);
+    }
+
+    if (props->len == 0)
+        g_ptr_array_add (props, g_strdup_printf ("%smonitor0/workspace0/last-image",
+                                                 prefix));
+    g_ptr_array_add (props, NULL);
+
+    g_strfreev (lines);
+    g_free (prefix);
+    return (gchar **) g_ptr_array_free (props, FALSE);
 }
 
 /**
