@@ -124,6 +124,10 @@ uni_detect_desktop_environment ()
     {
         environment = VNR_PREFS_DESKTOP_MATE;
     }
+    else if (!g_strcmp0(xdg_current_desktop, "KDE") || !g_strcmp0(xdg_session_desktop, "KDE"))
+    {
+        environment = VNR_PREFS_DESKTOP_KDE;
+    }
     else if (!g_strcmp0(xdg_current_desktop, "LXDE") || !g_strcmp0(xdg_session_desktop, "LXDE"))
     {
         environment = VNR_PREFS_DESKTOP_LXDE;

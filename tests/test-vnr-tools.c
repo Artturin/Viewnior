@@ -195,6 +195,8 @@ assert_desktop (const gchar *var, const gchar *value, VnrPrefsDesktop expected)
 static void
 test_detect_desktop (void)
 {
+    assert_desktop ("XDG_CURRENT_DESKTOP", "KDE", VNR_PREFS_DESKTOP_KDE);
+    assert_desktop ("XDG_SESSION_DESKTOP", "KDE", VNR_PREFS_DESKTOP_KDE);
     assert_desktop ("XDG_CURRENT_DESKTOP", "XFCE", VNR_PREFS_DESKTOP_XFCE);
     assert_desktop ("XDG_CURRENT_DESKTOP", "MATE", VNR_PREFS_DESKTOP_MATE);
     assert_desktop ("XDG_CURRENT_DESKTOP", "GNOME", VNR_PREFS_DESKTOP_GNOME3);

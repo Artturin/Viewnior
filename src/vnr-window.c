@@ -1645,6 +1645,12 @@ vnr_set_wallpaper(GtkAction *action, VnrWindow *win)
                         "picture-uri", tmp,
                         NULL);
                 break;
+            case VNR_PREFS_DESKTOP_KDE:
+                /* Plasma 5.24 and later */
+                execlp("plasma-apply-wallpaperimage", "plasma-apply-wallpaperimage",
+                        VNR_FILE(win->file_list->data)->path,
+                        NULL);
+                break;
             default:
                 _exit(0);
         }
