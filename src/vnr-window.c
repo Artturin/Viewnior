@@ -86,6 +86,7 @@ const gchar *ui_definition = "<ui>"
     "</menu>"
     "<menu action=\"Edit\">"
       "<menuitem action=\"FileDelete\"/>"
+      "<menuitem action=\"FilePermanentDelete\"/>"
       "<separator/>"
       "<menuitem action=\"EditPreferences\"/>"
     "</menu>"
@@ -141,6 +142,7 @@ const gchar *ui_definition = "<ui>"
     "<separator/>"
     "<menu action=\"Edit\">"
       "<menuitem action=\"FileDelete\"/>"
+      "<menuitem action=\"FilePermanentDelete\"/>"
       "<separator/>"
     "</menu>"
     "<menu action=\"View\">"
@@ -218,6 +220,7 @@ const gchar *ui_definition = "<ui>"
   "<accelerator name=\"ControlKPAddAccel\" action=\"ControlKpAdd\"/>"
   "<accelerator name=\"ControlKPSubAccel\" action=\"ControlKpSub\"/>"
   "<accelerator name=\"DeleteAccel\" action=\"Delete\"/>"
+  "<accelerator name=\"PermanentDeleteAccel\" action=\"PermanentDelete\"/>"
 "</ui>";
 
 
@@ -1835,18 +1838,133 @@ vnr_window_cmd_slideshow (GtkAction *action, VnrWindow *window)
     }
 }
 
-static void
-vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
+/* Asks the user to confirm removing the file shown, in a dialog with
+ * the text @primary and @secondary (may be NULL). Returns TRUE if they
+ * chose @button. */
+static gboolean
+vnr_window_confirm_delete (VnrWindow *window, const gchar *primary,
+                           const gchar *secondary, const gchar *button)
 {
-    GtkWidget *dlg = NULL;
-    const gchar *file_path;
-    gchar *markup, *prompt, *warning;
+    GtkWidget *dlg;
+    gint response;
+
+    dlg = gtk_message_dialog_new (GTK_WINDOW (window),
+                                  GTK_DIALOG_MODAL,
+                                  GTK_MESSAGE_WARNING,
+                                  GTK_BUTTONS_NONE,
+                                  "%s", primary);
+    if (secondary != NULL)
+        gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dlg),
+                                                  "%s", secondary);
+
+    gtk_dialog_add_buttons (GTK_DIALOG (dlg),
+                            VNR_GTK_LABEL ("_Cancel"), GTK_RESPONSE_CANCEL,
+                            button, GTK_RESPONSE_YES,
+                            NULL);
+
+    response = gtk_dialog_run (GTK_DIALOG (dlg));
+    gtk_widget_destroy (dlg);
+
+    return response == GTK_RESPONSE_YES;
+}
+
+/* Moves the file shown to the trash, asking first if the preferences say
+ * so. Where its file system has no trash, offers to delete it permanently
+ * instead, and always asks before that. Returns TRUE if the file is gone.
+ * On FALSE, @error is set unless the user said no. */
+static gboolean
+vnr_window_trash_current (VnrWindow *window, GError **error)
+{
+    VnrFile *vnr_file = VNR_FILE (window->file_list->data);
+    GError *trash_error = NULL;
+    GFile *file;
+    gchar *prompt;
+    gboolean removed;
+
+    if (window->prefs->confirm_delete)
+    {
+        gboolean confirmed;
+
+        /* I18N: The '%s' is replaced with the name of the file. */
+        prompt = g_strdup_printf (_("Move \"%s\" to the trash?"),
+                                  vnr_file->display_name);
+        confirmed = vnr_window_confirm_delete (window, prompt, NULL,
+                                               _("Move to _Trash"));
+        g_free (prompt);
+
+        if (!confirmed)
+            return FALSE;
+    }
+
+    file = g_file_new_for_path (vnr_file->path);
+    removed = g_file_trash (file, NULL, &trash_error);
+
+    if (!removed && g_error_matches (trash_error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+    {
+        /* I18N: The '%s' is replaced with the name of the file. */
+        prompt = g_strdup_printf (_("\"%s\" cannot be moved to the trash. "
+                                    "Do you want to delete it permanently?"),
+                                  vnr_file->display_name);
+        if (vnr_window_confirm_delete (window, prompt,
+                                       _("If you delete an item, it will be permanently lost."),
+                                       _("_Delete")))
+        {
+            removed = g_file_delete (file, NULL, error);
+        }
+        g_free (prompt);
+        g_clear_error (&trash_error);
+    }
+    else if (!removed)
+    {
+        g_propagate_error (error, trash_error);
+    }
+
+    g_object_unref (file);
+    return removed;
+}
+
+/* Deletes the file shown permanently. Always asks first, whatever the
+ * preferences say, as there is no getting the file back. Returns TRUE if
+ * the file is gone. On FALSE, @error is set unless the user said no. */
+static gboolean
+vnr_window_delete_current (VnrWindow *window, GError **error)
+{
+    VnrFile *vnr_file = VNR_FILE (window->file_list->data);
+    GFile *file;
+    gchar *prompt;
+    gboolean confirmed;
+    gboolean removed;
+
+    /* I18N: The '%s' is replaced with the name of the file to be deleted. */
+    prompt = g_strdup_printf (_("Are you sure you want to\n"
+                                "permanently delete \"%s\"?"),
+                              vnr_file->display_name);
+    confirmed = vnr_window_confirm_delete (window, prompt,
+                                           _("If you delete an item, it will be permanently lost."),
+                                           _("_Delete"));
+    g_free (prompt);
+
+    if (!confirmed)
+        return FALSE;
+
+    file = g_file_new_for_path (vnr_file->path);
+    removed = g_file_delete (file, NULL, error);
+    g_object_unref (file);
+
+    return removed;
+}
+
+/* Removes the file shown, to the trash or @permanently, and shows the
+ * next image. */
+static void
+vnr_window_remove_current (VnrWindow *window, gboolean permanently)
+{
+    GError *error = NULL;
     gboolean restart_slideshow = FALSE;
     gboolean restart_autohide_timeout = FALSE;
     gboolean cursor_was_hidden = FALSE;
 
-    /* Used to get rid of the "may be used uninitialised" warning */
-    markup = prompt = warning = NULL;
+    g_return_if_fail (window->file_list != NULL);
 
     if(window->mode == VNR_WINDOW_MODE_SLIDESHOW)
     {
@@ -1864,90 +1982,46 @@ vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
     if(window->fs_source != NULL)
         restart_autohide_timeout = TRUE;
 
-    g_return_if_fail (window->file_list != NULL);
-
-    file_path = VNR_FILE(window->file_list->data)->path;
-
-    if(window->prefs->confirm_delete)
+    if(permanently ? vnr_window_delete_current(window, &error)
+                   : vnr_window_trash_current(window, &error))
     {
-        warning = _("If you delete an item, it will be permanently lost.");
+        GList *next;
 
-        /* I18N: The '%s' is replaced with the name of the file to be deleted. */
-        prompt = g_strdup_printf (_("Are you sure you want to\n"
-                                    "permanently delete \"%s\"?"),
-                                  VNR_FILE(window->file_list->data)->display_name);
-        markup = g_markup_printf_escaped ("<span weight=\"bold\" size=\"larger\">%s</span>\n\n%s",
-                                          prompt, warning);
+        next = g_list_next(window->file_list);
+        if(next == NULL)
+            next = g_list_first(window->file_list);
 
-
-        dlg = gtk_message_dialog_new(GTK_WINDOW(window),
-                                     GTK_DIALOG_MODAL,
-                                     GTK_MESSAGE_WARNING,
-                                     GTK_BUTTONS_NONE,
-                                     NULL);
-
-        gtk_message_dialog_set_markup (GTK_MESSAGE_DIALOG (dlg),
-                                       markup);
-
-        gtk_dialog_add_buttons (GTK_DIALOG (dlg),
-                                VNR_GTK_LABEL ("_Cancel"), GTK_RESPONSE_CANCEL,
-                                _("_Delete"), GTK_RESPONSE_YES,
-                                NULL);
-    }
-
-    if(!window->prefs->confirm_delete || gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_YES )
-    {
-        GFile *file;
-        GError *error = NULL;
-
-        file = g_file_new_for_path(file_path);
-        g_file_delete(file, NULL, &error);
-
-        if( error != NULL )
+        if(g_list_length(g_list_first(window->file_list)) != 1)
+            window->file_list = g_list_delete_link (window->file_list, window->file_list);
+        else
         {
-            vnr_message_area_show(VNR_MESSAGE_AREA (window->msg_area), TRUE,
-                                   error->message, FALSE);
+            g_list_free(window->file_list);
+            next = NULL;
+        }
+
+        if(next == NULL)
+        {
+            vnr_window_set_list(window, NULL, FALSE);
+            vnr_window_show_load_error(window,
+                                       _("The given locations contain no images."));
             restart_slideshow = FALSE;
+
+            if(gtk_widget_get_visible(window->props_dlg))
+                vnr_properties_dialog_clear(VNR_PROPERTIES_DIALOG(window->props_dlg));
         }
         else
         {
-            GList *next;
-
-            next = g_list_next(window->file_list);
-            if(next == NULL)
-                next = g_list_first(window->file_list);
-
-            if(g_list_length(g_list_first(window->file_list)) != 1)
-                window->file_list = g_list_delete_link (window->file_list, window->file_list);
-            else
-            {
-                g_list_free(window->file_list);
-                next = NULL;
-            }
-
-            if(next == NULL)
-            {
-                vnr_window_set_list(window, NULL, FALSE);
-                vnr_window_show_load_error(window,
-                                           _("The given locations contain no images."));
-                restart_slideshow = FALSE;
-
-
-                if(gtk_widget_get_visible(window->props_dlg))
-                    vnr_properties_dialog_clear(VNR_PROPERTIES_DIALOG(window->props_dlg));
-            }
-            else
-            {
-                vnr_window_set_list(window, next, FALSE);
-                if(window->prefs->confirm_delete && !window->cursor_is_hidden)
-                    vnr_window_set_busy_cursor(GTK_WIDGET(dlg), TRUE);
-
-                vnr_window_close(window);
-                vnr_window_open(window, FALSE);
-                if(window->prefs->confirm_delete && !window->cursor_is_hidden)
-                    vnr_window_set_busy_cursor(GTK_WIDGET(dlg), FALSE);
-            }
+            vnr_window_set_list(window, next, FALSE);
+            vnr_window_close(window);
+            vnr_window_open(window, FALSE);
         }
+    }
+    else if(error != NULL)
+    {
+        vnr_message_area_show(VNR_MESSAGE_AREA (window->msg_area), TRUE,
+                              error->message, FALSE);
+        g_error_free(error);
+        restart_slideshow = FALSE;
     }
 
     window->disable_autohide = FALSE;
@@ -1958,13 +2032,18 @@ vnr_window_cmd_delete(GtkAction *action, VnrWindow *window)
         vnr_window_hide_cursor(window);
     if(restart_autohide_timeout)
         fullscreen_set_timeout(window);
+}
 
-    if(window->prefs->confirm_delete)
-    {
-        g_free(prompt);
-        g_free(markup);
-        gtk_widget_destroy( dlg );
-    }
+static void
+vnr_window_cmd_trash (GtkAction *action, VnrWindow *window)
+{
+    vnr_window_remove_current (window, FALSE);
+}
+
+static void
+vnr_window_cmd_delete (GtkAction *action, VnrWindow *window)
+{
+    vnr_window_remove_current (window, TRUE);
 }
 
 static void
@@ -2058,8 +2137,11 @@ static const GtkActionEntry action_entries_image[] = {
     { "FileOpenWith", NULL, N_("Open _With"), NULL,
       N_("Open the selected image with a different application"),
       NULL},
-    { "FileDelete", GTK_STOCK_DELETE, N_("_Delete"), NULL,
-      N_("Delete the current file"),
+    { "FileDelete", "user-trash", N_("Move to _Trash"), NULL,
+      N_("Move the current file to the trash"),
+      G_CALLBACK (vnr_window_cmd_trash) },
+    { "FilePermanentDelete", "edit-delete", N_("_Delete"), NULL,
+      N_("Permanently delete the current file"),
       G_CALLBACK (vnr_window_cmd_delete) },
     { "FileProperties", GTK_STOCK_PROPERTIES, N_("_Properties..."), "<Alt>Return",
       N_("Show information about the current file"),
@@ -2067,8 +2149,11 @@ static const GtkActionEntry action_entries_image[] = {
     { "FileReload", GTK_STOCK_REFRESH, N_("_Reload"), "<shift>R",
       N_("Reload the current file"),
       G_CALLBACK (vnr_window_cmd_reload) },
-    { "Delete", NULL, N_("_Delete"), "Delete",
-      N_("Delete the current file"),
+    { "Delete", NULL, N_("Move to _Trash"), "Delete",
+      N_("Move the current file to the trash"),
+      G_CALLBACK (vnr_window_cmd_trash) },
+    { "PermanentDelete", NULL, N_("_Delete"), "<shift>Delete",
+      N_("Permanently delete the current file"),
       G_CALLBACK (vnr_window_cmd_delete) },
     { "ViewZoomIn", GTK_STOCK_ZOOM_IN, N_("_Zoom In"), "<control>plus",
       N_("Enlarge the image"),
